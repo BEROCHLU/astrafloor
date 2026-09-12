@@ -713,11 +713,11 @@ export default function Home() {
                 {
                   id: 'upgrade',
                   icon: <ArrowUpRight />,
-                  name: 'Weapon Damage Upgrade',
+                  name: 'Weapon Upgrade',
                   desc:
                     s.level >= 2
                       ? 'MAX LEVEL'
-                      : '+35% all weapon damage (Up to Lv.2)',
+                      : '+35% all weapon damage (Up to Lv.2, except explosive)',
                   price: 1000 + s.level * 1000,
                 },
                 {

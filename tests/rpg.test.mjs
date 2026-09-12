@@ -15,7 +15,7 @@ function fixture(t) {
     state: { mode: 'shop', wave: 1, health: 100, armor: 100, cash: 10000, kills: 0, remaining: 10,
       owned: [true, false, false, false], katana: false, g18c: false, pouch: false, level: 0,
       grenades: 3, medicalKits: 3, healCooldown: 0 },
-    ammo: [12, 30, 5, 1], reserve: [48, 120, 15, 7], weaponIndex: 0,
+    ammo: [12, 30, 5, 1], reserve: [48, 120, 18, 7], weaponIndex: 0,
     viewRecoil: new WeaponRecoil(), recoil: 0, pitch: 0, yaw: 0,
     cooldown: 0, reloadTime: 0, sniperBoltTime: 0, meleeTime: 0, grenadeThrowTime: 0,
     aiming: false, difficultyMode: 'normal', difficulty: 1,
@@ -272,7 +272,7 @@ test('leaving combat removes rockets and retry, title and boss debug reset the f
     assert.equal(g.rockets.length, 0);
     assert.deepEqual(g.state.owned, [true, false, false, false]);
     assert.deepEqual(g.ammo, [12, 30, 5, 1]);
-    assert.deepEqual(g.reserve, [48, 120, 15, 7]);
+    assert.deepEqual(g.reserve, [48, 120, 18, 7]);
   }
   assert.equal(g.blasts.length, 0);
 });

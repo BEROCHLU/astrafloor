@@ -81,7 +81,7 @@ Controls use a simple, familiar PC FPS layout to help newcomers get comfortable 
 2. **Automatic Health Restoration**: Clearing a wave restores player HP to 100. Armor, ammunition, and consumables are not restored automatically.
 3. **Preparation Shop**:
    - Earn credits (₡) from enemy kills and wave completion bonuses.
-   - The shop has no timer. Purchase weapons, damage upgrades, ammunition refills, armor reinforcement, Medical Kits, and grenades.
+   - The shop has no timer. Purchase weapons, weapon upgrades, ammunition refills, armor reinforcement, Medical Kits, and grenades.
    - All equipment, upgrades, credits, and remaining supplies carry over to subsequent waves.
    - When ready, press **NEXT WAVE** (or **FACE FINAL BOSS** before Wave 7) to deploy.
 
@@ -111,10 +111,11 @@ Controls use a simple, familiar PC FPS layout to help newcomers get comfortable 
 | **H1 Service Pistol** | 1 | Starting semi-auto sidearm with a 12-round magazine |
 | **G18C Machine Pistol** | 1 | Shop upgrade (₡750). 33-round extended magazine spitting ~882 RPM rapid full-auto fire |
 | **AR-2 Assault Rifle** | 2 | Shop purchase (₡800). 30-round sustained full-auto rifle; ideal for mid-range fire suppression |
-| **SR-3 Sniper Rifle** | 3 | Shop purchase (₡1,100). High-damage bolt-action rifle with 5× scope and up to 3-target penetration |
+| **SR-3 Sniper Rifle** | 3 | Shop purchase (₡1,100). High-damage bolt-action rifle (5-round magazine, 18 reserve) with 5× scope and up to 3-target penetration |
 | **RPG-7 Rocket Launcher** | 4 | Shop purchase (₡4,000). Straight-flying rockets at 60 m/s with a wide-area blast |
 | **Katana** | `V` | Shop upgrade (₡1,000). A horizontal fan sweep with 4.2m reach that strikes multiple enemies in front of you |
 | **Ammo Pouch** | Upgrade | Shop purchase (₡1,000). +50% reserve ammunition capacity, +2 grenade slots. Instantly refills all ammo and grenades |
+| **Weapon Upgrade** | Upgrade | Shop purchase (Lv. 1: ₡1,000 / Lv. 2: ₡2,000). Increases all firearm bullet and melee damage by +35% per tier (up to Lv. 2 / +70% total, except explosive) |
 
 ---
 

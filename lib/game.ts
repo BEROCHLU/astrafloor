@@ -200,7 +200,7 @@ const WEAPONS = [
   {
     name: 'SR-3 SNIPER RIFLE',
     mag: 5,
-    reserve: 15,
+    reserve: 18,
     damage: 150,
     rate: SNIPER_BOLT_DURATION,
     reload: 2.5,

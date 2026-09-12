@@ -130,7 +130,7 @@ test('supplies replenish kits/ammo and cannot charge for full stock or unknown i
   assert.equal(g.state.cash, 950);
   g.buy('ammo');
   assert.deepEqual(g.ammo, [12, 30, 5, 1]);
-  assert.deepEqual(g.reserve, [48, 120, 15, 7]);
+  assert.deepEqual(g.reserve, [48, 120, 18, 7]);
   assert.equal(g.state.cash, 850);
   g.buy('ammo');
   assert.equal(g.state.cash, 850);
@@ -160,7 +160,7 @@ test('upgrade caps at two levels', () => {
   assert.equal(g.state.level, 2);
   assert.equal(g.state.cash, 7000);
 });
-test('weapon damage upgrade scales by +35% per level up to Lv.2 for 1000 and 2000 credits, applying to shoot and melee', () => {
+test('weapon upgrade scales by +35% per level up to Lv.2 for 1000 and 2000 credits, applying to shoot and melee', () => {
   const g = fixture();
   g.state.cash = 10000;
 
@@ -529,7 +529,7 @@ test('sniper purchase equips slot 3 once and supplies a five-round magazine', ()
   assert.equal(g.weaponIndex, 2);
   assert.equal(g.state.owned[2], true);
   assert.equal(g.ammo[2], 5);
-  assert.equal(g.reserve[2], 15);
+  assert.equal(g.reserve[2], 18);
   assert.equal(g.state.cash, 3800);
   g.buy('sniper');
   assert.equal(g.state.cash, 3800);
@@ -895,7 +895,7 @@ test('toMenu cleanly resets combat state and returns mode to menu', () => {
   assert.equal(g.state.maxGrenades, 3);
   assert.equal(g.state.ammo, 12);
   assert.equal(g.state.reserve, 48);
-  assert.deepEqual(g.reserve, [48, 120, 15, 7]);
+  assert.deepEqual(g.reserve, [48, 120, 18, 7]);
   assert.equal(g.state.ammoFull, true);
   assert.equal(g.state.g18c, false);
   assert.equal(g.state.katana, false);
@@ -1058,9 +1058,9 @@ test('Ammo Pouch upgrades reserve ammo by 50%, immediately refills all ammo and 
   assert.equal(g.state.maxGrenades, 5);
 
   // Immediate full refill of all magazines and +50% boosted reserves:
-  // Pistol: 12 / 72, AR-2: 30 / 180, SR-3: 5 / 23, RPG-7: 1 / 11
+  // Pistol: 12 / 72, AR-2: 30 / 180, SR-3: 5 / 27, RPG-7: 1 / 11
   assert.deepEqual(g.ammo, [12, 30, 5, 1]);
-  assert.deepEqual(g.reserve, [72, 180, 23, 11]);
+  assert.deepEqual(g.reserve, [72, 180, 27, 11]);
   assert.equal(g.state.ammo, 12);
   assert.equal(g.state.reserve, 72);
   assert.equal(g.isAmmoFull(), true);
@@ -1082,7 +1082,7 @@ test('Ammo Pouch upgrades reserve ammo by 50%, immediately refills all ammo and 
   g.buy('ammo');
   assert.equal(g.state.cash, cashBefore - 100);
   assert.deepEqual(g.ammo, [12, 30, 5, 1]);
-  assert.deepEqual(g.reserve, [72, 180, 23, 11]);
+  assert.deepEqual(g.reserve, [72, 180, 27, 11]);
   assert.equal(g.isAmmoFull(), true);
 });
 
@@ -1173,8 +1173,8 @@ test('purchasing weapons after Ammo Pouch grants boosted reserve ammo caps', () 
   assert.equal(g.weaponIndex, 2);
   assert.equal(g.state.owned[2], true);
   assert.equal(g.ammo[2], 5);
-  assert.equal(g.reserve[2], 23);
-  assert.equal(g.getMaxReserve(2), 23);
+  assert.equal(g.reserve[2], 27);
+  assert.equal(g.getMaxReserve(2), 27);
 
   // Buy RPG-7
   g.buy('rpg');
@@ -1422,7 +1422,7 @@ test('Hard mode start initializes in Wave 1 cleared supply shop with 2000 credit
   assert.equal(g.state.ammoFull, true, 'ammo must start full in Hard mode');
   assert.equal(g.state.ammo, 12);
   assert.equal(g.state.reserve, 48);
-  assert.deepEqual(g.reserve, [48, 120, 15, 7]);
+  assert.deepEqual(g.reserve, [48, 120, 18, 7]);
   assert.equal(g.state.pouch, false);
   g.buy('ammo');
   assert.equal(g.state.cash, 2000, 'ammo already full cannot charge');
@@ -1589,7 +1589,7 @@ test('Normal mode start initializes in playing mode with wave 1, 500 credits, 10
   assert.equal(g.state.maxGrenades, 3);
   assert.equal(g.state.ammo, 12);
   assert.equal(g.state.reserve, 48);
-  assert.deepEqual(g.reserve, [48, 120, 15, 7]);
+  assert.deepEqual(g.reserve, [48, 120, 18, 7]);
   assert.equal(g.state.ammoFull, true);
   assert.equal(g.state.pouch, false);
   assert.equal(g.difficultyMode, 'normal');
@@ -1677,14 +1677,14 @@ test('start() cleanly resets combat state, weapons, and pouch/g18c upgrades from
   assert.equal(g.state.g18c, false, 'g18c upgrade must be reset');
   assert.equal(g.state.pouch, false, 'pouch upgrade must be reset');
   assert.equal(g.state.katana, false, 'katana must be reset');
-  assert.equal(g.state.level, 0, 'weapon damage upgrade must be reset');
+  assert.equal(g.state.level, 0, 'weapon upgrade must be reset');
   assert.deepEqual(g.state.owned, [true, false, false, false]);
   assert.equal(g.weaponIndex, 0);
   assert.equal(g.state.weapon, 'H1 SERVICE PISTOL');
   assert.equal(g.state.ammo, 12, 'H1 pistol starting magazine must be 12');
   assert.equal(g.state.reserve, 48, 'H1 pistol starting reserve must be 48');
   assert.deepEqual(g.ammo, [12, 30, 5, 1], 'all weapon magazines must reset to base');
-  assert.deepEqual(g.reserve, [48, 120, 15, 7], 'all weapon reserves must reset to base (SR-3 = 15, RPG-7 = 7)');
+  assert.deepEqual(g.reserve, [48, 120, 18, 7], 'all weapon reserves must reset to base (SR-3 = 18, RPG-7 = 7)');
   assert.equal(g.state.ammoFull, true);
 });
 
@@ -1777,20 +1777,20 @@ test('Normal mode Wave 6 completes to cleared state with ₡550 reward, opens sh
   g.buy('armor');
   assert.equal(g.state.cash, 5250, 'Body Armor charged 150 credits');
 
-  // Buy Damage Upgrade Lv.1 (1000 credits)
+  // Buy Weapon Upgrade Lv.1 (1000 credits)
   g.buy('upgrade');
   assert.equal(g.state.level, 1);
-  assert.equal(g.state.cash, 4250, 'Damage upgrade Lv.1 charged 1000 credits');
+  assert.equal(g.state.cash, 4250, 'Weapon upgrade Lv.1 charged 1000 credits');
 
-  // Buy Damage Upgrade Lv.2 (2000 credits)
+  // Buy Weapon Upgrade Lv.2 (2000 credits)
   g.buy('upgrade');
   assert.equal(g.state.level, 2);
-  assert.equal(g.state.cash, 2250, 'Damage upgrade Lv.2 charged 2000 credits');
+  assert.equal(g.state.cash, 2250, 'Weapon upgrade Lv.2 charged 2000 credits');
 
   // 3rd buy blocked
   g.buy('upgrade');
   assert.equal(g.state.level, 2);
-  assert.equal(g.state.cash, 2250, '3rd damage upgrade blocked at max level 2');
+  assert.equal(g.state.cash, 2250, '3rd weapon upgrade blocked at max level 2');
 
   // Advance to Wave 7
   g.nextWave();

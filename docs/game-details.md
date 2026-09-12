@@ -86,7 +86,7 @@ Maximum HP and Armor are both 100 across all difficulties. Armor absorbs 100% of
 | H1 SERVICE PISTOL | Starting gear | 12 / 48 | 24 | 0.24 s / 1.35 s |
 | G18C MACHINE PISTOL | ₡750 shop upgrade | 33 / 132 | 22 | 0.068 s / 1.35 s |
 | AR-2 ASSAULT RIFLE | ₡800 shop purchase | 30 / 120 | 30 | 0.095 s / 1.9 s |
-| SR-3 SNIPER RIFLE | ₡1,100 shop purchase | 5 / 15 | 150 | 1.1 s / 2.5 s |
+| SR-3 SNIPER RIFLE | ₡1,100 shop purchase | 5 / 18 | 150 | 1.1 s / 2.5 s |
 | RPG-7 | ₡4,000 shop purchase | 1 / 7 | 600 blast | 0.9 s / 2.4 s |
 
 H1, SR-3, and RPG-7 fire semi-automatically per click. AR-2 and G18C fire continuously while holding left click (tapping allows single shots). Purchasing the G18C permanently replaces the handgun on key 1. Headshots deal **3.0× damage**. SR-3 bullets penetrate up to 3 enemies.
@@ -134,8 +134,34 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 | RPG-7 | ₡4,000 | Purchases and equips rocket launcher on key 4 |
 | Katana | ₡1,000 | Permanently upgrades V melee to 4.2m horizontal fan sweep |
 | Ammo Pouch | ₡1,000 | +50% reserve ammo cap, +2 grenade capacity. Fully refills all ammo and grenades upon purchase |
-| Damage Upgrade | ₡1,000 / ₡2,000 | Max 2 tiers. Adds +35% base damage to bullets and melee per tier (Lv. 1: 1.35×, Lv. 2: 1.70×) |
+| Weapon Upgrade | ₡1,000 / ₡2,000 | Max 2 tiers. Adds +35% base damage to bullets and melee per tier (Lv. 1: 1.35×, Lv. 2: 1.70×, except explosive) |
 | Frag Grenade | ₡50 | Adds 1 grenade (max 3, or 5 with Ammo Pouch) |
+
+### Ammo Pouch Upgrade
+
+- **Reserve Capacity Boost**: Increases reserve ammunition limits by +50% across all weapons:
+  - **H1**: 48 → 72 rounds
+  - **G18C**: 132 → 198 rounds
+  - **AR-2**: 120 → 180 rounds
+  - **SR-3**: 18 → 27 rounds
+  - **RPG-7**: 7 → 11 rockets
+- **Grenade Storage**: Expands maximum grenade capacity from 3 to 5.
+- **Immediate Refill**: Instantly tops off all weapon magazines, reserve ammunition, and grenades to their boosted caps upon purchase. Subsequent Ammo Resupply (₡100) refills up to these boosted caps.
+- **One-time Purchase**: Costs ₡1,000; cannot be bought again once installed.
+
+### Weapon Upgrade
+
+- **Tiers & Pricing**:
+  - **Tier 1 (Lv. 1)**: ₡1,000 (+35% damage, **1.35×** base damage)
+  - **Tier 2 (Lv. 2)**: ₡2,000 (+70% damage, **1.70×** base damage)
+  - Maximum 2 tiers. Upon reaching Lv. 2, the shop item displays `MAX LEVEL` and disables further purchases.
+- **Damage Formula**:
+  $$\text{Hit Damage} = \text{Base Weapon Damage} \times (1 + \text{Level} \times 0.35) \times (\text{Headshot} \, ? \, 3.0 : 1.0)$$
+- **Applicability**:
+  - **Firearms**: Increases direct bullet damage for H1 (24 → 32.4 → 40.8), G18C (22 → 29.7 → 37.4), AR-2 (30 → 40.5 → 51.0), and SR-3 (150 → 202.5 → 255.0).
+  - **Melee**: Increases damage for both default blunt bash (42 → 56.7 → 71.4) and the Katana (110 → 148.5 → 187.0).
+  - **Headshots**: Multiplies directly with the 3.0× headshot multiplier (e.g., SR-3 headshots deal 450 at Lv. 0, ~608 at Lv. 1, and 765 at Lv. 2).
+  - **Explosives**: Does **not** apply to RPG-7 rocket blast damage or Frag Grenade blast damage (area-of-effect explosive damage remains fixed).
 
 ## Enemies (Waves 1–6)
 
