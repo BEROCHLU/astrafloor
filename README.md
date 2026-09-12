@@ -31,9 +31,7 @@ English | [日本語](README.jp.md)
 
 ## Overview
 
-**Astra Floor** is a single-player 3D zombie survival first-person shooter designed specifically for PC keyboard and mouse.
-- **Play Online in Browser**: **[https://astrafloor.berochlu.workers.dev/](https://astrafloor.berochlu.workers.dev/)**
-
+**Astra Floor** is a single-player 3D zombie survival first-person shooter designed specifically for PC keyboard and mouse.  
 Set in an apocalyptic quarantined industrial complex, players must eliminate unrelenting waves of anomalous mutants known as "Zods". Clear each wave, earn credits (₡), and upgrade your firearms, armor, and gear in the supply shop between rounds. Survive Waves 1 through 6, then defeat the **Final Boss** in Wave 7 to win. You lose when your HP reaches zero.
 
 *Note: There is no save feature. Reloading the page, retrying, or returning to the title resets run progression.*
