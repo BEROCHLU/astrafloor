@@ -10,6 +10,8 @@ English | [日本語](README.jp.md)
 [![Vite / vinext](https://img.shields.io/badge/Build-Vite%20%2F%20vinext-646cff.svg)](https://vitejs.dev/)
 [![Tests](https://img.shields.io/badge/Tests-136%20passed-brightgreen.svg)](#running-automated-tests)
 
+![Astra Floor Title Screen](.github/workflows/image1.png)
+
 ---
 
 ## Table of Contents
@@ -29,7 +31,7 @@ English | [日本語](README.jp.md)
 
 **Astra Floor** is a single-player 3D zombie survival first-person shooter designed specifically for PC keyboard and mouse.
 
-Set in an apocalyptic quarantined industrial complex, players must eliminate unrelenting waves of mutated bio-monsters known as "Zeds". Clear each wave, earn credits (₡), and upgrade your firearms, armor, and gear in the supply shop between rounds. Survive Waves 1 through 6, then defeat the **Final Boss** in Wave 7 to win. You lose when your HP reaches zero.
+Set in an apocalyptic quarantined industrial complex, players must eliminate unrelenting waves of anomalous mutants known as "Zods". Clear each wave, earn credits (₡), and upgrade your firearms, armor, and gear in the supply shop between rounds. Survive Waves 1 through 6, then defeat the **Final Boss** in Wave 7 to win. You lose when your HP reaches zero.
 
 *Note: There is no save feature. Reloading the page, retrying, or returning to the title resets run progression.*
 
@@ -73,7 +75,7 @@ Controls are kept minimal and standard so PC FPS players can immediately adapt.
 
 ### Game Progression & Supply Shop
 
-1. **Combat Waves**: Eliminate all active Zeds to clear the wave.
+1. **Combat Waves**: Eliminate all active Zods to clear the wave.
 2. **Automatic Health Restoration**: Clearing a wave restores player HP to 100. Armor, ammunition, and consumables are not restored automatically.
 3. **Preparation Shop**:
    - Earn credits (₡) from enemy kills and wave completion bonuses.
@@ -90,7 +92,7 @@ Controls are kept minimal and standard so PC FPS players can immediately adapt.
 - **Movement Shooting & Melee Swiping**  
   Strafe-shooting while on the move and utilizing melee attacks (`V`) to cut through zombie swarms are essential to avoid getting cornered.
 - **Sprint Away From Charges**  
-  Sprint (`Left Shift`) laterally when large Zeds roar and charge. Never stand still.
+  Sprint (`Left Shift`) laterally when large Zods roar and charge. Never stand still.
 - **Recoil Control & Headshots**  
   Aim for heads to deal 3.0× damage. Manually pull the mouse down to compensate for automatic weapon recoil.
 - **Medical Kit Timing**  
@@ -119,7 +121,7 @@ Controls are kept minimal and standard so PC FPS players can immediately adapt.
 | Difficulty | Starting Point | Starting Credits | Features |
 |---|---|:---:|---|
 | **Normal Mode** | Wave 1 combat | ₡500 | Standard enemy HP, movement speed, and spawn rates. Balanced for standard play |
-| **Hard Mode** | Wave 1 cleared shop (Wave 2 prep) | ₡2,000 | Faster, tougher Zeds with aggressive spawn frequency. Prepare loadout before Wave 2 |
+| **Hard Mode** | Wave 1 cleared shop (Wave 2 prep) | ₡2,000 | Faster, tougher Zods with aggressive spawn frequency. Prepare loadout before Wave 2 |
 
 *Both difficulties initialize with full HP, full Armor, full ammunition, and full grenades.*  
 *Press **`F8`** on the title screen to access developer debug deployment options (select Wave 1–7, custom credits, and minimum 1 HP mode).*

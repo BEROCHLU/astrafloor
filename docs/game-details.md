@@ -34,15 +34,15 @@ Hard mode also features higher enemy spawn frequency. Total enemy counts per wav
 
 | Wave | Normal | Hard |
 |---|---|---|
-| 1 | 9 Zeds | Skipped (starts cleared) |
-| 2 | 12 Zeds | 24 Zeds |
-| 3 | 15 Zeds | 30 Zeds |
-| 4 | 18 Zeds | 36 Zeds |
-| 5 | 21 Zeds | 42 Zeds |
-| 6 | 24 Zeds | 48 Zeds |
+| 1 | 9 Zods | Skipped (starts cleared) |
+| 2 | 12 Zods | 24 Zods |
+| 3 | 15 Zods | 30 Zods |
+| 4 | 18 Zods | 36 Zods |
+| 5 | 21 Zods | 42 Zods |
+| 6 | 24 Zods | 48 Zods |
 | 7 | Final Boss (1) | Final Boss (1) |
 
-On both difficulties, each advancing wave increases base Zed HP multiplier by **+0.1** and speed multiplier by **+0.045**:  
+On both difficulties, each advancing wave increases base Zod HP multiplier by **+0.1** and speed multiplier by **+0.045**:  
 $$\text{Enemy HP} = \text{Base HP} \times (1 + (\text{Wave} - 1) \times 0.1) \times \text{Difficulty Multiplier}$$
 
 The Final Boss has dedicated fixed statistics and does not scale with regular wave or difficulty multipliers.
@@ -107,7 +107,7 @@ Rockets fly straight at **60 m/s** without ballistic gravity drop. Detonates upo
 
 | V-Key Attack | Base Damage | Reach | Attack Interval | Traits |
 |---|---|---|---|---|
-| Standard Melee | 42 | 2.9 m | 0.65 s | Blunt bash; useful for finishing weak Zeds |
+| Standard Melee | 42 | 2.9 m | 0.65 s | Blunt bash; useful for finishing weak Zods |
 | Katana | 110 | 4.2 m | 0.60 s | Flat horizontal fan sweep slicing multiple forward targets |
 
 Purchasing the Katana for ₡1,000 permanently replaces the V melee attack for the run.
@@ -200,7 +200,7 @@ astrafloor/
 │   ├── graphics.ts        # Procedural 3D weapon, projectile, and environment models
 │   ├── hans.ts            # Final boss AI state machine and attacks
 │   ├── hans-model.ts      # Final boss 3D procedural character rig
-│   ├── enemy-materials.ts # Shared procedural Zed PBR textures & materials
+│   ├── enemy-materials.ts # Shared procedural Zod PBR textures & materials
 │   ├── recoil.ts          # Physical weapon recoil and camera kick mathematics
 │   └── game-tools.ts      # WebMCP protocol tool schemas
 ├── tests/                 # Automated test suite (136 unit tests)
