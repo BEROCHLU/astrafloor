@@ -1,4 +1,4 @@
-# DEADSHIFT — ゲームルール
+# Astra Floor — ゲームルール
 
 日本語 | [English](game-rules.md)
 

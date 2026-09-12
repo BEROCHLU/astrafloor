@@ -1,4 +1,4 @@
-# DEADSHIFT — Detailed Rules and Development Reference
+# Astra Floor — Detailed Rules and Development Reference
 
 [日本語](dev-rules.jp.md) | English | [Player rules](../game-rules.md)
 

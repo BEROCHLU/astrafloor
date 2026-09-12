@@ -113,7 +113,7 @@ export default function Home() {
         <div className="wordmark">
           <Crosshair size={21} />
           <span>
-            DEADSHIFT<span className="wordmark-dot"> / </span>
+            Astra Floor<span className="wordmark-dot"> / </span>
           </span>
         </div>
         {!(active && s.boss) && (
@@ -149,9 +149,9 @@ export default function Home() {
               <span /> OUTBREAK PROTOCOL / 001
             </div>
             <h1>
-              DEAD
+              Astra
               <br />
-              <span>SHIFT</span>
+              <span>Floor</span>
               <i>QUARANTINE ZONE</i>
             </h1>
             <p className="intro-copy">HOLD THE TRIGGER UNTIL DAWN.</p>

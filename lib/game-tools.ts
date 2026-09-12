@@ -51,7 +51,7 @@ export function registerGameTools(game: GamePort, context?: Registry) {
     register({
       name: 'read_survival_status',
       description:
-        'Read the current DEADSHIFT wave, health, equipment, credits, and final boss health, charge and attack state when present.',
+        'Read the current Astra Floor wave, health, equipment, credits, and final boss health, charge and attack state when present.',
       inputSchema: {
         type: 'object',
         properties: {},

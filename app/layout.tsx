@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 export const metadata: Metadata = {
-  title: 'DEADSHIFT — Quarantine Zone',
+  title: 'Astra Floor — Quarantine Zone',
   description:
     'Survive 6 waves of infected in a nocturnal industrial complex. 3D Zombie Survival FPS.',
 };
