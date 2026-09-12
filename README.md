@@ -2,8 +2,10 @@
 
 English | [日本語](README.jp.md)
 
-> A fast-paced, single-player 3D zombie survival FPS running natively in modern web browsers with zero external asset downloads.
+> A fast-paced, single-player 3D zombie survival FPS running natively in modern web browsers with zero external asset downloads.  
+> 🎮 **Play Online**: **[https://astrafloor.berochlu.workers.dev/](https://astrafloor.berochlu.workers.dev/)**
 
+[![Play Now](https://img.shields.io/badge/🎮%20Play%20Now-Cloudflare-F38020?logo=cloudflare&logoColor=white)](https://astrafloor.berochlu.workers.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-r185-black.svg)](https://threejs.org/)
@@ -30,6 +32,7 @@ English | [日本語](README.jp.md)
 ## Overview
 
 **Astra Floor** is a single-player 3D zombie survival first-person shooter designed specifically for PC keyboard and mouse.
+- **Play Online in Browser**: **[https://astrafloor.berochlu.workers.dev/](https://astrafloor.berochlu.workers.dev/)**
 
 Set in an apocalyptic quarantined industrial complex, players must eliminate unrelenting waves of anomalous mutants known as "Zods". Clear each wave, earn credits (₡), and upgrade your firearms, armor, and gear in the supply shop between rounds. Survive Waves 1 through 6, then defeat the **Final Boss** in Wave 7 to win. You lose when your HP reaches zero.
 

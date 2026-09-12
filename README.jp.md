@@ -2,8 +2,10 @@
 
 [English](README.md) | 日本語
 
-> 外部アセットの追加ダウンロード不要。最新のWebブラウザ上でネイティブに動作する、シングルプレイヤー専用の本格3DゾンビサバイバルFPS。
+> 外部アセットの追加ダウンロード不要。最新のWebブラウザ上でネイティブに動作する、シングルプレイヤー専用の本格3DゾンビサバイバルFPS。  
+> 🎮 **オンラインで今すぐプレイ**: **[https://astrafloor.berochlu.workers.dev/](https://astrafloor.berochlu.workers.dev/)**
 
+[![Play Now](https://img.shields.io/badge/🎮%20Play%20Now-Cloudflare-F38020?logo=cloudflare&logoColor=white)](https://astrafloor.berochlu.workers.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-r185-black.svg)](https://threejs.org/)
@@ -30,6 +32,7 @@
 ## ゲーム概要
 
 **Astra Floor** は、PCのキーボード・マウス専用に設計された、シングルプレイヤー向けの3DゾンビサバイバルFPSです。
+- **ブラウザで今すぐプレイ**: **[https://astrafloor.berochlu.workers.dev/](https://astrafloor.berochlu.workers.dev/)**
 
 プレイヤーは隔離された終末工業地帯を舞台に、迫り来る異能変異体「Zod」の大群を殲滅しながら生き延びるウェーブ制の戦闘に挑みます。各Waveで敵を全滅させてクリアし、Wave間の補給ショップで武器・弾薬・アーマー・消耗品を購入・強化して装備を整えます。Wave 1〜6の猛攻を耐え抜き、Wave 7に君臨する最終ボスを撃破するとゲームクリア（勝利）、HPが0になるとゲームオーバー（敗北）となります。
 
