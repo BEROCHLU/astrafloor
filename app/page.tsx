@@ -766,7 +766,7 @@ export default function Home() {
                 onClick={() => engine.current?.nextWave()}
               >
                 {(s.debugTargetWave === 7 || s.wave === 6)
-                  ? 'FACE HANS VOLTER'
+                  ? 'FACE FINAL BOSS'
                   : s.debugTargetWave !== undefined
                   ? `START WAVE ${s.debugTargetWave}`
                   : 'NEXT WAVE'}
