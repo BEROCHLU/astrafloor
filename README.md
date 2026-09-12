@@ -47,13 +47,15 @@ Set in an apocalyptic quarantined industrial complex, players must eliminate unr
 - **Pure Web Audio API Sound Synthesis**  
   Every sound effect—explosive gunshots, crisp sniper bolt mechanisms, rocket thrusters and detonations, bullet impacts, ricochets, monster growls, and the final boss's mechanical voice—is synthesized in real-time using Web Audio oscillators, noise buffers, biquad filters, and master dynamic compressors.
 - **Authentic FPS Recoil & Gunplay**  
-  True recoil mechanics: each fired round kicks the camera pitch and yaw upwards and sideways. **The crosshair does not automatically snap back down.** Players must manually compensate with the mouse. Headshots deal **3.0× lethal damage** across all firearms and direct rocket strikes.
+  Every shot produces strong recoil. Players must pull the mouse down to compensate. Headshots with any firearm or a direct rocket strike deal devastating damage.
 
 ---
 
 ## Basic Gameplay & Controls
 
-Controls are kept minimal and standard so PC FPS players can immediately adapt.
+Controls use a simple, familiar PC FPS layout to help newcomers get comfortable with keyboard input.
+
+**Headshots deal 3× normal damage.** Aim for enemy heads with bullets or direct RPG-7 rocket strikes to take them down more efficiently.
 
 ### Keybindings (PC Keyboard & Mouse)
 
@@ -72,7 +74,6 @@ Controls are kept minimal and standard so PC FPS players can immediately adapt.
 | **Use Medical Kit** | `Q` | Instantly heals 50 HP (10s cooldown, max 3 held) |
 | **Pause** | `Esc` | Releases pointer and pauses combat (choose **RESUME COMBAT** to resume) |
 | **Wave Clear Advance** | `Space` / `Enter` | Advances from victory screen into preparation shop |
-| **Debug Settings Panel** | `F8` | Title screen only; select wave, starting cash, and 1 HP floor |
 
 ### Game Progression & Supply Shop
 
@@ -93,13 +94,13 @@ Controls are kept minimal and standard so PC FPS players can immediately adapt.
 - **Movement Shooting & Melee Swiping**  
   Strafe-shooting while on the move and utilizing melee attacks (`V`) to cut through zombie swarms are essential to avoid getting cornered.
 - **Sprint Away From Charges**  
-  Sprint (`Left Shift`) laterally when large Zods roar and charge. Never stand still.
+  If enemies surround you or charge, keep moving and sprint (`Left Shift`) to evade them.
 - **Recoil Control & Headshots**  
-  Aim for heads to deal 3.0× damage. Manually pull the mouse down to compensate for automatic weapon recoil.
+  Aim for heads whenever possible. Pull the mouse down manually to control the upward recoil during sustained fire.
 - **Medical Kit Timing**  
   Use `Q` when your health takes a hit (heals 50 HP, 10s cooldown, max 3 stored).
 - **Beware of Blast Self-Damage**  
-  Frag grenades (`G`) and RPG-7 rockets deal heavy self-damage within 7 meters. Keep your distance or take cover.
+  Frag grenades (`G`) and RPG-7 rockets deal heavy self-damage when they explode nearby. Keep your distance or take cover.
 
 ---
 
@@ -107,12 +108,12 @@ Controls are kept minimal and standard so PC FPS players can immediately adapt.
 
 | Weapon | Slot | Role & Special Traits |
 |---|:---:|---|
-| **H1 Service Pistol** | 1 | Starting semi-auto sidearm. 12-round magazine, precise accuracy, and 3.0× headshot multiplier |
+| **H1 Service Pistol** | 1 | Starting semi-auto sidearm with a 12-round magazine |
 | **G18C Machine Pistol** | 1 | Shop upgrade (₡750). 33-round extended magazine spitting ~882 RPM rapid full-auto fire |
 | **AR-2 Assault Rifle** | 2 | Shop purchase (₡800). 30-round sustained full-auto rifle; ideal for mid-range fire suppression |
 | **SR-3 Sniper Rifle** | 3 | Shop purchase (₡1,100). High-damage bolt-action rifle with 5× scope and up to 3-target penetration |
-| **RPG-7 Rocket Launcher** | 4 | Shop purchase (₡4,000). 60 m/s straight-flying rocket with 600 blast damage, 3.0× direct headshots, and auto-reload |
-| **Katana** | `V` | Shop upgrade (₡1,000). 4.2m reach completely flat horizontal fan sweep dealing 110 base damage to multiple enemies |
+| **RPG-7 Rocket Launcher** | 4 | Shop purchase (₡4,000). Straight-flying rockets at 60 m/s with a wide-area blast |
+| **Katana** | `V` | Shop upgrade (₡1,000). A horizontal fan sweep with 4.2m reach that strikes multiple enemies in front of you |
 | **Ammo Pouch** | Upgrade | Shop purchase (₡1,000). +50% reserve ammunition capacity, +2 grenade slots. Instantly refills all ammo and grenades |
 
 ---
@@ -121,11 +122,10 @@ Controls are kept minimal and standard so PC FPS players can immediately adapt.
 
 | Difficulty | Starting Point | Starting Credits | Features |
 |---|---|:---:|---|
-| **Normal Mode** | Wave 1 combat | ₡500 | Standard enemy HP, movement speed, and spawn rates. Balanced for standard play |
-| **Hard Mode** | Wave 1 cleared shop (Wave 2 prep) | ₡2,000 | Faster, tougher Zods with aggressive spawn frequency. Prepare loadout before Wave 2 |
+| **Normal Mode** | Wave 1 combat | ₡500 | Standard enemy HP, movement speed, and spawn rates. For beginner to intermediate FPS players |
+| **Hard Mode** | Wave 1 cleared shop (Wave 2 prep) | ₡2,000 | Increased enemy HP, movement speed, and spawn rates. For advanced players; use the starting credits to prepare your loadout |
 
 *Both difficulties initialize with full HP, full Armor, full ammunition, and full grenades.*  
-*Press **`F8`** on the title screen to access developer debug deployment options (select Wave 1–7, custom credits, and minimum 1 HP mode).*
 
 ---
 
