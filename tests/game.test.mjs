@@ -1847,3 +1847,61 @@ test('debug mode debugMinHp option clamps health to 1 and prevents death from al
   assert.equal(g.state.mode, 'dead');
 });
 
+test('wave completion waits until defeated enemy corpses have finished sinking and disappeared from the scene', () => {
+  const g = fixture();
+  g.start('normal');
+  g.waveTime = 3;
+  g.pending = 0;
+  g.state.remaining = 1;
+
+  const dummyEnemy = {
+    dead: false,
+    hp: 10,
+    kind: 0,
+    root: new T.Group(),
+    shadow: new T.Mesh(),
+  };
+  g.enemies = [dummyEnemy];
+
+  // Kill the last enemy
+  g.damageEnemy(dummyEnemy, 20, new T.Vector3());
+  assert.equal(g.state.remaining, 0);
+  assert.equal(g.corpses.length, 1);
+
+  // In the update loop, if corpses remain, wave does not complete
+  const canCompleteWave = () => (
+    g.state.mode === 'playing' &&
+    g.state.remaining === 0 &&
+    g.pending === 0 &&
+    g.waveTime > 2 &&
+    g.corpses.length === 0
+  );
+  assert.equal(canCompleteWave(), false, 'cannot complete wave while corpses exist');
+
+  // Simulate corpse aging at 0.5s
+  for (let i = g.corpses.length - 1; i >= 0; i--) {
+    const c = g.corpses[i];
+    c.age += 0.5;
+    if (c.age > 1.2) {
+      g.scene.remove(c.enemy.root, c.enemy.shadow);
+      g.corpses.splice(i, 1);
+    }
+  }
+  assert.equal(g.corpses.length, 1);
+  assert.equal(canCompleteWave(), false, 'corpse age 0.5s still active in scene');
+
+  // Corpse age reaches > 1.2s and is removed from scene
+  for (let i = g.corpses.length - 1; i >= 0; i--) {
+    const c = g.corpses[i];
+    c.age += 0.8;
+    if (c.age > 1.2) {
+      g.scene.remove(c.enemy.root, c.enemy.shadow);
+      g.corpses.splice(i, 1);
+    }
+  }
+  assert.equal(g.corpses.length, 0);
+  assert.equal(canCompleteWave(), true, 'wave can complete after corpses disappear');
+  g.completeWave();
+  assert.equal(g.state.mode, 'cleared');
+});
+

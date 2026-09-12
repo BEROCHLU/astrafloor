@@ -130,7 +130,7 @@ Purchasing the RPG-7 for ₡4,000 equips it immediately. You can then switch to 
 | V-key attack | Base damage | Reach | Attack interval |
 |---|---|---|---|
 | Standard melee | 42 | 2.9 m | 0.65 s |
-| Katana | 110 | 4.4 m | 0.6 s |
+| Katana | 110 | 4.2 m | 0.6 s |
 
 Purchasing the Katana for ₡1,000 **permanently replaces your V-key attack for the rest of the run**. You cannot switch back to the original melee attack. You can use it while keeping your gun equipped, and it does not add a weapon-switch key. Its wide frontal slash can hit multiple enemies, but cannot pass through cover.
 

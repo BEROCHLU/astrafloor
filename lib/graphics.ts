@@ -1236,12 +1236,15 @@ export class Graphics {
     blade.name = 'blade';
     root.add(blade);
     const outline = new T.Shape();
-    outline.moveTo(-0.025, 0);
-    outline.lineTo(-0.025, 0.62);
-    outline.quadraticCurveTo(-0.015, 0.94, 0.11, 1.15);
-    outline.lineTo(0.12, 1.02);
-    outline.quadraticCurveTo(0.045, 0.8, 0.045, 0.6);
-    outline.lineTo(0.04, 0);
+    // Spine (mune) along -X with subtle sori:
+    outline.moveTo(-0.015, 0);
+    outline.quadraticCurveTo(-0.015, 0.5, -0.018, 0.85);
+    // Kissaki apex (sharp point at tip):
+    outline.lineTo(-0.005, 1.06);
+    // Fukura (curved cutting edge at kissaki) to main edge (+X):
+    outline.quadraticCurveTo(0.013, 0.98, 0.012, 0.85);
+    // Cutting edge (ha) running down to habaki:
+    outline.quadraticCurveTo(0.016, 0.5, 0.018, 0);
     outline.closePath();
     const geometry = this.geometry(new T.ExtrudeGeometry(outline, {
       depth: 0.018, bevelEnabled: false, curveSegments: 10,
@@ -1250,7 +1253,7 @@ export class Graphics {
       color: 0xd5e0e3, metalness: 0.95, roughness: 0.18,
     }));
     const cuttingEdge = new T.Mesh(geometry, steel);
-    cuttingEdge.position.set(0, 0.02, -0.01);
+    cuttingEdge.position.set(0, 0.02, -0.009);
     blade.add(cuttingEdge);
     const wrap = this.surface('cloth', 0x182321);
     const gold = this.surface('metal', 0xa48a45);
@@ -1261,10 +1264,13 @@ export class Graphics {
       band.rotation.z = i % 2 ? 0.45 : -0.45;
     }
     this.mesh(root, this.cylinder, gold, 0, -0.33, 0, 0.077, 0.025, 0.072);
-    this.mesh(root, this.sphere, wrap, 0.025, -0.19, 0.03, 0.15, 0.16, 0.16);
-    this.mesh(root, this.taper, wrap, 0.08, -0.35, 0.12, 0.16, 0.34, 0.18).rotation.x = -0.45;
     this.mergeParts(root);
-    root.rotation.set(-0.75, 0, -0.2);
+    root.traverse((o) => {
+      if (o instanceof T.Mesh) {
+        o.castShadow = false;
+        o.receiveShadow = false;
+      }
+    });
     return root;
   }
 

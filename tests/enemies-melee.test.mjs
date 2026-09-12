@@ -89,17 +89,17 @@ test('katana purchase permanently upgrades V without changing gun slots, and its
   g.melee();
   assert.deepEqual(hits.map((h) => h.enemy), [near]);
 
-  // Katana reach is 4.4m: hits enemy at distance 4.3m, misses enemy at distance 4.5m
+  // Katana reach is 4.2m: hits enemy at distance 4.1m, misses enemy at distance 4.3m
   g.walls = [];
+  const at41 = spawnAt(g, 0, 0, -4.1);
+  at41.root.position.set(0, 1.7, -4.1);
   const at43 = spawnAt(g, 0, 0, -4.3);
   at43.root.position.set(0, 1.7, -4.3);
-  const at45 = spawnAt(g, 0, 0, -4.5);
-  at45.root.position.set(0, 1.7, -4.5);
   hits.length = 0;
   g.meleeTime = 0;
   g.melee();
-  assert.ok(hits.some((h) => h.enemy === at43), 'katana reaches enemy within 4.4m (4.3m)');
-  assert.ok(!hits.some((h) => h.enemy === at45), 'katana cannot reach enemy beyond 4.4m (4.5m)');
+  assert.ok(hits.some((h) => h.enemy === at41), 'katana reaches enemy within 4.2m (4.1m)');
+  assert.ok(!hits.some((h) => h.enemy === at43), 'katana cannot reach enemy beyond 4.2m (4.3m)');
 });
 
 test('new enemies enter the wave roster while Freshpound appears in wave 5 and twice in wave 6', (t) => {

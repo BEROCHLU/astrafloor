@@ -90,8 +90,83 @@ export const ENEMY_SPECS = [
 ] as const;
 const ENEMIES = ENEMY_SPECS;
 const SNIPER_BOLT_DURATION = 1.1;
-const KATANA = { damage: 110, range: 4.4, rate: 0.6 };
+const KATANA = { damage: 110, range: 4.2, rate: 0.6 };
 const FRESHPOUND_RAGE = { interval: 10, windup: 1, duration: 3, speedMultiplier: 10 };
+
+function makeKatanaQuat(edgeDir: T.Vector3, bladeDir: T.Vector3): T.Quaternion {
+  const b = bladeDir.clone().normalize();
+  const e = edgeDir.clone().sub(b.clone().multiplyScalar(edgeDir.dot(b))).normalize();
+  const f = new T.Vector3().crossVectors(e, b).normalize();
+  const m = new T.Matrix4().makeBasis(e, b, f);
+  return new T.Quaternion().setFromRotationMatrix(m);
+}
+
+const _bWindup = new T.Vector3(-0.70, 0.12, -0.70).normalize();
+const _eWindup = new T.Vector3(0.70, 0.05, -0.71).normalize();
+const _qWindup = makeKatanaQuat(_eWindup, _bWindup);
+
+const _bFollow = new T.Vector3(0.85, 0.02, -0.52).normalize();
+const _eFollow = new T.Vector3(0.52, -0.05, 0.85).normalize();
+const _qFollow = makeKatanaQuat(_eFollow, _bFollow);
+
+export const KATANA_ANIM = {
+  pReady: new T.Vector3(-0.35, -0.40, -0.42),
+  qReady: makeKatanaQuat(new T.Vector3(0.85, 0.10, -0.50), new T.Vector3(-0.55, 0.35, -0.75)),
+
+  pWindup: new T.Vector3(-0.32, -0.15, -0.42),
+  qWindup: _qWindup,
+
+  pSlashMid: new T.Vector3(0.00, -0.13, -0.60),
+
+  pFollow: new T.Vector3(0.32, -0.14, -0.44),
+  qFollow: _qFollow,
+
+  pSettle: new T.Vector3(0.35, -0.16, -0.44),
+  qSettle: makeKatanaQuat(new T.Vector3(0.48, -0.08, 0.87), new T.Vector3(0.87, 0.00, -0.48)),
+
+  pExit: new T.Vector3(0.38, -0.62, -0.52),
+  qExit: makeKatanaQuat(new T.Vector3(0.45, -0.45, 0.77), new T.Vector3(0.75, -0.35, -0.55)),
+};
+
+const _katanaPos = new T.Vector3();
+const _katanaQuat = new T.Quaternion();
+
+export function evaluateKatanaMotion(
+  progress: number,
+  outPos?: T.Vector3,
+  outQuat?: T.Quaternion,
+): { pos: T.Vector3; quat: T.Quaternion } {
+  const p = Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0;
+  const targetPos = outPos ?? new T.Vector3();
+  const targetQuat = outQuat ?? new T.Quaternion();
+  if (p < 0.12) {
+    const u = p / 0.12;
+    const ease = u * (2 - u);
+    targetPos.lerpVectors(KATANA_ANIM.pReady, KATANA_ANIM.pWindup, ease);
+    targetQuat.slerpQuaternions(KATANA_ANIM.qReady, KATANA_ANIM.qWindup, ease);
+  } else if (p < 0.38) {
+    const u = (p - 0.12) / 0.26;
+    const ease = u * u * (3 - 2 * u);
+    const oneMinus = 1 - ease;
+    targetPos
+      .copy(KATANA_ANIM.pWindup)
+      .multiplyScalar(oneMinus * oneMinus)
+      .addScaledVector(KATANA_ANIM.pSlashMid, 2 * oneMinus * ease)
+      .addScaledVector(KATANA_ANIM.pFollow, ease * ease);
+    targetQuat.slerpQuaternions(KATANA_ANIM.qWindup, KATANA_ANIM.qFollow, ease);
+  } else if (p < 0.50) {
+    const u = (p - 0.38) / 0.12;
+    const ease = u * u * (3 - 2 * u);
+    targetPos.lerpVectors(KATANA_ANIM.pFollow, KATANA_ANIM.pSettle, ease);
+    targetQuat.slerpQuaternions(KATANA_ANIM.qFollow, KATANA_ANIM.qSettle, ease);
+  } else {
+    const u = (p - 0.50) / 0.50;
+    const ease = u * u * (3 - 2 * u);
+    targetPos.lerpVectors(KATANA_ANIM.pSettle, KATANA_ANIM.pExit, ease);
+    targetQuat.slerpQuaternions(KATANA_ANIM.qSettle, KATANA_ANIM.qExit, ease);
+  }
+  return { pos: targetPos, quat: targetQuat };
+}
 const FRESHPOUND_DRILL = { range: 3.0 };
 const SCRAKE_MELEE = { range: 4.2, swingDuration: 0.7 };
 export const STAMINA = { max: 100, drain: 20, recover: 20 };
@@ -768,6 +843,7 @@ export class Game {
       this.katana.add(this.graphics.createWeapon(3));
     this.camera.add(this.katana);
     this.katana.visible = false;
+    evaluateKatanaMotion(0, this.katana.position, this.katana.quaternion);
   }
   setQuality(_quality: Quality = 'high') {
     this.quality = 'high';
@@ -3170,7 +3246,8 @@ export class Game {
         s.mode === 'playing' &&
         s.remaining === 0 &&
         this.pending === 0 &&
-        this.waveTime > 2
+        this.waveTime > 2 &&
+        this.corpses.length === 0
       )
         this.completeWave();
     } else if (s.mode === 'menu') {
@@ -3207,9 +3284,9 @@ export class Game {
     );
     if (this.katana.visible) {
       const swing = 1 - this.meleeTime / KATANA.rate;
-      const slash = Math.sin(swing * Math.PI);
-      this.katana.position.set(0.32 - slash * 0.8, -0.3 + slash * 0.08, -0.5);
-      this.katana.rotation.set(-0.1 + slash * 0.45, slash * -1.1, 0.15 - slash * 1.5);
+      evaluateKatanaMotion(swing, _katanaPos, _katanaQuat);
+      this.katana.position.copy(_katanaPos);
+      this.katana.quaternion.copy(_katanaQuat);
     }
     this.flash.visible =
       !throwing &&
