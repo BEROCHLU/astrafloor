@@ -173,10 +173,10 @@ npm run build
 
 For in-depth mathematical formulas, weapon ballistics, enemy HP/damage profiles, and boss combat phases, consult the reference specifications:
 
-- **Developer Reference & Detailed Specs**: [English (docs/game-details.md)](docs/game-details.md) | [日本語 (docs/game-details.jp.md)](docs/game-details.jp.md)
+- **Developer Reference & Detailed Specs**: [English](docs/game-details.md) | [日本語](docs/game-details.jp.md)
 
 ---
 
 ## License
 
-Private / Proprietary. All rights reserved.
+This project is licensed under the [MIT License](LICENSE).

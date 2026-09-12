@@ -172,11 +172,10 @@ npm run build
 
 武器のコンマ秒単位の詳細パラメータ、エネミー各種のHP・攻撃力・行動ルーチン、最終ボスの詳細な戦闘フェーズや内部計算式については、以下の開発者向け仕様書を参照してください：
 
-- **開発者向け詳細仕様書**: [日本語 (docs/game-details.jp.md)](docs/game-details.jp.md) | [English (docs/dev/dev-rules.md)](docs/dev/dev-rules.md)
-- **プレイヤー向けゲームルール（英語）**: [English (docs/game-rules.md)](docs/game-rules.md)
+- **開発者向け詳細仕様書**: [日本語](docs/game-details.jp.md) | [English](docs/game-details.md)
 
 ---
 
 ## ライセンス
 
-Private / Proprietary. All rights reserved.
+本プロジェクトは [MIT License](LICENSE) のもとで公開されています。

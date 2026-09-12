@@ -1,6 +1,6 @@
 # Astra Floor — 詳細ルール・開発資料
 
-日本語 | [English](dev/dev-rules.md) | [基本ルール（README.jp.md）](../README.jp.md)
+日本語 | [English](game-details.md) | [基本ルール](../README.jp.md)
 
 工業地帯の封鎖区域でゾンビの襲撃を生き延びる、シングルプレイヤーの3D FPSです。敵の撃破とウェーブクリアで得たクレジット（₡）を使い、武器の購入・強化と消耗品の補充を行います。
 

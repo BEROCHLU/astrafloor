@@ -1,6 +1,6 @@
 # Astra Floor — Detailed Rules & Developer Specifications
 
-English | [日本語](game-details.jp.md) | [Basic Rules (README.md)](../README.md)
+English | [日本語](game-details.jp.md) | [Basic Rules](../README.md)
 
 A single-player 3D zombie survival FPS set in an apocalyptic quarantined industrial complex. Earn credits (₡) by eliminating enemies and clearing waves, then use them in the prep shop between waves to purchase and upgrade firearms, armor, and consumables.
 
