@@ -158,7 +158,7 @@ export default function Home() {
             <p className="intro-detail">
               Infected inbound. Limited ammunition.
               <br />
-              Survive the waves, then defeat Hans Volter.
+              Survive the waves, then defeat Final Boss.
             </p>
             <div className="difficulty" aria-label="Difficulty">
               {(
