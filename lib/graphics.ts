@@ -1,4 +1,5 @@
 import * as T from 'three';
+import { createAR2Body } from './ar2-model.ts';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -944,7 +945,9 @@ export class Graphics {
       m.rotation.x = Math.PI / 2;
       return m;
     };
-    if (index === 0 || index === 4) {
+    if (index === 1) {
+      createAR2Body(this, root, action);
+    } else if (index === 0 || index === 4) {
       shape(action, this.rounded, steel, 0, 0.045, -0.23, 0.115, 0.13, 0.42);
       barrel(root, 0, 0.015, -0.425, 0.12, 0.067, edges);
       barrel(root, 0, 0.015, -0.487, 0.003, 0.044, bore);
@@ -1026,99 +1029,39 @@ export class Graphics {
         0.24,
         0.15,
       ).rotation.x = -0.2;
-      if (index === 1) {
-        barrel(root, 0, 0.01, -0.71, 0.46, 0.057, edges);
-        barrel(root, 0, 0.01, -0.945, 0.007, 0.037, bore);
-        barrel(root, 0, 0.01, -0.885, 0.13, 0.084, steel);
-        shape(root, this.rounded, polymer, 0, 0, -0.54, 0.15, 0.14, 0.28);
-        for (let i = 0; i < 7; i++) {
-          shape(
-            root,
-            this.box,
-            edges,
-            0,
-            0.105,
-            -0.37 - i * 0.04,
-            0.12,
-            0.018,
-            0.018,
-          );
-          for (const side of [-1, 1])
-            shape(
-              root,
-              this.rounded,
-              bore,
-              side * 0.076,
-              0,
-              -0.44 - i * 0.028,
-              0.005,
-              0.055,
-              0.016,
-            );
-        }
-        shape(
-          root,
-          this.rounded,
-          steel,
-          0,
-          -0.21,
-          -0.28,
-          0.088,
-          0.3,
-          0.155,
-        ).rotation.x = 0.15;
-        shape(
-          action,
-          this.rounded,
-          edges,
-          0.085,
-          0.028,
-          -0.19,
-          0.035,
-          0.027,
-          0.08,
-        );
-      } else {
-        // Long precision barrel, compact ten-round magazine, and cheek rest.
-        barrel(root, 0, 0.01, -0.86, 0.72, 0.057, edges);
-        barrel(root, 0, 0.01, -1.19, 0.1, 0.082, steel);
-        barrel(root, 0, 0.01, -1.242, 0.004, 0.037, bore);
-        shape(root, this.rounded, polymer, 0, -0.035, -0.56, 0.14, 0.14, 0.42);
-        shape(root, this.rounded, steel, 0, -0.16, -0.27, 0.095, 0.15, 0.16);
-        shape(root, this.rounded, polymer, 0, -0.035, 0.18, 0.15, 0.17, 0.32);
-        shape(root, this.rounded, black, 0, 0.065, 0.12, 0.16, 0.07, 0.22);
+      // Long precision barrel, compact ten-round magazine, and cheek rest.
+      barrel(root, 0, 0.01, -0.86, 0.72, 0.057, edges);
+      barrel(root, 0, 0.01, -1.19, 0.1, 0.082, steel);
+      barrel(root, 0, 0.01, -1.242, 0.004, 0.037, bore);
+      shape(root, this.rounded, polymer, 0, -0.035, -0.56, 0.14, 0.14, 0.42);
+      shape(root, this.rounded, steel, 0, -0.16, -0.27, 0.095, 0.15, 0.16);
+      shape(root, this.rounded, polymer, 0, -0.035, 0.18, 0.15, 0.17, 0.32);
+      shape(root, this.rounded, black, 0, 0.065, 0.12, 0.16, 0.07, 0.22);
 
-        const scope = new T.Group();
-        scope.name = 'scope';
-        root.add(scope);
-        for (const z of [-0.12, -0.36]) {
-          shape(scope, this.box, edges, 0, 0.15, z, 0.07, 0.12, 0.045);
-          barrel(scope, 0, 0.235, z, 0.04, 0.115, edges);
-        }
-        barrel(scope, 0, 0.235, -0.25, 0.48, 0.085, black);
-        barrel(scope, 0, 0.235, -0.455, 0.13, 0.14, steel);
-        barrel(scope, 0, 0.235, -0.03, 0.09, 0.11, black);
-        const glass = this.material(new T.MeshStandardMaterial({
-          color: 0x397c8f, metalness: 0.65, roughness: 0.12,
-        }));
-        barrel(scope, 0, 0.235, -0.522, 0.004, 0.115, glass);
-        barrel(scope, 0, 0.235, 0.017, 0.004, 0.088, glass);
-        shape(scope, this.cylinder, edges, 0, 0.307, -0.22, 0.068, 0.065, 0.068);
-
-        // The bolt remains a separate joint for the firing animation.
-        shape(action, this.cylinder, edges, 0.11, 0.035, -0.16, 0.026, 0.1, 0.026).rotation.z = -1.1;
-        shape(action, this.sphere, black, 0.155, 0.01, -0.16, 0.045, 0.045, 0.045);
+      const scope = new T.Group();
+      scope.name = 'scope';
+      root.add(scope);
+      for (const z of [-0.12, -0.36]) {
+        shape(scope, this.box, edges, 0, 0.15, z, 0.07, 0.12, 0.045);
+        barrel(scope, 0, 0.235, z, 0.04, 0.115, edges);
       }
+      barrel(scope, 0, 0.235, -0.25, 0.48, 0.085, black);
+      barrel(scope, 0, 0.235, -0.455, 0.13, 0.14, steel);
+      barrel(scope, 0, 0.235, -0.03, 0.09, 0.11, black);
+      const glass = this.material(new T.MeshStandardMaterial({
+        color: 0x397c8f, metalness: 0.65, roughness: 0.12,
+      }));
+      barrel(scope, 0, 0.235, -0.522, 0.004, 0.115, glass);
+      barrel(scope, 0, 0.235, 0.017, 0.004, 0.088, glass);
+      shape(scope, this.cylinder, edges, 0, 0.307, -0.22, 0.068, 0.065, 0.068);
+
+      // The bolt remains a separate joint for the firing animation.
+      shape(action, this.cylinder, edges, 0.11, 0.035, -0.16, 0.026, 0.1, 0.026).rotation.z = -1.1;
+      shape(action, this.sphere, black, 0.155, 0.01, -0.16, 0.045, 0.045, 0.045);
       shape(root, this.rounded, black, 0.077, 0.045, -0.26, 0.008, 0.07, 0.15);
     }
-    // Raised sights, pins, trigger, and gloved fingers retain their silhouette up close.
-    if (index !== 2) {
-      // Mount bases for rifle to connect solidly to receiver and barrel
-      if (index === 1) {
-        shape(root, this.box, steel, 0, 0.101, -0.07, 0.038, 0.022, 0.016);
-        shape(root, this.rounded, steel, 0, 0.089, -0.65, 0.014, 0.046, 0.016);
-      }
-
+    // Pistol sights remain separate from the reference-based AR-2 sights.
+    if (index === 0 || index === 4) {
       // Low-profile rear sight with open notch (低背・コンパクトな凹型切り欠きリアサイト)
       shape(root, this.rounded, black, 0, 0.112, -0.07, 0.044, 0.005, 0.014);
       shape(root, this.rounded, black, -0.015, 0.119, -0.07, 0.012, 0.01, 0.014);
@@ -1131,33 +1074,36 @@ export class Graphics {
       shape(root, this.rounded, black, 0, 0.117, frontZ, 0.006, 0.014, 0.014);
       shape(root, this.box, green, 0, 0.12, frontZ + 0.008, 0.004, 0.004, 0.002);
     }
-    for (const side of [-1, 1])
-      barrel(
+    if (index !== 1) {
+      for (const side of [-1, 1])
+        barrel(
+          root,
+          side * 0.058,
+          -0.06,
+          -0.04,
+          0.012,
+          0.018,
+          edges,
+        ).rotation.set(0, 0, Math.PI / 2);
+      shape(
         root,
-        side * 0.058,
-        -0.06,
-        -0.04,
-        0.012,
-        0.018,
+        this.taper,
         edges,
-      ).rotation.set(0, 0, Math.PI / 2);
-    shape(
-      root,
-      this.taper,
-      edges,
-      0,
-      -0.135,
-      -0.156,
-      0.025,
-      0.075,
-      0.032,
-    ).rotation.x = 0.4;
+        0,
+        -0.135,
+        -0.156,
+        0.025,
+        0.075,
+        0.032,
+      ).rotation.x = 0.4;
+    }
     const hand = index === 2 ? new T.Group() : root;
     if (index === 2) {
       hand.name = 'bolt-hand';
       root.add(hand);
     }
-    shape(hand, this.sphere, black, 0.035, -0.23, -0.014, 0.18, 0.18, 0.22);
+    if (index !== 1)
+      shape(hand, this.sphere, black, 0.035, -0.23, -0.014, 0.18, 0.18, 0.22);
     shape(
       hand,
       this.taper,
@@ -1193,20 +1139,22 @@ export class Graphics {
         0.06,
       );
     if (index === 1 || index === 2) {
-      shape(root, this.sphere, black, -0.015, -0.15, -0.48, 0.2, 0.14, 0.2);
-      const arm = shape(
-        root,
-        this.taper,
-        polymer,
-        -0.12,
-        -0.29,
-        -0.18,
-        0.2,
-        0.52,
-        0.22,
-      );
-      arm.rotation.x = Math.PI / 2 - 0.3;
-      arm.rotation.z = -0.5;
+      if (index === 2) {
+        shape(root, this.sphere, black, -0.015, -0.15, -0.48, 0.2, 0.14, 0.2);
+        const arm = shape(
+          root,
+          this.taper,
+          polymer,
+          -0.12,
+          -0.29,
+          -0.18,
+          0.2,
+          0.52,
+          0.22,
+        );
+        arm.rotation.x = Math.PI / 2 - 0.3;
+        arm.rotation.z = -0.5;
+      }
       for (let i = 0; i < 3; i++)
         shape(
           root,

@@ -3270,7 +3270,7 @@ export class Game {
     }
     const targetX = ads ? 0 : 0.27;
     const targetY =
-      (ads ? -0.120 : -0.25) -
+      (ads ? (this.weaponIndex === 1 ? -0.106 : -0.120) : -0.25) -
       (throwing ? 0.45 : 0) -
       (this.reloadTime > 0 ? Math.sin(s.reload * Math.PI) * 0.35 : 0) +
       Math.sin(this.elapsed * 1.5) * (ads ? 0.0008 : 0.003);
