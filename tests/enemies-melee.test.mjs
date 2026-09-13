@@ -301,6 +301,7 @@ test('Scrake chainsaws and Freshpound drills keep their reach and damage, respec
     else {
       assert.equal(e.chainsaw, undefined);
       assert.notEqual(e.drillBit.rotation.y, 0);
+      assert.notEqual(e.drillBitLeft.rotation.y, 0);
     }
     e.attack = 0;
     e.root.position.z = -(reach + 0.1);
@@ -342,10 +343,13 @@ test('Freshpound warns, pauses its rage timer, charges fast in a locked directio
   assert.equal(other.rageIndicator.visible, false);
   g.updateEnemies(0.5);
   g.state.mode = 'paused';
-  const time = e.rageTime, rotation = e.drillBit.rotation.y;
+  const time = e.rageTime,
+    rotation = e.drillBit.rotation.y,
+    rotLeft = e.drillBitLeft.rotation.y;
   g.updateEnemies(0.5);
   assert.equal(e.rageTime, time);
   assert.equal(e.drillBit.rotation.y, rotation);
+  assert.equal(e.drillBitLeft.rotation.y, rotLeft);
   g.state.mode = 'playing';
   g.updateEnemies(0.5);
   assert.equal(e.ragePhase, 'charging');

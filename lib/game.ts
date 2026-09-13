@@ -3106,8 +3106,14 @@ export class Game {
       if (e.drill && e.drillBit) {
         const charging = e.ragePhase === 'charging';
         const swing = Math.sin((1 - e.meleeSwing / 0.42) * Math.PI);
-        e.drillBit.rotation.y = (e.drillBit.rotation.y + dt * (charging ? 65 : 22)) % (Math.PI * 2);
+        const rotDelta = dt * (charging ? 65 : 22);
+        e.drillBit.rotation.y = (e.drillBit.rotation.y + rotDelta) % (Math.PI * 2);
+        if (e.drillBitLeft) {
+          e.drillBitLeft.rotation.y = (e.drillBitLeft.rotation.y + rotDelta) % (Math.PI * 2);
+        }
         e.torso.rotation.x = charging ? 0.32 : e.ragePhase === 'windup' ? -0.15 : 0.08;
+        e.arms[0].rotation.x = charging ? -1.72 : -0.75 - swing * 0.8;
+        e.elbows[0].rotation.x = charging ? -0.15 : -0.4;
         e.arms[1].rotation.x = charging ? -1.72 : -0.75 - swing * 0.8;
         e.elbows[1].rotation.x = charging ? -0.15 : -0.4;
         if (e.rageIndicator) {

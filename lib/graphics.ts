@@ -8,6 +8,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { EnemyMaterials } from './enemy-materials.ts';
 import { createHansModel, bindHansRig, type HansRig } from './hans-model.ts';
 import { createBloatModel } from './bloat-model.ts';
+import { createFreshpoundModel } from './freshpound-model.ts';
 
 export type Quality = 'high';
 type Surface = 'concrete' | 'metal' | 'cloth' | 'skin';
@@ -34,6 +35,7 @@ export type EnemyRig = {
   blade?: T.Group;
   drill?: T.Group;
   drillBit?: T.Group;
+  drillBitLeft?: T.Group;
   rageIndicator?: T.Group;
 };
 
@@ -80,6 +82,8 @@ export class Graphics {
   taper = this.geometry(new T.CylinderGeometry(0.5, 0.33, 1, 10));
   ring = this.geometry(new T.TorusGeometry(0.5, 0.08, 5, 14));
   plane = this.geometry(new T.PlaneGeometry(1, 1));
+  cone = this.geometry(new T.ConeGeometry(0.5, 1, 8));
+  pyramid = this.geometry(new T.ConeGeometry(0.5, 1, 4));
 
   geometry<G extends T.BufferGeometry>(g: G): G {
     this.geometries.add(g);
@@ -366,6 +370,8 @@ export class Graphics {
       blade: root.getObjectByName('arm-blade') as T.Group | undefined,
       drill: root.getObjectByName('drill') as T.Group | undefined,
       drillBit: root.getObjectByName('drill-bit') as T.Group | undefined,
+      drillBitLeft: (root.getObjectByName('drill-bit-left') ||
+        root.getObjectByName('grinder-bit')) as T.Group | undefined,
       rageIndicator: root.getObjectByName('rage-indicator') as T.Group | undefined,
       arms: [-1, 1].map((i) => root.getObjectByName(`arm${i}`) as T.Group),
       legs: [-1, 1].map((i) => root.getObjectByName(`leg${i}`)).filter((o): o is T.Group => o instanceof T.Group),
@@ -378,6 +384,7 @@ export class Graphics {
   enemyTemplate(kind: number) {
     if (kind === 7) return createHansModel(this);
     if (kind === 4) return createBloatModel(this);
+    if (kind === 3) return createFreshpoundModel(this);
     const root = new T.Group();
     const materials = this.enemyMaterials;
     const sphere = kind === 2 ? this.geometry(new T.SphereGeometry(0.5, 8, 5)) : this.sphere;
@@ -387,17 +394,17 @@ export class Graphics {
       kind === 2 ? 0x8f9da9 : 0xffffff,
     );
     const cloth = materials.surface('dirty-cloth', kind === 2 ? 0xe2ded2 : 0x484d49);
-    const body = kind === 3 ? materials.surface('exposed-muscle') : skin;
-    const trousers = materials.surface('dirty-cloth', kind === 3 ? 0x635a42 : 0x434747),
+    const body = skin;
+    const trousers = materials.surface('dirty-cloth', 0x434747),
       dark = materials.surface('exposed-muscle', 0x493b37),
       blood = materials.surface('exposed-muscle', 0xbe8881, 'wet');
     const armor = kind === 2 ? cloth : materials.surface('corroded-metal',
-      kind === 3 ? 0xc49b46 : kind === 6 ? 0x817166 : 0x9ea5a2, 'paint'),
+      kind === 6 ? 0x817166 : 0x9ea5a2, 'paint'),
       teeth = this.material(
         new T.MeshStandardMaterial({ color: 0xb5a787, roughness: 0.85 }),
       );
     const glow = this.material(
-      new T.MeshBasicMaterial({ color: kind === 6 ? 0xff9b32 : kind === 3 ? 0xf5b355 : 0xb9b4a0 }),
+      new T.MeshBasicMaterial({ color: kind === 6 ? 0xff9b32 : 0xb9b4a0 }),
     );
     const torsoWidth = kind === 0 ? 0.74 : kind === 2 ? 1.38 : 1;
     const torsoDepth = kind === 0 ? 0.8 : kind === 2 ? 1.32 : 1;
@@ -613,13 +620,6 @@ export class Graphics {
         arm.rotation.x = -0.65;
         elbow.rotation.x = -0.45;
       }
-      if (kind === 3 && side === 1) {
-        const drill = this.drillTemplate();
-        drill.position.set(0, -0.18, 0.025);
-        elbow.add(drill);
-        arm.rotation.x = -0.75;
-        elbow.rotation.x = -0.4;
-      }
       if (kind === 5) continue;
       const leg = joint(root, `leg${side}`, side * 0.17 * torsoWidth, 0.78, 0);
       shape(leg, this.taper, trousers, 0, -0.18, 0, 0.265, 0.4, 0.29);
@@ -643,7 +643,7 @@ export class Graphics {
       shape(tank, this.rounded, dark, 0, 0, -0.02, 0.41, 0.13, 0.39);
       shape(tank, this.sphere, glow, 0, 0.3, -0.13, 0.14, 0.12, 0.09);
     }
-    if (kind === 2 || kind === 3 || kind === 6) {
+    if (kind === 2 || kind === 6) {
       if (kind === 2)
         shape(torso, this.rounded, armor, 0, -0.055, 0.19, 0.4, 0.25, 0.07);
       else
@@ -663,30 +663,10 @@ export class Graphics {
           0.1,
         );
       }
-      if (kind === 3) {
-        for (const side of [-1, 1])
-          for (let i = 0; i < 3; i++)
-            shape(
-              torso,
-              this.taper,
-              teeth,
-              side * (0.26 + i * 0.07),
-              0.71 - i * 0.055,
-              -0.08,
-              0.085,
-              0.25,
-              0.085,
-            ).rotation.z = side * -0.45;
-        shape(torso, this.rounded, glow, 0, 0.39, 0.264, 0.12, 0.075, 0.012);
-        const rage = joint(torso, 'rage-indicator', 0, 0.39, 0.285);
-        const red = this.material(new T.MeshBasicMaterial({ color: 0xff2010 }));
-        shape(rage, this.sphere, red, 0, 0, 0, 0.22, 0.15, 0.028);
-        rage.visible = false;
-      }
     }
     this.mergeParts(root);
     root.scale.setScalar(
-      kind === 3 ? 2 : kind === 2 ? 1.3 : kind === 6 ? 1.08 : kind === 1 ? 0.9 : 1,
+      kind === 2 ? 1.3 : kind === 6 ? 1.08 : kind === 1 ? 0.9 : 1,
     );
     return root;
   }
@@ -804,27 +784,6 @@ export class Graphics {
     return root;
   }
 
-  drillTemplate() {
-    const root = new T.Group();
-    root.name = 'drill';
-    const housing = this.enemyMaterials.surface('corroded-metal', 0xc49b46, 'paint');
-    const steel = this.enemyMaterials.surface('corroded-metal', 0xb9b5ab);
-    this.mesh(root, this.cylinder, housing, 0, -0.12, 0, 0.35, 0.42, 0.35);
-    this.mesh(root, this.rounded, housing, 0, -0.14, 0, 0.39, 0.2, 0.39);
-    const bit = new T.Group();
-    bit.name = 'drill-bit';
-    bit.position.y = -0.34;
-    root.add(bit);
-    const cone = this.geometry(new T.ConeGeometry(0.17, 0.8, 12));
-    this.mesh(bit, cone, steel, 0, -0.4, 0, 1, 1, 1).rotation.z = Math.PI;
-    const points = Array.from({ length: 49 }, (_, i) => {
-      const t = i / 48, angle = t * Math.PI * 6, radius = 0.17 * (1 - t);
-      return new T.Vector3(Math.cos(angle) * radius, -t * 0.8, Math.sin(angle) * radius);
-    });
-    const ridge = this.geometry(new T.TubeGeometry(new T.CatmullRomCurve3(points), 48, 0.018, 4, false));
-    this.mesh(bit, ridge, steel, 0, 0, 0, 1, 1, 1);
-    return root;
-  }
 
   chainsawTemplate() {
     const root = new T.Group();

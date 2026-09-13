@@ -67,9 +67,13 @@ test('enemy models preserve headshot targets, independent animation joints, and 
     if (kind === 3) {
       assert.equal(a.drill.parent, a.elbows[1]);
       assert.equal(a.drillBit.parent, a.drill);
+      assert.equal(a.drillBitLeft.parent.parent, a.elbows[0]);
       const rotation = b.drillBit.rotation.y;
       a.drillBit.rotation.y += 1;
       assert.equal(b.drillBit.rotation.y, rotation);
+      const rotLeft = b.drillBitLeft.rotation.y;
+      a.drillBitLeft.rotation.y += 1;
+      assert.equal(b.drillBitLeft.rotation.y, rotLeft);
       a.rageIndicator.visible = true;
       assert.equal(b.rageIndicator.visible, false);
     }
