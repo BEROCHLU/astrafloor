@@ -229,7 +229,7 @@ astrafloor/
 │   ├── enemy-materials.ts # Shared procedural Zod PBR textures & materials
 │   ├── recoil.ts          # Physical weapon recoil and camera kick mathematics
 │   └── game-tools.ts      # WebMCP protocol tool schemas
-├── tests/                 # Automated test suite (136 unit tests)
+├── tests/                 # Automated test suite (132 unit tests)
 │   ├── game.test.mjs
 │   ├── enemies-melee.test.mjs
 │   ├── grenades.test.mjs
@@ -253,7 +253,7 @@ astrafloor/
 # Start local dev server
 npm run dev
 
-# Run all 136 automated unit tests
+# Run all 132 automated unit tests
 npm test
 
 # TypeScript typecheck

@@ -10,9 +10,9 @@ English | [日本語](README.jp.md)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-r185-black.svg)](https://threejs.org/)
 [![Vite / vinext](https://img.shields.io/badge/Build-Vite%20%2F%20vinext-646cff.svg)](https://vitejs.dev/)
-[![Tests](https://img.shields.io/badge/Tests-136%20passed-brightgreen.svg)](#running-automated-tests)
+[![Tests](https://img.shields.io/badge/Tests-132%20passed-brightgreen.svg)](#running-automated-tests)
 
-![Astra Floor Title Screen](.github/workflows/image1.png)
+![Astra Floor Title Screen](.github/image1.png)
 
 ---
 
@@ -155,7 +155,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. Click the s
 
 ### Running Automated Tests
 
-Run the full automated test suite (136 unit tests):
+Run the full automated test suite (132 unit tests):
 
 ```bash
 npm test

@@ -10,9 +10,9 @@
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-r185-black.svg)](https://threejs.org/)
 [![Vite / vinext](https://img.shields.io/badge/Build-Vite%20%2F%20vinext-646cff.svg)](https://vitejs.dev/)
-[![Tests](https://img.shields.io/badge/Tests-136%20passed-brightgreen.svg)](#自動テストの実行)
+[![Tests](https://img.shields.io/badge/Tests-132%20passed-brightgreen.svg)](#自動テストの実行)
 
-![Astra Floor タイトル画面](.github/workflows/image1.png)
+![Astra Floor タイトル画面](.github/image1.png)
 
 ---
 
@@ -156,7 +156,7 @@ npm run dev
 ### 自動テストの実行
 
 ```bash
-# 全136件のユニットテストを実行
+# 全132件のユニットテストを実行
 npm test
 ```
 

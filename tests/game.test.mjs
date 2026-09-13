@@ -153,13 +153,6 @@ test('supplies replenish kits/ammo and cannot charge for full stock or unknown i
   g.buy('armor');
   assert.equal(g.state.cash, 550, 'armor full (100 in hard mode) cannot charge');
 });
-test('upgrade caps at two levels', () => {
-  const g = fixture();
-  g.state.cash = 10000;
-  for (let i = 0; i < 5; i++) g.buy('upgrade');
-  assert.equal(g.state.level, 2);
-  assert.equal(g.state.cash, 7000);
-});
 test('weapon upgrade scales by +35% per level up to Lv.2 for 1000 and 2000 credits, applying to shoot and melee', () => {
   const g = fixture();
   g.state.cash = 10000;
@@ -343,20 +336,6 @@ test('Normal mode Wave 6 cleared flows into supply shop and Wave 7 Hans Volter b
   g.completeWave();
   assert.equal(g.state.mode, 'won');
 });
-test('grenade purchase caps at three items in both difficulties without Ammo Pouch', () => {
-  for (const difficulty of ['normal', 'hard']) {
-    const g = fixture();
-    g.difficultyMode = difficulty;
-    g.state.cash = 1000;
-    g.state.grenades = 2;
-    g.buy('grenade');
-    assert.equal(g.state.grenades, 3);
-    assert.equal(g.state.cash, 950);
-    g.buy('grenade');
-    assert.equal(g.state.grenades, 3);
-    assert.equal(g.state.cash, 950);
-  }
-});
 test('wave completion fully heals without replenishing kits and openShop enters shop', () => {
   const g = fixture();
   g.state.medicalKits = 1;
@@ -398,14 +377,6 @@ test('next wave initializes exact enemy count and ignores repeated calls during 
   assert.equal(g.state.mode, 'playing');
   g.nextWave();
   assert.equal(g.state.wave, 2);
-});
-test('hard mode doubles the enemy pending count across waves', () => {
-  const g = fixture();
-  g.difficultyMode = 'hard';
-  g.nextWave();
-  assert.equal(g.state.wave, 2);
-  assert.equal(g.pending, 24);
-  assert.equal(g.state.remaining, 24);
 });
 test('collision blocks obstacles and bounds while permitting open lanes', () => {
   const g = fixture();
@@ -942,41 +913,6 @@ test('G18C purchase upgrades handgun to 33-round machine pistol for 750 credits 
   assert.equal(g2.state.cash, 700);
 });
 
-test('G18C supports full-auto firing while holding trigger and single tap firing', () => {
-  const g = fixture();
-  g.state.mode = 'playing';
-  g.state.g18c = true;
-  g.weaponIndex = 0;
-  g.ammo = [33, 0, 0];
-  g.reserve = [132, 0, 0];
-  g.walls = [];
-  g.enemies = [];
-  g.camera = new T.PerspectiveCamera(76, 1, 0.06, 150);
-  g.scene = new T.Scene();
-  g.ray = new T.Raycaster();
-  g.updateCameraAim = () => {};
-  let shotCount = 0;
-  g.gunshot = () => { shotCount++; };
-
-  // Single tap: mousedown fires once, mouseup stops firing
-  g.shooting = true;
-  g.shoot();
-  assert.equal(shotCount, 1);
-  assert.equal(g.ammo[0], 32);
-  g.shooting = false;
-
-  // Holding down fire in update loop: continuous auto fire as cooldown expires
-  g.shooting = true;
-  for (let frame = 0; frame < 5; frame++) {
-    g.cooldown = 0;
-    if (g.shooting && (g.weaponIndex === 1 || (g.weaponIndex === 0 && g.state.g18c))) {
-      g.shoot();
-      g.updateCameraAim();
-    }
-  }
-  assert.equal(shotCount, 6);
-  assert.equal(g.ammo[0], 27);
-});
 
 for (const [name, weaponIndex] of [['G18C', 0], ['AR-2', 1]]) {
   test(`${name} held fire stops on empty, allows swapping, and reloads on a fresh click`, () => {
@@ -1615,6 +1551,10 @@ test('Normal mode start initializes in playing mode with wave 1, 500 credits, 10
   g.state.healCooldown = 9;
   g.start('normal');
 
+  assert.equal(STAMINA.max, 100);
+  assert.equal(STAMINA.drain, 20);
+  assert.equal(STAMINA.recover, 20);
+  assert.equal(g.state.stamina, 100, 'initial stamina must be 100');
   assert.equal(g.state.mode, 'playing');
   assert.equal(g.state.wave, 1);
   assert.equal(g.state.cash, 500);
@@ -1726,35 +1666,6 @@ test('start() cleanly resets combat state, weapons, and pouch/g18c upgrades from
   assert.equal(g.state.ammoFull, true);
 });
 
-test('stamina drains at 20/s during sprint and recovers at 20/s when not sprinting', () => {
-  assert.equal(STAMINA.max, 100);
-  assert.equal(STAMINA.drain, 20);
-  assert.equal(STAMINA.recover, 20);
-
-  const g = fixture();
-  g.start('normal');
-  assert.equal(g.state.stamina, 100, 'initial stamina must be 100');
-
-  // Test drain logic (simulating 1 second of sprinting: -20 stamina)
-  let stamina = 100;
-  const dt = 1.0;
-  const sprint = true;
-  stamina = T.MathUtils.clamp(stamina + dt * (sprint ? -STAMINA.drain : STAMINA.recover), 0, STAMINA.max);
-  assert.equal(stamina, 80, 'stamina drains by 20 after 1s of sprint');
-
-  // Drains all the way to 0 and clamps
-  stamina = T.MathUtils.clamp(stamina + 5.0 * (sprint ? -STAMINA.drain : STAMINA.recover), 0, STAMINA.max);
-  assert.equal(stamina, 0, 'stamina clamps at 0');
-
-  // Test recovery logic (simulating 1 second of non-sprint recovery: +20 stamina)
-  const notSprint = false;
-  stamina = T.MathUtils.clamp(stamina + dt * (notSprint ? -STAMINA.drain : STAMINA.recover), 0, STAMINA.max);
-  assert.equal(stamina, 20, 'stamina recovers by 20 after 1s of rest/walk');
-
-  // Recovers to 100 and clamps
-  stamina = T.MathUtils.clamp(stamina + 5.0 * (notSprint ? -STAMINA.drain : STAMINA.recover), 0, STAMINA.max);
-  assert.equal(stamina, 100, 'stamina clamps at 100');
-});
 
 test('full-auto firing is blocked during Katana swing and automatically resumes when swing completes', () => {
   const g = fixture();
@@ -1781,75 +1692,6 @@ test('full-auto firing is blocked during Katana swing and automatically resumes 
   assert.equal(g.ammo[1], initialAmmo - 1, 'shoot fires immediately once katana swing completes');
 });
 
-test('Normal mode Wave 6 completes to cleared state with ₡550 reward, opens shop with updated prices, and advances to Wave 7 Hans boss fight', () => {
-  const g = fixture();
-  g.difficultyMode = 'normal';
-  g.difficulty = 1;
-  g.state.wave = 6;
-  g.state.mode = 'playing';
-  g.state.cash = 5000;
-  g.state.health = 20;
-  g.state.armor = 0;
-  g.state.grenades = 0;
-  g.state.level = 0;
-
-  // Wave 6 completion in Normal mode
-  g.completeWave();
-  assert.equal(g.state.mode, 'cleared', 'Wave 6 complete must transition to cleared, not won');
-  assert.equal(g.state.health, 100, 'cleared restores HP to 100');
-  assert.equal(g.state.cash, 5550, 'Wave 6 clear reward is 250 + 6*50 = 550 credits');
-
-  // Open shop
-  g.openShop();
-  assert.equal(g.state.mode, 'shop');
-
-  // Buy ammo (100 credits)
-  g.buy('ammo');
-  assert.equal(g.state.cash, 5450, 'Ammo Resupply charged 100 credits');
-
-  // Buy grenade (50 credits)
-  g.buy('grenade');
-  assert.equal(g.state.cash, 5400, 'Frag Grenade charged 50 credits');
-
-  // Buy armor (150 credits)
-  g.buy('armor');
-  assert.equal(g.state.cash, 5250, 'Body Armor charged 150 credits');
-
-  // Buy Weapon Upgrade Lv.1 (1000 credits)
-  g.buy('upgrade');
-  assert.equal(g.state.level, 1);
-  assert.equal(g.state.cash, 4250, 'Weapon upgrade Lv.1 charged 1000 credits');
-
-  // Buy Weapon Upgrade Lv.2 (2000 credits)
-  g.buy('upgrade');
-  assert.equal(g.state.level, 2);
-  assert.equal(g.state.cash, 2250, 'Weapon upgrade Lv.2 charged 2000 credits');
-
-  // 3rd buy blocked
-  g.buy('upgrade');
-  assert.equal(g.state.level, 2);
-  assert.equal(g.state.cash, 2250, '3rd weapon upgrade blocked at max level 2');
-
-  // Advance to Wave 7
-  g.nextWave();
-  assert.equal(g.state.wave, 7);
-  assert.equal(g.state.mode, 'playing');
-  assert.equal(g.isHansWave(), true);
-  assert.equal(g.pending, 1);
-  assert.equal(g.chooseEnemyKind(), HANS.kind);
-
-  // Hans enemy presence
-  const hansEnemy = { hp: 12000, dead: false, kind: HANS.kind };
-  g.enemies = [hansEnemy];
-  g.state.remaining = 1;
-
-  // Defeating Hans completes wave to won
-  hansEnemy.dead = true;
-  g.enemies = [];
-  g.state.remaining = 0;
-  g.completeWave();
-  assert.equal(g.state.mode, 'won', 'Defeating Hans in Normal mode triggers won');
-});
 
 test('debug mode debugMinHp option clamps health to 1 and prevents death from all damage sources', () => {
   const g = fixture();

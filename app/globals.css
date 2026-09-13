@@ -69,7 +69,7 @@ button:focus-visible {
   top: 0;
   left: 0;
   right: 0;
-  height: 86px;
+  height: 43px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -120,7 +120,7 @@ button:focus-visible {
 }
 .start-screen {
   position: absolute;
-  inset: 86px 0 0;
+  inset: 43px 0 0;
   pointer-events: none;
 }
 .intro {
@@ -202,7 +202,7 @@ h1 i {
 
 .debug-scrim {
   position: absolute;
-  inset: 86px 0 0;
+  inset: 43px 0 0;
   background: #060c0ecc;
   backdrop-filter: blur(8px);
   display: flex;
@@ -844,7 +844,7 @@ kbd {
 }
 .modal-scrim {
   position: absolute;
-  inset: 86px 0 0;
+  inset: 43px 0 0;
   background: #060c0ecc;
   backdrop-filter: blur(9px);
   display: flex;
@@ -1106,12 +1106,15 @@ kbd {
     font-size: 13px;
   }
   .topbar {
-    height: 65px;
+    height: 32.5px;
+  }
+  .top-actions button {
+    padding: 4px 6px;
   }
   .start-screen,
   .modal-scrim,
   .debug-scrim {
-    top: 65px;
+    top: 32.5px;
   }
   .debug-scrim {
     padding: 12px;

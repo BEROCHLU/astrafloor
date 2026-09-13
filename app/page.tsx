@@ -122,7 +122,11 @@ export default function Home() {
           </div>
         )}
         <div className="top-actions">
-          <span className="solo">SOLO SURVIVAL</span>
+          {s.mode !== 'menu' && (
+            <span className="solo">
+              {(s.difficulty || difficulty).toUpperCase()}
+            </span>
+          )}
           <button
             aria-label={muted ? 'Unmute audio' : 'Mute audio'}
             onClick={() => {
