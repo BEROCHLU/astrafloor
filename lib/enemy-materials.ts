@@ -3,7 +3,7 @@ import * as T from 'three';
 export const ENEMY_SURFACES = {
   'pale-skin': { fallback: 'skin', color: 0xb3a7a4, roughness: 0.9, relief: 0.45 },
   'exposed-muscle': { fallback: 'skin', color: 0x913b36, roughness: 0.7, relief: 0.65 },
-  'bloated-skin': { fallback: 'skin', color: 0xb2b29a, roughness: 0.87, relief: 0.5 },
+  'bloated-skin': { fallback: 'skin', color: 0xf5deb3, roughness: 0.87, relief: 0.5 },
   'hardened-skin': { fallback: 'skin', color: 0x60656c, roughness: 0.85, relief: 0.65 },
   'charred-skin': { fallback: 'skin', color: 0x50403b, roughness: 0.97, relief: 0.8 },
   'dirty-cloth': { fallback: 'cloth', color: 0xb8aea0, roughness: 1, relief: 0.4 },

@@ -1,11 +1,13 @@
 import * as T from 'three';
 import { createAR2Body } from './ar2-model.ts';
 import { createRPGBody } from './rpg-model.ts';
+import { createSniperBody } from './sniper-model.ts';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { EnemyMaterials } from './enemy-materials.ts';
 import { createHansModel, bindHansRig, type HansRig } from './hans-model.ts';
+import { createBloatModel } from './bloat-model.ts';
 
 export type Quality = 'high';
 type Surface = 'concrete' | 'metal' | 'cloth' | 'skin';
@@ -375,11 +377,13 @@ export class Graphics {
   // 0: Clot, 1: Gorefast, 2: Scrake, 3: Freshpound, 4: Bloat, 5: Crawler, 6: Husk, 7: Hans.
   enemyTemplate(kind: number) {
     if (kind === 7) return createHansModel(this);
+    if (kind === 4) return createBloatModel(this);
     const root = new T.Group();
     const materials = this.enemyMaterials;
+    const sphere = kind === 2 ? this.geometry(new T.SphereGeometry(0.5, 8, 5)) : this.sphere;
     const skin = materials.surface(
       kind === 6 ? 'charred-skin' : kind === 5 ? 'hardened-skin' :
-        kind === 4 ? 'bloated-skin' : kind === 1 ? 'exposed-muscle' : 'pale-skin',
+        kind === 1 ? 'exposed-muscle' : 'pale-skin',
       kind === 2 ? 0x8f9da9 : 0xffffff,
     );
     const cloth = materials.surface('dirty-cloth', kind === 2 ? 0xe2ded2 : 0x484d49);
@@ -393,11 +397,11 @@ export class Graphics {
         new T.MeshStandardMaterial({ color: 0xb5a787, roughness: 0.85 }),
       );
     const glow = this.material(
-      new T.MeshBasicMaterial({ color: kind === 6 ? 0xff9b32 : kind === 3 ? 0xf5b355 : kind === 4 ? 0xb7bf83 : 0xb9b4a0 }),
+      new T.MeshBasicMaterial({ color: kind === 6 ? 0xff9b32 : kind === 3 ? 0xf5b355 : 0xb9b4a0 }),
     );
-    const torsoWidth = kind === 0 ? 0.74 : kind === 2 ? 1.38 : kind === 4 ? 1.5 : 1;
-    const torsoDepth = kind === 0 ? 0.8 : kind === 2 ? 1.32 : kind === 4 ? 1.45 : 1;
-    const limbWidth = kind === 0 ? 0.78 : kind === 2 ? 1.5 : kind === 4 ? 1.2 : 1;
+    const torsoWidth = kind === 0 ? 0.74 : kind === 2 ? 1.38 : 1;
+    const torsoDepth = kind === 0 ? 0.8 : kind === 2 ? 1.32 : 1;
+    const limbWidth = kind === 0 ? 0.78 : kind === 2 ? 1.5 : 1;
     const shape = (
       p: T.Object3D,
       g: T.BufferGeometry,
@@ -430,9 +434,9 @@ export class Graphics {
       return group;
     };
     const torso = joint(root, 'torso', 0, kind === 5 ? 0.4 : 0.93, 0);
-    shape(torso, this.sphere, body, 0, 0.33, -0.025, 0.68, 0.8, 0.39);
+    shape(torso, sphere, body, 0, 0.33, -0.025, 0.68, 0.8, 0.39);
     shape(torso, this.taper, body, 0, 0.08, 0, 0.42, 0.4, 0.32);
-    if (kind !== 5) shape(torso, this.sphere, trousers, 0, -0.1, 0, 0.48, 0.25, 0.34);
+    if (kind !== 5) shape(torso, sphere, trousers, 0, -0.1, 0, 0.48, 0.25, 0.34);
     shape(
       torso,
       this.rounded,
@@ -448,7 +452,7 @@ export class Graphics {
     for (let n = 0; n < 3; n++)
       shape(
         torso,
-        this.sphere,
+        sphere,
         skin,
         0.13,
         0.3 + n * 0.075,
@@ -460,17 +464,17 @@ export class Graphics {
     if (kind === 2) {
       for (const side of [-1, 1]) {
         // Pectorals, abdominal muscles and trapezius merge into the existing skin mesh.
-        shape(torso, this.sphere, skin, side * 0.155, 0.45, 0.165, 0.32, 0.26, 0.2);
-        shape(torso, this.sphere, skin, side * 0.13, 0.64, -0.025, 0.26, 0.23, 0.3);
+        shape(torso, sphere, skin, side * 0.155, 0.45, 0.165, 0.32, 0.26, 0.2);
+        shape(torso, sphere, skin, side * 0.13, 0.64, -0.025, 0.26, 0.23, 0.3);
         for (let row = 0; row < 2; row++)
-          shape(torso, this.sphere, skin, side * 0.068, 0.24 - row * 0.11, 0.15, 0.12, 0.105, 0.15);
+          shape(torso, sphere, skin, side * 0.068, 0.24 - row * 0.11, 0.15, 0.12, 0.105, 0.15);
       }
     }
     const neck = joint(torso, 'neck', 0, 0.68, 0.035);
     shape(neck, this.taper, skin, 0, 0.01, -0.035, 0.14, 0.2, 0.14);
-    shape(neck, this.sphere, skin, 0, 0.17, 0.008, 0.345, 0.39, 0.31);
-    shape(neck, this.sphere, skin, 0, 0.027, 0.083, 0.23, 0.18, 0.22);
-    shape(neck, this.sphere, dark, 0, 0.048, 0.19, 0.18, 0.072, 0.018);
+    shape(neck, sphere, skin, 0, 0.17, 0.008, 0.345, 0.39, 0.31);
+    shape(neck, sphere, skin, 0, 0.027, 0.083, 0.23, 0.18, 0.22);
+    shape(neck, sphere, dark, 0, 0.048, 0.19, 0.18, 0.072, 0.018);
     shape(
       neck,
       this.taper,
@@ -485,7 +489,7 @@ export class Graphics {
     for (const side of [-1, 1]) {
       shape(
         neck,
-        this.sphere,
+        sphere,
         dark,
         side * 0.085,
         0.205,
@@ -496,7 +500,7 @@ export class Graphics {
       );
       shape(
         neck,
-        this.sphere,
+        sphere,
         glow,
         side * 0.085,
         0.2,
@@ -518,7 +522,7 @@ export class Graphics {
       ).rotation.z = side * 0.19;
       shape(
         neck,
-        this.sphere,
+        sphere,
         skin,
         side * 0.17,
         0.152,
@@ -540,8 +544,8 @@ export class Graphics {
           0.014,
         );
       const arm = joint(torso, `arm${side}`, side * 0.36 * torsoWidth, 0.5, 0);
-      shape(arm, this.sphere, body, 0, -0.025, 0, 0.28, 0.3, 0.3);
-      shape(arm, kind === 2 ? this.sphere : this.taper, body, 0, -0.2, 0, 0.22, 0.35, 0.235);
+      shape(arm, sphere, body, 0, -0.025, 0, 0.28, 0.3, 0.3);
+      shape(arm, kind === 2 ? sphere : this.taper, body, 0, -0.2, 0, 0.22, 0.35, 0.235);
       const elbow = joint(arm, `elbow${side}`, 0, -0.38, 0);
       if (kind === 6 && side === 1) {
         const cannon = joint(elbow, 'cannon', 0, 0, 0);
@@ -554,13 +558,13 @@ export class Graphics {
         }
         const muzzle = joint(cannon, 'cannon-muzzle', 0, -0.61, 0);
         const charge = joint(muzzle, 'cannon-charge', 0, 0, 0);
-        shape(charge, this.sphere, glow, 0, 0, 0, 0.19, 0.19, 0.19);
+        shape(charge, sphere, glow, 0, 0, 0, 0.19, 0.19, 0.19);
         charge.visible = false;
         arm.rotation.x = -Math.PI / 2;
       } else {
-        shape(elbow, this.sphere, skin, 0, 0, 0, 0.17, 0.18, 0.18);
+        shape(elbow, sphere, skin, 0, 0, 0, 0.17, 0.18, 0.18);
         shape(elbow, this.taper, skin, 0, -0.14, 0.01, 0.17, 0.3, 0.17);
-        shape(elbow, this.sphere, skin, 0, -0.33, 0.027, 0.17, 0.19, 0.105);
+        shape(elbow, sphere, skin, 0, -0.33, 0.027, 0.17, 0.19, 0.105);
         for (let finger = 0; finger < 3; finger++)
           shape(
             elbow,
@@ -575,7 +579,7 @@ export class Graphics {
           ).rotation.x = -0.25;
         shape(
           elbow,
-          this.sphere,
+          sphere,
           blood,
           side * 0.058,
           -0.17,
@@ -620,20 +624,12 @@ export class Graphics {
       const leg = joint(root, `leg${side}`, side * 0.17 * torsoWidth, 0.78, 0);
       shape(leg, this.taper, trousers, 0, -0.18, 0, 0.265, 0.4, 0.29);
       const knee = joint(leg, `knee${side}`, 0, -0.38, 0);
-      shape(knee, this.sphere, trousers, 0, 0, 0.015, 0.23, 0.21, 0.25);
+      shape(knee, sphere, trousers, 0, 0, 0.015, 0.23, 0.21, 0.25);
       shape(knee, this.taper, trousers, 0, -0.15, 0, 0.2, 0.34, 0.22);
       shape(knee, this.rounded, dark, 0, -0.32, 0.045, 0.23, 0.15, 0.39);
     }
-    if (kind === 4) {
-      const sac = joint(torso, 'bile-sac', 0, 0, 0);
-      const bile = materials.surface('bloated-skin', 0xabb557, 'wet');
-      shape(sac, this.sphere, skin, 0, 0.2, 0.12, 0.9, 0.78, 0.64);
-      shape(sac, this.sphere, bile, 0, 0.25, 0.36, 0.53, 0.48, 0.2);
-      shape(neck, this.sphere, bile, 0, -0.1, 0.12, 0.3, 0.26, 0.25);
-      shape(neck, this.sphere, dark, 0, 0.01, 0.211, 0.21, 0.14, 0.028);
-    }
     if (kind === 5) {
-      shape(torso, this.sphere, blood, 0, -0.15, 0, 0.39, 0.12, 0.3);
+      shape(torso, sphere, blood, 0, -0.15, 0, 0.39, 0.12, 0.3);
       torso.rotation.x = 1.1;
       neck.rotation.x = -1.05;
       for (const side of [-1, 1]) {
@@ -654,7 +650,7 @@ export class Graphics {
         shape(torso, this.rounded, armor, 0, 0.36, 0.19, 0.55, 0.45, 0.135);
       for (const side of [-1, 1]) {
         const arm = torso.getObjectByName(`arm${side}`)!;
-        shape(arm, this.sphere, kind === 2 ? skin : armor, 0, 0.04, 0, 0.34, 0.28, 0.37);
+        shape(arm, kind === 2 ? sphere : this.sphere, kind === 2 ? skin : armor, 0, 0.04, 0, 0.34, 0.28, 0.37);
         shape(
           torso,
           this.rounded,
@@ -932,6 +928,8 @@ export class Graphics {
     };
     if (index === 1) {
       createAR2Body(this, root, action);
+    } else if (index === 2) {
+      createSniperBody(this, root, action);
     } else if (index === 0 || index === 4) {
       shape(action, this.rounded, steel, 0, 0.045, -0.23, 0.115, 0.13, 0.42);
       barrel(root, 0, 0.015, -0.425, 0.12, 0.067, edges);
@@ -1000,50 +998,6 @@ export class Graphics {
         }
         action.add(comp);
       }
-    } else {
-      shape(root, this.rounded, steel, 0, 0.005, -0.27, 0.15, 0.17, 0.53);
-      shape(root, this.rounded, polymer, 0, -0.04, 0.05, 0.13, 0.17, 0.28);
-      shape(
-        root,
-        this.rounded,
-        polymer,
-        0,
-        -0.2,
-        -0.055,
-        0.115,
-        0.24,
-        0.15,
-      ).rotation.x = -0.2;
-      // Long precision barrel, compact ten-round magazine, and cheek rest.
-      barrel(root, 0, 0.01, -0.86, 0.72, 0.057, edges);
-      barrel(root, 0, 0.01, -1.19, 0.1, 0.082, steel);
-      barrel(root, 0, 0.01, -1.242, 0.004, 0.037, bore);
-      shape(root, this.rounded, polymer, 0, -0.035, -0.56, 0.14, 0.14, 0.42);
-      shape(root, this.rounded, steel, 0, -0.16, -0.27, 0.095, 0.15, 0.16);
-      shape(root, this.rounded, polymer, 0, -0.035, 0.18, 0.15, 0.17, 0.32);
-      shape(root, this.rounded, black, 0, 0.065, 0.12, 0.16, 0.07, 0.22);
-
-      const scope = new T.Group();
-      scope.name = 'scope';
-      root.add(scope);
-      for (const z of [-0.12, -0.36]) {
-        shape(scope, this.box, edges, 0, 0.15, z, 0.07, 0.12, 0.045);
-        barrel(scope, 0, 0.235, z, 0.04, 0.115, edges);
-      }
-      barrel(scope, 0, 0.235, -0.25, 0.48, 0.085, black);
-      barrel(scope, 0, 0.235, -0.455, 0.13, 0.14, steel);
-      barrel(scope, 0, 0.235, -0.03, 0.09, 0.11, black);
-      const glass = this.material(new T.MeshStandardMaterial({
-        color: 0x397c8f, metalness: 0.65, roughness: 0.12,
-      }));
-      barrel(scope, 0, 0.235, -0.522, 0.004, 0.115, glass);
-      barrel(scope, 0, 0.235, 0.017, 0.004, 0.088, glass);
-      shape(scope, this.cylinder, edges, 0, 0.307, -0.22, 0.068, 0.065, 0.068);
-
-      // The bolt remains a separate joint for the firing animation.
-      shape(action, this.cylinder, edges, 0.11, 0.035, -0.16, 0.026, 0.1, 0.026).rotation.z = -1.1;
-      shape(action, this.sphere, black, 0.155, 0.01, -0.16, 0.045, 0.045, 0.045);
-      shape(root, this.rounded, black, 0.077, 0.045, -0.26, 0.008, 0.07, 0.15);
     }
     // Pistol sights remain separate from the reference-based AR-2 sights.
     if (index === 0 || index === 4) {
@@ -1059,7 +1013,7 @@ export class Graphics {
       shape(root, this.rounded, black, 0, 0.117, frontZ, 0.006, 0.014, 0.014);
       shape(root, this.box, green, 0, 0.12, frontZ + 0.008, 0.004, 0.004, 0.002);
     }
-    if (index !== 1) {
+    if (index === 0 || index === 4) {
       for (const side of [-1, 1])
         barrel(
           root,
@@ -1087,7 +1041,7 @@ export class Graphics {
       hand.name = 'bolt-hand';
       root.add(hand);
     }
-    if (index !== 1)
+    if (index === 0 || index === 4)
       shape(hand, this.sphere, black, 0.035, -0.23, -0.014, 0.18, 0.18, 0.22);
     shape(
       hand,
@@ -1123,23 +1077,7 @@ export class Graphics {
         0.043,
         0.06,
       );
-    if (index === 1 || index === 2) {
-      if (index === 2) {
-        shape(root, this.sphere, black, -0.015, -0.15, -0.48, 0.2, 0.14, 0.2);
-        const arm = shape(
-          root,
-          this.taper,
-          polymer,
-          -0.12,
-          -0.29,
-          -0.18,
-          0.2,
-          0.52,
-          0.22,
-        );
-        arm.rotation.x = Math.PI / 2 - 0.3;
-        arm.rotation.z = -0.5;
-      }
+    if (index === 1) {
       for (let i = 0; i < 3; i++)
         shape(
           root,
