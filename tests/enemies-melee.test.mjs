@@ -49,7 +49,7 @@ function projectile(g, kind = 'bile') {
 test('katana purchase permanently upgrades V without changing gun slots, and its sweep respects walls', (t) => {
   const g = fixture(t);
   const near = spawnAt(g, 0, 0, -2);
-  const far = spawnAt(g, 5, 0, -4);
+  const far = spawnAt(g, 5, 0, -3.8);
   const hits = [];
   g.damageEnemy = (enemy, damage) => hits.push({ enemy, damage });
   g.handleKeyDown({ code: 'KeyV' });
@@ -74,7 +74,7 @@ test('katana purchase permanently upgrades V without changing gun slots, and its
   hits.length = 0;
   g.meleeTime = 0;
   g.handleKeyDown({ code: 'KeyV' });
-  assert.deepEqual(hits.map((h) => h.damage), [110, 110]);
+  assert.deepEqual(hits.map((h) => h.damage), [105, 105]);
   assert.equal(hits[1].enemy, far);
   assert.deepEqual(g.ammo, [15, 30, 10]);
   g.handleKeyDown({ code: 'KeyV' });
@@ -89,17 +89,17 @@ test('katana purchase permanently upgrades V without changing gun slots, and its
   g.melee();
   assert.deepEqual(hits.map((h) => h.enemy), [near]);
 
-  // Katana reach is 4.2m: hits enemy at distance 4.1m, misses enemy at distance 4.3m
+  // Katana reach is 4.0m: hits enemy at distance 3.9m, misses enemy at distance 4.1m
   g.walls = [];
+  const at39 = spawnAt(g, 0, 0, -3.9);
+  at39.root.position.set(0, 1.7, -3.9);
   const at41 = spawnAt(g, 0, 0, -4.1);
   at41.root.position.set(0, 1.7, -4.1);
-  const at43 = spawnAt(g, 0, 0, -4.3);
-  at43.root.position.set(0, 1.7, -4.3);
   hits.length = 0;
   g.meleeTime = 0;
   g.melee();
-  assert.ok(hits.some((h) => h.enemy === at41), 'katana reaches enemy within 4.2m (4.1m)');
-  assert.ok(!hits.some((h) => h.enemy === at43), 'katana cannot reach enemy beyond 4.2m (4.3m)');
+  assert.ok(hits.some((h) => h.enemy === at39), 'katana reaches enemy within 4.0m (3.9m)');
+  assert.ok(!hits.some((h) => h.enemy === at41), 'katana cannot reach enemy beyond 4.0m (4.1m)');
 });
 
 test('new enemies enter the wave roster while Freshpound appears in wave 5 and twice in wave 6', (t) => {

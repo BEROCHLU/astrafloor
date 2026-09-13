@@ -90,7 +90,7 @@ export const ENEMY_SPECS = [
 ] as const;
 const ENEMIES = ENEMY_SPECS;
 const SNIPER_BOLT_DURATION = 1.1;
-const KATANA = { damage: 110, range: 4.2, rate: 0.6 };
+const KATANA = { damage: 105, range: 4.0, rate: 0.8 };
 const FRESHPOUND_RAGE = { interval: 10, windup: 1, duration: 3, speedMultiplier: 10 };
 
 function makeKatanaQuat(edgeDir: T.Vector3, bladeDir: T.Vector3): T.Quaternion {
@@ -2138,7 +2138,7 @@ export class Game {
     this.sound(450, 0.4, 'sine', 0.3, 900);
     this.emit();
   }
-  shoot() {
+  shoot(allowEmptyReload = true) {
     if (
       this.cooldown > 0 ||
       this.isThrowingGrenade() ||
@@ -2150,7 +2150,7 @@ export class Game {
       return;
     const w = this.getWeapon();
     if (this.ammo[this.weaponIndex] <= 0) {
-      this.reload();
+      if (allowEmptyReload) this.reload();
       if (this.reserve[this.weaponIndex] <= 0) {
         this.cooldown = 0.4;
         this.message('OUT OF AMMO — V: MELEE / G: GRENADE', 1);
@@ -2441,7 +2441,7 @@ export class Game {
         }
       }
       if (!obstructed) {
-        const playerDamage = Math.round(50 * (1 - playerDist / 7));
+        const playerDamage = Math.round(75 * (1 - playerDist / 7));
         if (playerDamage > 0) {
           this.damagePlayer(playerDamage);
           if ((this.state.mode as string) === 'dead') this.clearRockets();
@@ -2619,7 +2619,7 @@ export class Game {
         }
       }
       if (!obstructed) {
-        const playerDamage = Math.round(50 * (1 - playerDist / 7));
+        const playerDamage = Math.round(75 * (1 - playerDist / 7));
         if (playerDamage > 0) {
           this.damagePlayer(playerDamage);
         }
@@ -3225,7 +3225,8 @@ export class Game {
         this.shooting &&
         (this.weaponIndex === 1 || (this.weaponIndex === 0 && this.state.g18c))
       ) {
-        this.shoot();
+        // Held fire stops at an empty magazine; a fresh click may reload.
+        this.shoot(false);
         this.updateCameraAim();
       }
       this.spawnTime -= dt;

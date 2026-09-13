@@ -277,12 +277,12 @@ test('weapon upgrade scales by +35% per level up to Lv.2 for 1000 and 2000 credi
   g.melee();
   assert.ok(Math.abs(hitDamages[0] - (42 * 1.70)) < 1e-5, `Lv.2 Melee damage: ${hitDamages[0]}`);
 
-  // Lv.2 Katana melee (base 110 * 1.70 = 187)
+  // Lv.2 Katana melee (base 105 * 1.70 = 178.5)
   g.state.katana = true;
   hitDamages.length = 0;
   g.meleeTime = 0;
   g.melee();
-  assert.ok(Math.abs(hitDamages[0] - (110 * 1.70)) < 1e-5, `Lv.2 Katana damage: ${hitDamages[0]}`);
+  assert.ok(Math.abs(hitDamages[0] - (105 * 1.70)) < 1e-5, `Lv.2 Katana damage: ${hitDamages[0]}`);
 
   // Lv.2 G18C machine pistol (base 22 * 1.70 = 37.4 body, 37.4 * 3.0 = 112.2 head)
   g.state.katana = false;
@@ -977,6 +977,44 @@ test('G18C supports full-auto firing while holding trigger and single tap firing
   assert.equal(shotCount, 6);
   assert.equal(g.ammo[0], 27);
 });
+
+for (const [name, weaponIndex] of [['G18C', 0], ['AR-2', 1]]) {
+  test(`${name} held fire stops on empty, allows swapping, and reloads on a fresh click`, () => {
+    const g = fixture();
+    Object.assign(g, {
+      weaponIndex, cooldown: 0, reloadTime: 0, shooting: true,
+      gunshot() {}, reloadStart() {},
+    });
+    Object.assign(g.state, { mode: 'playing', g18c: true, owned: [true, true, false, false] });
+    g.ammo = [2, 2, 0, 0];
+    g.reserve = [132, 120, 0, 0];
+
+    g.shoot();
+    g.cooldown = 0;
+    g.shoot(false);
+    assert.equal(g.ammo[weaponIndex], 0, 'held fire consumes the last round');
+    for (let i = 0; i < 3; i++) {
+      g.cooldown = 0;
+      g.shoot(false);
+      assert.equal(g.reloadTime, 0, 'continuing to hold must not start a reload');
+    }
+    assert.deepEqual(g.reserve, [132, 120, 0, 0]);
+
+    const otherWeapon = 1 - weaponIndex;
+    g.equipWeapon(otherWeapon);
+    assert.equal(g.reloadTime, 0);
+    g.cooldown = 0;
+    g.shoot();
+    assert.equal(g.ammo[otherWeapon], 1, 'the other weapon can fire without reloading');
+
+    g.equipWeapon(weaponIndex);
+    assert.equal(g.ammo[weaponIndex], 0, 'the empty weapon stays empty while holstered');
+    assert.equal(g.reloadTime, 0);
+    g.cooldown = 0;
+    g.shoot();
+    assert.ok(g.reloadTime > 0, 'a fresh click on the empty weapon starts reloading');
+  });
+}
 
 test('G18C reload transfers up to 33 rounds and ammo resupply fills to 33/132', () => {
   const g = fixture();

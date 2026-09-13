@@ -101,24 +101,24 @@ After each shot, the player lowers the optic and cycles the bolt for ~1.1 second
 
 ### RPG-7 Rocket Launcher
 
-Rockets fly straight at **60 m/s** without ballistic gravity drop. Detonates upon hitting an enemy, wall, or floor, or after 2.0s of flight. A direct hit to an enemy's head deals **3.0× direct headshot damage (1,800)** with dedicated audio feedback. Automatically initiates reload after firing when reserve rockets are available. Exploding near the player inflicts distance-attenuated self-damage (up to 50, absorbed by armor, blocked by cover).
+Rockets fly straight at **60 m/s** without ballistic gravity drop. Detonates upon hitting an enemy, wall, or floor, or after 2.0s of flight. A direct hit to an enemy's head deals **3.0× direct headshot damage (1,800)** with dedicated audio feedback. Automatically initiates reload after firing when reserve rockets are available. Exploding near the player inflicts distance-attenuated self-damage (up to 75, absorbed by armor, blocked by cover).
 
 ## Melee Attacks & Katana
 
 | V-Key Attack | Base Damage | Reach | Attack Interval | Traits |
 |---|---|---|---|---|
 | Standard Melee | 42 | 2.9 m | 0.65 s | Blunt bash; useful for finishing weak Zods |
-| Katana | 110 | 4.2 m | 0.60 s | Flat horizontal fan sweep slicing multiple forward targets |
+| Katana | 105 | 4.0 m | 0.80 s | Flat horizontal fan sweep slicing multiple forward targets |
 
 Purchasing the Katana for ₡1,000 permanently replaces the V melee attack for the run.
-- **Motion & Collision**: Draws on the left and sweeps across the crosshair in a completely flat horizontal fan arc from left to right, striking multiple enemies within 4.2m. Blocked by solid walls.
+- **Motion & Collision**: Draws on the left and sweeps across the crosshair in a completely flat horizontal fan arc from left to right, striking multiple enemies within 4.0m. Blocked by solid walls.
 - **Firing Exclusivity**: Automatic firearm shooting is temporarily suspended during a Katana swing and automatically resumes when the swing finishes.
 
 ## Frag Grenades
 
 Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after leaving the hand.
 - Blast radius: 7.0 m with distance attenuation. Blocked by solid cover.
-- **Self-Damage**: Deals up to 50 self-damage if caught in the 7m blast (absorbed 100% by armor, blocked by cover).
+- **Self-Damage**: Deals up to 75 self-damage if caught in the 7m blast (absorbed 100% by armor, blocked by cover).
 - Capacity: 3 grenades (expandable to 5 via Ammo Pouch). Refill costs ₡50 per grenade.
 
 ## Shop Catalog
@@ -132,7 +132,7 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 | AR-2 | ₡800 | Purchases and equips assault rifle on key 2 |
 | SR-3 | ₡1,100 | Purchases and equips sniper rifle on key 3 |
 | RPG-7 | ₡4,000 | Purchases and equips rocket launcher on key 4 |
-| Katana | ₡1,000 | Permanently upgrades V melee to 4.2m horizontal fan sweep |
+| Katana | ₡1,000 | Permanently upgrades V melee to 4.0m horizontal fan sweep |
 | Ammo Pouch | ₡1,000 | +50% reserve ammo cap, +2 grenade capacity. Fully refills all ammo and grenades upon purchase |
 | Weapon Upgrade | ₡1,000 / ₡2,000 | Max 2 tiers. Adds +35% base damage to bullets and melee per tier (Lv. 1: 1.35×, Lv. 2: 1.70×, except explosive) |
 | Frag Grenade | ₡50 | Adds 1 grenade (max 3, or 5 with Ammo Pouch) |
@@ -159,7 +159,7 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
   $$\text{Hit Damage} = \text{Base Weapon Damage} \times (1 + \text{Level} \times 0.35) \times (\text{Headshot} \, ? \, 3.0 : 1.0)$$
 - **Applicability**:
   - **Firearms**: Increases direct bullet damage for H1 (24 → 32.4 → 40.8), G18C (22 → 29.7 → 37.4), AR-2 (30 → 40.5 → 51.0), and SR-3 (150 → 202.5 → 255.0).
-  - **Melee**: Increases damage for both default blunt bash (42 → 56.7 → 71.4) and the Katana (110 → 148.5 → 187.0).
+  - **Melee**: Increases damage for both default blunt bash (42 → 56.7 → 71.4) and the Katana (105 → 141.75 → 178.5).
   - **Headshots**: Multiplies directly with the 3.0× headshot multiplier (e.g., SR-3 headshots deal 450 at Lv. 0, ~608 at Lv. 1, and 765 at Lv. 2).
   - **Explosives**: Does **not** apply to RPG-7 rocket blast damage or Frag Grenade blast damage (area-of-effect explosive damage remains fixed).
 

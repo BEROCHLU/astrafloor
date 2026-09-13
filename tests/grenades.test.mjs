@@ -158,32 +158,32 @@ test('grenade self-damage applies within 7m with distance falloff, respects armo
   const g = fixture(t);
   g.camera.position.set(0, 1.7, 0);
 
-  // 1. Direct hit at player position (distance = 0): maximum 50 self-damage, fully absorbed by 100 armor
+  // 1. Direct hit at player position (distance = 0): maximum 75 self-damage, fully absorbed by 100 armor
   g.state.armor = 100;
   g.state.health = 100;
   g.explodeGrenade(new T.Vector3(0, 1.7, 0));
-  assert.equal(g.state.armor, 50, '100 armor absorbs all 50 self-damage');
+  assert.equal(g.state.armor, 25, '100 armor absorbs all 75 self-damage');
   assert.equal(g.state.health, 100, 'health untouched when armor absorbs full damage');
 
-  // 2. Partial armor absorption: 20 armor absorbs 20, remaining 30 damages health
+  // 2. Partial armor absorption: 20 armor absorbs 20, remaining 55 damages health
   g.state.armor = 20;
   g.state.health = 100;
   g.explodeGrenade(new T.Vector3(0, 1.7, 0));
   assert.equal(g.state.armor, 0, 'armor depleted to 0');
-  assert.equal(g.state.health, 70, 'remaining 30 damage hits HP (100 - 30 = 70)');
+  assert.equal(g.state.health, 45, 'remaining 55 damage hits HP (100 - 55 = 45)');
 
-  // 3. Zero armor: full 50 damage reduces health
+  // 3. Zero armor: full 75 damage reduces health
   g.state.armor = 0;
   g.state.health = 100;
   g.explodeGrenade(new T.Vector3(0, 1.7, 0));
   assert.equal(g.state.armor, 0);
-  assert.equal(g.state.health, 50, '50 damage dealt directly to health');
+  assert.equal(g.state.health, 25, '75 damage dealt directly to health');
 
-  // 4. Distance falloff: at 3.5m, damage is Math.round(50 * (1 - 3.5 / 7)) = 25
+  // 4. Distance falloff: at 3.5m, damage is Math.round(75 * (1 - 3.5 / 7)) = 38
   g.state.armor = 100;
   g.state.health = 100;
   g.explodeGrenade(new T.Vector3(0, 1.7, -3.5));
-  assert.equal(g.state.armor, 75, '25 damage absorbed at 3.5m distance');
+  assert.equal(g.state.armor, 62, '38 damage absorbed at 3.5m distance');
   assert.equal(g.state.health, 100);
 
   // 5. Outside 7m radius (e.g. 7.5m): zero damage
@@ -201,7 +201,7 @@ test('grenade self-damage applies within 7m with distance falloff, respects armo
   assert.equal(g.state.armor, 100, 'cover blocks blast wave completely');
   assert.equal(g.state.health, 100);
 
-  // 7. Lethal self-damage kills player (0 armor, 30 HP, 50 damage -> health 0, mode 'dead')
+  // 7. Lethal self-damage kills player (0 armor, 30 HP, 75 damage -> health 0, mode 'dead')
   g.walls = [];
   g.state.mode = 'playing';
   g.state.armor = 0;

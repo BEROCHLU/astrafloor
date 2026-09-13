@@ -113,7 +113,7 @@ Controls use a simple, familiar PC FPS layout to help newcomers get comfortable 
 | **AR-2 Assault Rifle** | 2 | Shop purchase (₡800). 30-round sustained full-auto rifle; ideal for mid-range fire suppression |
 | **SR-3 Sniper Rifle** | 3 | Shop purchase (₡1,100). High-damage bolt-action rifle (5-round magazine, 18 reserve) with 5× scope and up to 3-target penetration |
 | **RPG-7 Rocket Launcher** | 4 | Shop purchase (₡4,000). Straight-flying rockets at 60 m/s with a wide-area blast |
-| **Katana** | `V` | Shop upgrade (₡1,000). A horizontal fan sweep with 4.2m reach that strikes multiple enemies in front of you |
+| **Katana** | `V` | Shop upgrade (₡1,000). A horizontal fan sweep with 4.0m reach that strikes multiple enemies in front of you |
 | **Ammo Pouch** | Upgrade | Shop purchase (₡1,000). +50% reserve ammunition capacity, +2 grenade slots. Instantly refills all ammo and grenades |
 | **Weapon Upgrade** | Upgrade | Shop purchase (Lv. 1: ₡1,000 / Lv. 2: ₡2,000). Increases all firearm bullet and melee damage by +35% per tier (up to Lv. 2 / +70% total, except explosive) |
 

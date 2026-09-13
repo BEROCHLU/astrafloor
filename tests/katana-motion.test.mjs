@@ -186,25 +186,25 @@ test('In-game Katana melee integrates full sweeping motion and restores firearm'
   // Switch to playing mode and trigger melee
   g.state.mode = 'playing';
   g.melee();
-  assert.equal(g.meleeTime, 0.6, 'meleeTime set to KATANA.rate');
+  assert.equal(g.meleeTime, 0.8, 'meleeTime set to KATANA.rate');
 
   // Before rendering, visibility updates in tick
-  // Test frame at windup (t = 0.06s)
-  g.meleeTime = 0.6 - 0.06; // swing = 0.10
-  const swing1 = 1 - g.meleeTime / 0.6;
+  // Test frame at windup (t = 0.08s)
+  g.meleeTime = 0.8 - 0.08; // swing = 0.10
+  const swing1 = 1 - g.meleeTime / 0.8;
   evaluateKatanaMotion(swing1, g.katana.position, g.katana.quaternion);
   assert.ok(g.katana.position.x < -0.2, 'windup position on left');
 
   // Test frame at mid-slash (swing = 0.25)
-  g.meleeTime = 0.6 * (1 - 0.25);
-  const swing2 = 1 - g.meleeTime / 0.6;
+  g.meleeTime = 0.8 * (1 - 0.25);
+  const swing2 = 1 - g.meleeTime / 0.8;
   evaluateKatanaMotion(swing2, g.katana.position, g.katana.quaternion);
   assert.ok(Math.abs(g.katana.position.x) < 0.15, 'mid-slash passes through center');
   assert.ok(g.katana.position.z < -0.5, 'mid-slash extends forward');
 
   // Test frame at follow-through (swing = 0.38)
-  g.meleeTime = 0.6 * (1 - 0.38);
-  const swing3 = 1 - g.meleeTime / 0.6;
+  g.meleeTime = 0.8 * (1 - 0.38);
+  const swing3 = 1 - g.meleeTime / 0.8;
   evaluateKatanaMotion(swing3, g.katana.position, g.katana.quaternion);
   assert.ok(g.katana.position.x > 0.25, 'follow-through reaches right');
 
