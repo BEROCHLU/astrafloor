@@ -1,5 +1,6 @@
 import * as T from 'three';
 import { createAR2Body } from './ar2-model.ts';
+import { createRPGBody } from './rpg-model.ts';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
@@ -777,22 +778,10 @@ export class Graphics {
   rpgTemplate() {
     const root = new T.Group();
     root.name = 'rpg-launcher';
-    const tube = this.surface('metal', 0x424e35);
     const steel = this.surface('metal', 0x606867);
-    const wood = this.surface('cloth', 0x705039);
     const glove = this.surface('cloth', 0x192321);
     const sleeve = this.surface('cloth', 0x394a46);
-    const bore = this.material(new T.MeshBasicMaterial({ color: 0x060909 }));
-    this.mesh(root, this.cylinder, tube, 0, 0, -0.25, 0.145, 1.3, 0.145).rotation.x = Math.PI / 2;
-    this.mesh(root, this.cylinder, wood, 0, 0, -0.15, 0.17, 0.45, 0.17).rotation.x = Math.PI / 2;
-    for (const z of [-0.39, 0.09, -0.85])
-      this.mesh(root, this.cylinder, steel, 0, 0, z, 0.177, 0.055, 0.177).rotation.x = Math.PI / 2;
-    const bell = this.geometry(new T.CylinderGeometry(0.075, 0.15, 0.22, 12));
-    this.mesh(root, bell, tube, 0, 0, 0.47, 1, 1, 1).rotation.x = -Math.PI / 2;
-    this.mesh(root, this.cylinder, bore, 0, 0, 0.583, 0.25, 0.004, 0.25).rotation.x = Math.PI / 2;
-    this.mesh(root, this.cylinder, bore, 0, 0, -0.906, 0.12, 0.006, 0.12).rotation.x = Math.PI / 2;
-    for (const z of [-0.05, -0.52])
-      this.mesh(root, this.rounded, wood, 0, -0.16, z, 0.09, 0.23, 0.115).rotation.x = -0.15;
+    createRPGBody(this, root);
     // Compact low-profile iron sights with distinct center aiming dot
     const sightDot = this.material(new T.MeshBasicMaterial({ color: 0x55ff55, toneMapped: false }));
     // Rear sight: open U-notch base and compact alignment ears at z = -0.14
@@ -804,10 +793,6 @@ export class Graphics {
     this.mesh(root, this.rounded, steel, 0, 0.112, -0.75, 0.005, 0.018, 0.012);
     const dot = this.mesh(root, this.box, sightDot, 0, 0.120, -0.742, 0.004, 0.004, 0.002);
     dot.name = 'rpg-sight-dot';
-    this.mesh(root, this.sphere, glove, 0.025, -0.19, -0.05, 0.18, 0.17, 0.2);
-    this.mesh(root, this.taper, sleeve, 0.08, -0.29, 0.15, 0.2, 0.46, 0.21).rotation.x = 1.25;
-    this.mesh(root, this.sphere, glove, -0.04, -0.18, -0.5, 0.19, 0.17, 0.2);
-    this.mesh(root, this.taper, sleeve, -0.15, -0.3, -0.23, 0.2, 0.5, 0.22).rotation.x = 1.05;
     const action = new T.Group();
     action.name = 'action';
     root.add(action);
