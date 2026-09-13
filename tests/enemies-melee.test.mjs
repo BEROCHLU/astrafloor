@@ -74,7 +74,7 @@ test('katana purchase permanently upgrades V without changing gun slots, and its
   hits.length = 0;
   g.meleeTime = 0;
   g.handleKeyDown({ code: 'KeyV' });
-  assert.deepEqual(hits.map((h) => h.damage), [105, 105]);
+  assert.deepEqual(hits.map((h) => h.damage), [100, 100]);
   assert.equal(hits[1].enemy, far);
   assert.deepEqual(g.ammo, [15, 30, 10]);
   g.handleKeyDown({ code: 'KeyV' });
@@ -89,17 +89,17 @@ test('katana purchase permanently upgrades V without changing gun slots, and its
   g.melee();
   assert.deepEqual(hits.map((h) => h.enemy), [near]);
 
-  // Katana reach is 4.0m: hits enemy at distance 3.9m, misses enemy at distance 4.1m
+  // Katana reach is 3.9m: hits enemy at distance 3.8m, misses enemy at distance 4.0m
   g.walls = [];
-  const at39 = spawnAt(g, 0, 0, -3.9);
-  at39.root.position.set(0, 1.7, -3.9);
-  const at41 = spawnAt(g, 0, 0, -4.1);
-  at41.root.position.set(0, 1.7, -4.1);
+  const at38 = spawnAt(g, 0, 0, -3.8);
+  at38.root.position.set(0, 1.7, -3.8);
+  const at40 = spawnAt(g, 0, 0, -4.0);
+  at40.root.position.set(0, 1.7, -4.0);
   hits.length = 0;
   g.meleeTime = 0;
   g.melee();
-  assert.ok(hits.some((h) => h.enemy === at39), 'katana reaches enemy within 4.0m (3.9m)');
-  assert.ok(!hits.some((h) => h.enemy === at41), 'katana cannot reach enemy beyond 4.0m (4.1m)');
+  assert.ok(hits.some((h) => h.enemy === at38), 'katana reaches enemy within 3.9m (3.8m)');
+  assert.ok(!hits.some((h) => h.enemy === at40), 'katana cannot reach enemy beyond 3.9m (4.0m)');
 });
 
 test('new enemies enter the wave roster while Freshpound appears in wave 5 and twice in wave 6', (t) => {
@@ -271,7 +271,7 @@ test('Husk charges its cannon, fires a fast locked shot, respects cover and cann
 test('Scrake chainsaws and Freshpound drills keep their reach and damage, respect cover and animate attacks', (t) => {
   for (const kind of [2, 3]) {
     const g = fixture(t);
-    const reach = kind === 2 ? 4.2 : 3.0;
+    const reach = kind === 2 ? 4.1 : 3.0;
     const e = spawnAt(g, kind, 0, -(reach - 0.1));
     assert.equal(e.damage, kind === 2 ? 30 : 42);
     e.attack = 0;

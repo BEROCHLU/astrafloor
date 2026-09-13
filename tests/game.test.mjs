@@ -277,12 +277,12 @@ test('weapon upgrade scales by +35% per level up to Lv.2 for 1000 and 2000 credi
   g.melee();
   assert.ok(Math.abs(hitDamages[0] - (42 * 1.70)) < 1e-5, `Lv.2 Melee damage: ${hitDamages[0]}`);
 
-  // Lv.2 Katana melee (base 105 * 1.70 = 178.5)
+  // Lv.2 Katana melee (base 100 * 1.70 = 170)
   g.state.katana = true;
   hitDamages.length = 0;
   g.meleeTime = 0;
   g.melee();
-  assert.ok(Math.abs(hitDamages[0] - (105 * 1.70)) < 1e-5, `Lv.2 Katana damage: ${hitDamages[0]}`);
+  assert.ok(Math.abs(hitDamages[0] - (100 * 1.70)) < 1e-5, `Lv.2 Katana damage: ${hitDamages[0]}`);
 
   // Lv.2 G18C machine pistol (base 22 * 1.70 = 37.4 body, 37.4 * 3.0 = 112.2 head)
   g.state.katana = false;

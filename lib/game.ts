@@ -90,7 +90,7 @@ export const ENEMY_SPECS = [
 ] as const;
 const ENEMIES = ENEMY_SPECS;
 const SNIPER_BOLT_DURATION = 1.1;
-const KATANA = { damage: 105, range: 4.0, rate: 0.8 };
+const KATANA = { damage: 100, range: 3.9, rate: 0.8 };
 const FRESHPOUND_RAGE = { interval: 10, windup: 1, duration: 3, speedMultiplier: 10 };
 
 function makeKatanaQuat(edgeDir: T.Vector3, bladeDir: T.Vector3): T.Quaternion {
@@ -168,7 +168,7 @@ export function evaluateKatanaMotion(
   return { pos: targetPos, quat: targetQuat };
 }
 const FRESHPOUND_DRILL = { range: 3.0 };
-const SCRAKE_MELEE = { range: 4.2, swingDuration: 0.7 };
+const SCRAKE_MELEE = { range: 4.1, swingDuration: 0.7 };
 export const STAMINA = { max: 100, drain: 20, recover: 20 };
 export const MEDICAL_KIT = { heal: 50, max: 3, cooldown: 10 };
 export const GRENADE = { throwDuration: 0.55, release: 0.20, fuse: 1.0, speed: 15, gravity: 12, radius: 0.18 };

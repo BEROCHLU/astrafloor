@@ -108,10 +108,10 @@ Rockets fly straight at **60 m/s** without ballistic gravity drop. Detonates upo
 | V-Key Attack | Base Damage | Reach | Attack Interval | Traits |
 |---|---|---|---|---|
 | Standard Melee | 42 | 2.9 m | 0.65 s | Blunt bash; useful for finishing weak Zods |
-| Katana | 105 | 4.0 m | 0.80 s | Flat horizontal fan sweep slicing multiple forward targets |
+| Katana | 100 | 3.9 m | 0.80 s | Flat horizontal fan sweep slicing multiple forward targets |
 
 Purchasing the Katana for ₡1,000 permanently replaces the V melee attack for the run.
-- **Motion & Collision**: Draws on the left and sweeps across the crosshair in a completely flat horizontal fan arc from left to right, striking multiple enemies within 4.0m. Blocked by solid walls.
+- **Motion & Collision**: Draws on the left and sweeps across the crosshair in a completely flat horizontal fan arc from left to right, striking multiple enemies within 3.9m. Blocked by solid walls.
 - **Firing Exclusivity**: Automatic firearm shooting is temporarily suspended during a Katana swing and automatically resumes when the swing finishes.
 
 ## Frag Grenades
@@ -132,7 +132,7 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 | AR-2 | ₡800 | Purchases and equips assault rifle on key 2 |
 | SR-3 | ₡1,100 | Purchases and equips sniper rifle on key 3 |
 | RPG-7 | ₡4,000 | Purchases and equips rocket launcher on key 4 |
-| Katana | ₡1,000 | Permanently upgrades V melee to 4.0m horizontal fan sweep |
+| Katana | ₡1,000 | Permanently upgrades V melee to 3.9m horizontal fan sweep |
 | Ammo Pouch | ₡1,000 | +50% reserve ammo cap, +2 grenade capacity. Fully refills all ammo and grenades upon purchase |
 | Weapon Upgrade | ₡1,000 / ₡2,000 | Max 2 tiers. Adds +35% base damage to bullets and melee per tier (Lv. 1: 1.35×, Lv. 2: 1.70×, except explosive) |
 | Frag Grenade | ₡50 | Adds 1 grenade (max 3, or 5 with Ammo Pouch) |
@@ -159,7 +159,7 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
   $$\text{Hit Damage} = \text{Base Weapon Damage} \times (1 + \text{Level} \times 0.35) \times (\text{Headshot} \, ? \, 3.0 : 1.0)$$
 - **Applicability**:
   - **Firearms**: Increases direct bullet damage for H1 (24 → 32.4 → 40.8), G18C (22 → 29.7 → 37.4), AR-2 (30 → 40.5 → 51.0), and SR-3 (150 → 202.5 → 255.0).
-  - **Melee**: Increases damage for both default blunt bash (42 → 56.7 → 71.4) and the Katana (105 → 141.75 → 178.5).
+  - **Melee**: Increases damage for both default blunt bash (42 → 56.7 → 71.4) and the Katana (100 → 135 → 170).
   - **Headshots**: Multiplies directly with the 3.0× headshot multiplier (e.g., SR-3 headshots deal 450 at Lv. 0, ~608 at Lv. 1, and 765 at Lv. 2).
   - **Explosives**: Does **not** apply to RPG-7 rocket blast damage or Frag Grenade blast damage (area-of-effect explosive damage remains fixed).
 
@@ -171,7 +171,7 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 | Crawler | 1 | 60 | 9 | ₡55 | Low-profile crawling torso; aim low. |
 | Gorefast | 2 | 90 | 10 | ₡85 | High running speed armed with a right-arm blade. |
 | Bloat | 2 | 130 | 12 | ₡110 | Spits 3 bile projectiles (20 m/s) at 3–19m after 0.8s telegraph. |
-| Scrake | 3 | 1,000 | 30 | ₡130 | Chainsaw horizontal swing with 4.2m reach. Kite with sprint. |
+| Scrake | 3 | 1,000 | 30 | ₡130 | Chainsaw horizontal swing with 4.1m reach. Kite with sprint. |
 | Husk | 3 | 240 | 28 | ₡160 | Cannon glows orange for 0.9s, then fires 60 m/s fireball (4–27m range). |
 | Freshpound | 5 | 3,000 | 42 | ₡450 | Dual drills (3.0m reach). Every 10s, flashes chest core red, roars 1s, then charges at 10× speed for 3s. |
 
