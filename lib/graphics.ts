@@ -1,5 +1,6 @@
 import * as T from 'three';
 import { createAR2Body } from './ar2-model.ts';
+import { createH1Body } from './h1-model.ts';
 import { createRPGBody } from './rpg-model.ts';
 import { createSniperBody } from './sniper-model.ts';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -874,13 +875,10 @@ export class Graphics {
       action = new T.Group();
     action.name = 'action';
     root.add(action);
-    const steel = this.surface('metal', 0x343e44),
-      edges = this.surface('metal', 0x738084),
-      black = this.surface('cloth', 0x171e20),
+    const black = this.surface('cloth', 0x171e20),
       polymer = this.surface('cloth', 0x3d463f),
       skin = this.surface('skin', 0xa18a73);
-    const green = this.material(new T.MeshBasicMaterial({ color: 0xa9e0a0 })),
-      bore = this.material(new T.MeshBasicMaterial({ color: 0x050707 }));
+    const green = this.material(new T.MeshBasicMaterial({ color: 0xa9e0a0 }));
     const shape = (
       p: T.Object3D,
       g: T.BufferGeometry,
@@ -892,98 +890,35 @@ export class Graphics {
       h: number,
       d: number,
     ) => this.mesh(p, g, m, x, y, z, w, h, d);
-    const barrel = (
-      p: T.Object3D,
-      x: number,
-      y: number,
-      z: number,
-      length: number,
-      radius: number,
-      material: T.Material,
-    ) => {
-      const m = shape(
-        p,
-        this.cylinder,
-        material,
-        x,
-        y,
-        z,
-        radius,
-        length,
-        radius,
-      );
-      m.rotation.x = Math.PI / 2;
-      return m;
-    };
     if (index === 1) {
       createAR2Body(this, root, action);
     } else if (index === 2) {
       createSniperBody(this, root, action);
     } else if (index === 0 || index === 4) {
-      shape(action, this.rounded, steel, 0, 0.045, -0.23, 0.115, 0.13, 0.42);
-      barrel(root, 0, 0.015, -0.425, 0.12, 0.067, edges);
-      barrel(root, 0, 0.015, -0.487, 0.003, 0.044, bore);
-      shape(root, this.rounded, black, 0, -0.065, -0.18, 0.117, 0.11, 0.29);
-      shape(
-        root,
-        this.rounded,
-        polymer,
-        0,
-        -0.18,
-        -0.055,
-        0.108,
-        0.24,
-        0.13,
-      ).rotation.x = -0.22;
-      shape(
-        action,
-        this.rounded,
-        bore,
-        0.058,
-        0.071,
-        -0.21,
-        0.005,
-        0.038,
-        0.085,
-      );
-      for (const side of [-1, 1])
-        for (let i = 0; i < 6; i++)
-          shape(
-            action,
-            this.box,
-            edges,
-            side * 0.058,
-            0.035,
-            -0.1 - i * 0.014,
-            0.004,
-            0.067,
-            0.004,
-          );
-      shape(root, this.rounded, black, 0, -0.16, -0.182, 0.115, 0.11, 0.15);
-      shape(root, this.rounded, bore, 0, -0.145, -0.19, 0.12, 0.062, 0.092);
+      const pistol = createH1Body(this, root, action);
       if (index === 4) {
         // G18C: Extended 33-round magazine protruding from grip bottom
         const mag = new T.Group();
         mag.name = 'extended-mag';
-        shape(mag, this.rounded, black, 0, -0.34, -0.015, 0.096, 0.16, 0.115).rotation.x = -0.22;
-        shape(mag, this.box, polymer, 0, -0.42, 0.003, 0.106, 0.032, 0.125).rotation.x = -0.22;
+        shape(mag, this.rounded, pistol.grip, 0, -0.34, -0.015, 0.096, 0.16, 0.115).rotation.x = -0.22;
+        shape(mag, this.box, pistol.frame, 0, -0.42, 0.003, 0.106, 0.032, 0.125).rotation.x = -0.22;
         root.add(mag);
 
         // G18C: Full-auto selector switch on rear left side of slide
         const selector = new T.Group();
         selector.name = 'selector';
-        const dial = shape(selector, this.cylinder, black, -0.061, 0.055, -0.09, 0.02, 0.008, 0.02);
+        const dial = shape(selector, this.cylinder, pistol.frame, -0.061, 0.055, -0.09, 0.02, 0.008, 0.02);
         dial.rotation.z = Math.PI / 2;
-        const lever = shape(selector, this.box, steel, -0.064, 0.044, -0.09, 0.005, 0.02, 0.008);
+        const lever = shape(selector, this.box, pistol.slide, -0.064, 0.044, -0.09, 0.005, 0.02, 0.008);
         lever.rotation.x = 0.25;
         action.add(selector);
 
         // G18C: Compensator ports cut into top front of slide revealing ported barrel
         const comp = new T.Group();
         comp.name = 'compensator';
-        shape(comp, this.box, bore, 0, 0.112, -0.33, 0.06, 0.01, 0.075);
+        shape(comp, this.box, pistol.recess, 0, 0.112, -0.33, 0.06, 0.01, 0.075);
         for (let p = 0; p < 2; p++) {
-          shape(comp, this.box, edges, 0, 0.082, -0.31 - p * 0.036, 0.036, 0.01, 0.015);
+          shape(comp, this.box, pistol.hardware, 0, 0.082, -0.31 - p * 0.036, 0.036, 0.01, 0.015);
         }
         action.add(comp);
       }
@@ -1001,29 +936,6 @@ export class Graphics {
       const frontZ = index === 0 || index === 4 ? -0.405 : -0.65;
       shape(root, this.rounded, black, 0, 0.117, frontZ, 0.006, 0.014, 0.014);
       shape(root, this.box, green, 0, 0.12, frontZ + 0.008, 0.004, 0.004, 0.002);
-    }
-    if (index === 0 || index === 4) {
-      for (const side of [-1, 1])
-        barrel(
-          root,
-          side * 0.058,
-          -0.06,
-          -0.04,
-          0.012,
-          0.018,
-          edges,
-        ).rotation.set(0, 0, Math.PI / 2);
-      shape(
-        root,
-        this.taper,
-        edges,
-        0,
-        -0.135,
-        -0.156,
-        0.025,
-        0.075,
-        0.032,
-      ).rotation.x = 0.4;
     }
     const hand = index === 2 ? new T.Group() : root;
     if (index === 2) {
