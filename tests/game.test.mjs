@@ -1699,7 +1699,8 @@ test('debug mode debugMinHp option clamps health to 1 and prevents death from al
   // 1. Starting with debugMinHp: true sets state.debugMinHp to true
   g.start('normal', { bossDebug: true, debugWave: 7, debugCash: 20000, debugMinHp: true });
   assert.equal(g.state.debugMinHp, true);
-  assert.ok(g.state.message.includes('[MIN HP 1]'));
+  assert.ok(g.state.message.includes('MIN HP 1'));
+  assert.ok(!g.state.message.includes('[MIN HP 1]'));
 
   // Enter combat
   g.nextWave();

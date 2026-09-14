@@ -514,6 +514,7 @@ h1 i {
 }
 kbd {
   font: 10px monospace;
+  font-weight: bold;
   display: inline-block;
   background: #c3d0ca0a;
   border: 1px solid #c3d0ca36;
@@ -752,13 +753,14 @@ kbd {
   font: 19px monospace;
   color: #adc5cf;
 }
-.debug-minhp-tag {
+.health-label > .debug-minhp-tag {
   color: #a9de43;
   font: 11px monospace;
   font-weight: bold;
-  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
   background: #a9de4322;
-  padding: 1px 6px;
+  padding: 1px 3px;
   border: 1px solid #a9de4355;
   border-radius: 2px;
 }
@@ -853,6 +855,10 @@ kbd {
   padding: 25px;
   z-index: 5;
 }
+.mode-paused .modal-scrim {
+  background: transparent;
+  backdrop-filter: none;
+}
 .pause-card,
 .result-card {
   width: 440px;
@@ -869,8 +875,14 @@ kbd {
   margin: 20px 0 12px;
 }
 .pause-card {
+  width: 380px;
+  padding: 24px;
   max-height: 100%;
   overflow-y: auto;
+}
+.pause-card h2 {
+  font-size: 36px;
+  margin: 16px 0 10px;
 }
 .input-error pre {
   margin: 16px 0 0;
@@ -901,6 +913,24 @@ kbd {
   color: #aebeb6 !important;
   margin-top: 12px;
   height: 40px !important;
+}
+.pause-card p {
+  font-size: 13px;
+}
+.pause-card .deploy-button {
+  height: 46px !important;
+  margin-top: 18px;
+  font-size: 14px !important;
+  letter-spacing: 2px;
+  padding: 0 18px !important;
+}
+.pause-card .quiet-button {
+  height: 34px !important;
+  margin-top: 10px;
+  font-size: 13px;
+}
+.pause-card .muted-copy {
+  margin-top: 18px !important;
 }
 .wave-clear-prompt {
   display: flex;

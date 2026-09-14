@@ -458,7 +458,7 @@ export default function Home() {
               <Heart size={20} />
               <b>{Math.ceil(s.health)}</b>
               <span> / 100</span>
-              {s.debugMinHp && <span className="debug-minhp-tag">[MIN HP 1]</span>}
+              {s.debugMinHp && <span className="debug-minhp-tag">MIN HP 1</span>}
               <Shield size={17} />
               <strong>{Math.ceil(s.armor)}</strong>
             </div>

@@ -1721,7 +1721,7 @@ export class Game {
         aiming: false,
         bolt: 0,
         reload: 0,
-        message: `WAVE ${String(targetWave).padStart(2, '0')} PREPARATION — ₡${targetCash.toLocaleString()}${debugMinHp ? ' [MIN HP 1]' : ''}`,
+        message: `WAVE ${String(targetWave).padStart(2, '0')} PREPARATION — ₡${targetCash.toLocaleString()}${debugMinHp ? ' MIN HP 1' : ''}`,
         pointerLockError: '',
         hit: 0,
         hurt: 0,
@@ -3335,7 +3335,7 @@ export class Game {
       );
       this.camera.lookAt(0, 3, -15);
     }
-    this.flashlight.intensity = s.mode === 'playing' ? 18 : 0;
+    this.flashlight.intensity = s.mode === 'playing' || s.mode === 'paused' ? 18 : 0;
     this.katana.visible = (s.mode === 'playing' || s.mode === 'paused') && s.katana && this.meleeTime > 0;
     this.gun.visible = (s.mode === 'playing' || s.mode === 'paused') && !this.isScoped() && !this.katana.visible;
     const throwing = this.isThrowingGrenade();
