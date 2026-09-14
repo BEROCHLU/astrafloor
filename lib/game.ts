@@ -2,6 +2,7 @@ import * as T from 'three';
 import { Graphics, type EnemyRig, type Quality } from './graphics.ts';
 import { WeaponRecoil, RECOIL_PROFILES, G18C_RECOIL } from './recoil.ts';
 import { HANS, HansEncounter, type BossSnapshot } from './hans.ts';
+import { SIREN, SirenAttack, replaceSirenSlots } from './siren.ts';
 export type Snapshot = {
   bossDebug: boolean;
   debugTargetWave?: number;
@@ -42,6 +43,7 @@ export type Snapshot = {
   fps: number;
 };
 export type Enemy = EnemyRig & {
+  siren?: SirenAttack;
   hp: number;
   speed: number;
   damage: number;
@@ -77,7 +79,7 @@ type ThrownGrenade = {
   fuse: number;
 };
 // 0: Clot (former Walker), 1: Gorefast (former Runner), 2: Scrake (former Brute),
-// 3: Freshpound (former Boss), 4: Bloat (former Spitter), 5: Crawler, 6: Husk, 7: Hans Volter.
+// 3: Freshpound (former Boss), 4: Bloat (former Spitter), 5: Crawler, 6: Husk, 7: Hans Volter, 8: Siren.
 export const ENEMY_SPECS = [
   { name: 'Clot', hp: 65, speed: 1.35, damage: 10, reward: 65 },
   { name: 'Gorefast', hp: 90, speed: 2.65, damage: 10, reward: 85 },
@@ -87,6 +89,7 @@ export const ENEMY_SPECS = [
   { name: 'Crawler', hp: 60, speed: 1.55, damage: 9, reward: 55 },
   { name: 'Husk', hp: 240, speed: 1.1, damage: 28, reward: 160 },
   { name: 'Hans Volter', hp: HANS.hp, speed: HANS.speed, damage: HANS.clawDamage, reward: 2000 },
+  { name: 'Siren', hp: SIREN.hp, speed: SIREN.speed, damage: SIREN.damagePerSecond.normal, reward: SIREN.reward },
 ] as const;
 const ENEMIES = ENEMY_SPECS;
 const SNIPER_BOLT_DURATION = 1.1;
@@ -284,6 +287,7 @@ export class Game {
   };
   enemies: Enemy[] = [];
   hans?: HansEncounter;
+  private enemySpawnPlan?: { key: string; kinds: number[] };
   particles: Particle[] = [];
   enemyProjectiles: EnemyProjectile[] = [];
   thrownGrenades: ThrownGrenade[] = [];
@@ -1134,6 +1138,50 @@ export class Game {
   ) {
     this.playTone(freq, end, duration, volume, type);
   }
+  /** A cancellable voice, routed through the normal mute and limiter bus. */
+  sirenScreamSound(duration: number): (() => void) | undefined {
+    if (!this.audio || !this.master || duration <= 0) return;
+    const a = this.audio, now = a.currentTime;
+    const envelope = a.createGain(), formant = a.createBiquadFilter();
+    const voice = a.createOscillator(), overtone = a.createOscillator();
+    const vibrato = a.createOscillator(), modulation = a.createGain();
+    voice.type = 'sawtooth'; overtone.type = 'triangle';
+    voice.frequency.setValueAtTime(560, now);
+    voice.frequency.exponentialRampToValueAtTime(410, now + duration);
+    overtone.frequency.setValueAtTime(843, now);
+    overtone.frequency.exponentialRampToValueAtTime(618, now + duration);
+    vibrato.frequency.setValueAtTime(19, now); modulation.gain.setValueAtTime(32, now);
+    vibrato.connect(modulation); modulation.connect(voice.frequency);
+    formant.type = 'bandpass'; formant.Q.setValueAtTime(0.75, now);
+    formant.frequency.setValueAtTime(1300, now);
+    formant.frequency.exponentialRampToValueAtTime(850, now + duration);
+    envelope.gain.setValueAtTime(0.0001, now);
+    envelope.gain.exponentialRampToValueAtTime(0.16, now + Math.min(0.06, duration * 0.15));
+    envelope.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    voice.connect(formant); overtone.connect(formant);
+    formant.connect(envelope); envelope.connect(this.master);
+    const sources: Array<OscillatorNode | AudioBufferSourceNode> = [voice, overtone, vibrato];
+    if (this.noiseBuffer) {
+      const noise = a.createBufferSource(); noise.buffer = this.noiseBuffer; noise.loop = true;
+      noise.connect(formant); sources.push(noise);
+    }
+    const nodes: AudioNode[] = [...sources, envelope, formant, modulation];
+    let ended = 0, disconnected = false;
+    const disconnect = () => {
+      if (disconnected) return;
+      disconnected = true;
+      for (const node of nodes) node.disconnect();
+    };
+    for (const source of sources) {
+      source.onended = () => { if (++ended === sources.length) disconnect(); };
+      source.start(now); source.stop(now + duration);
+    }
+    return () => {
+      if (disconnected) return;
+      for (const source of sources) source.stop(a.currentTime);
+      disconnect();
+    };
+  }
   noise(duration = 0.16, volume = 0.8, filterFreq = 2200) {
     this.playNoise(duration, volume * 0.55, {
       type: 'lowpass',
@@ -1809,6 +1857,7 @@ export class Game {
   pause() {
     if (this.state.mode !== 'playing') return;
     this.state.mode = 'paused';
+    for (const e of this.enemies) e.siren?.silence();
     this.shooting = false;
     this.aiming = false;
     this.keys.clear();
@@ -2285,6 +2334,7 @@ export class Game {
     this.burst(point, 0x8b2520, 6, 2);
     if (e.hp <= 0) {
       e.dead = true;
+      e.siren?.cancel();
       if (e.kind === HANS.kind) this.clearEnemyProjectiles();
       if (e.cannonCharge) e.cannonCharge.visible = false;
       if (e.rageIndicator) e.rageIndicator.visible = false;
@@ -2636,6 +2686,15 @@ export class Game {
     const totalWavePending =
       (6 + this.state.wave * 3) * (this.difficultyMode === 'hard' ? 2 : 1);
     const order = totalWavePending - this.pending;
+    if (this.state.wave < 4 || this.state.wave > 6) return this.chooseBaseEnemyKind(order, totalWavePending);
+    const key = `${this.state.wave}/${this.difficultyMode}`;
+    if (this.enemySpawnPlan?.key !== key) {
+      const base = Array.from({ length: totalWavePending }, (_, i) => this.chooseBaseEnemyKind(i, totalWavePending));
+      this.enemySpawnPlan = { key, kinds: replaceSirenSlots(base, this.state.wave, this.difficultyMode) };
+    }
+    return this.enemySpawnPlan.kinds[order] ?? this.chooseBaseEnemyKind(order, totalWavePending);
+  }
+  private chooseBaseEnemyKind(order: number, totalWavePending: number) {
     // Freshpound (3): 1 appears in Wave 5, 2 appear in Wave 6 (opening and midpoint).
     if (this.state.wave === 5 && order === 0) return 3;
     if (
@@ -2684,7 +2743,8 @@ export class Game {
         stats.speed *
         (1 + (this.state.wave - 1) * 0.045) *
         (this.difficulty === 1.35 ? 1.1 : 1),
-      damage: kind === HANS.kind ? HANS.clawDamage : stats.damage * this.difficulty,
+      damage: kind === SIREN.kind ? SIREN.damagePerSecond[this.difficultyMode] :
+        kind === HANS.kind ? HANS.clawDamage : stats.damage * this.difficulty,
       kind,
       phase: Math.random() * 6,
       attack: 0.8,
@@ -2698,6 +2758,7 @@ export class Game {
       dead: false,
     };
     for (const p of parts) p.userData.enemy = e;
+    if (kind === SIREN.kind) e.siren = new SirenAttack(this, e);
     this.enemies.push(e);
     if (kind === HANS.kind) {
       this.hans?.dispose();
@@ -2750,13 +2811,15 @@ export class Game {
   }
   clearEnemyProjectiles() {
     this.hans?.clearHazards();
+    for (const e of this.enemies) e.siren?.cancel();
+    this.enemySpawnPlan = undefined;
     for (const p of this.enemyProjectiles) this.scene.remove(p.mesh);
     this.enemyProjectiles = [];
   }
-  damagePlayer(amount: number) {
+  damagePlayer(amount: number, bypassArmor = false) {
     if (this.state.mode !== 'playing') return;
     const currentArmor = this.state.armor ?? 0;
-    const absorb = Math.min(currentArmor, amount);
+    const absorb = bypassArmor ? 0 : Math.min(currentArmor, amount);
     this.state.armor = currentArmor - absorb;
     const minHp = this.state.debugMinHp ? 1 : 0;
     this.state.health = Math.max(minHp, this.state.health - amount + absorb);
@@ -2900,6 +2963,7 @@ export class Game {
     return !wall || wall.distance >= origin.distanceTo(target);
   }
   enemyMelee(e: Enemy) {
+    if (e.kind === SIREN.kind) return;
     e.attack = e.kind === 1 ? 0.8 : 1.15;
     if (e.chainsaw || e.drill || e.blade) {
       e.meleeSwing = e.chainsaw ? SCRAKE_MELEE.swingDuration : 0.42;
@@ -2974,7 +3038,10 @@ export class Game {
     return true;
   }
   updateEnemies(dt: number) {
-    if (this.state.mode !== 'playing') return;
+    if (this.state.mode !== 'playing') {
+      for (const e of this.enemies) e.siren?.silence();
+      return;
+    }
     this.navTime -= dt;
     if (this.navTime <= 0) {
       this.updateNavigation();
@@ -2996,12 +3063,14 @@ export class Game {
         dz = this.camera.position.z - pos.z;
       const distance = Math.hypot(dx, dz);
       const meleeRange = e.chainsaw ? SCRAKE_MELEE.range : e.drill ? FRESHPOUND_DRILL.range : 1.35;
-      let canMelee = distance <= meleeRange;
+      let canMelee = e.kind !== SIREN.kind && distance <= meleeRange;
       if (canMelee && (e.chainsaw || e.drill || e.blade)) {
         canMelee = this.hasEnemyMeleeSight(e);
       }
       e.phase += dt * e.speed * (e.ragePhase === 'charging' ? 18 : 4);
-      const ranged = (e.kind === 4 || e.kind === 6) && this.updateRangedEnemy(e, dt, distance);
+      const sirenHolding = e.siren?.update(dt, distance) ?? false;
+      if (this.state.mode !== 'playing') return;
+      const ranged = sirenHolding || ((e.kind === 4 || e.kind === 6) && this.updateRangedEnemy(e, dt, distance));
       if (!raging && !canMelee && !ranged) {
         let clear = true;
         for (let t = 0.5; t < distance; t += 0.6)
@@ -3130,6 +3199,7 @@ export class Game {
           e.cannonCharge.scale.setScalar(0.5 + (1 - e.rangedWindup / 0.9) * 1.5);
         }
       }
+      e.siren?.pose(sirenHolding);
     }
     this.enemies = this.enemies.filter((e) => !e.dead);
   }

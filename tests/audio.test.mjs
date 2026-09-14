@@ -195,6 +195,25 @@ function createAudioFixture() {
   return g;
 }
 
+test('Siren voice is cancellable, uses the shared master, and disconnects on cancel or natural completion', () => {
+  const g = createAudioFixture();
+  assert.equal(g.sirenScreamSound(1.5), undefined);
+  g.audio = new MockAudioContext(); g.master = g.audio.createGain(); g.initNoiseBuffer();
+  const first = g.audio.createdNodes.length;
+  const cancel = g.sirenScreamSound(1.5);
+  const nodes = g.audio.createdNodes.slice(first);
+  const sources = nodes.filter(n => n instanceof MockOscillatorNode || n instanceof MockAudioBufferSourceNode);
+  assert.ok(nodes.some(n => n.connections.includes(g.master)));
+  assert.ok(sources.every(n => n.started && n.stopTime === 1.5));
+  g.audio.currentTime = 0.4; cancel(); cancel();
+  assert.ok(sources.every(n => n.stopTime === 0.4));
+  assert.ok(nodes.every(n => n.connections.length === 0));
+  const next = g.audio.createdNodes.length; g.sirenScreamSound(1);
+  const nextNodes = g.audio.createdNodes.slice(next);
+  nextNodes.filter(n => n instanceof MockOscillatorNode || n instanceof MockAudioBufferSourceNode).forEach(n => n.onended());
+  assert.ok(nextNodes.every(n => n.connections.length === 0));
+});
+
 test('audio initialization wires master -> dynamics compressor -> destination and precomputes pink noise buffer', () => {
   const g = createAudioFixture();
   globalThis.AudioContext = MockAudioContext;

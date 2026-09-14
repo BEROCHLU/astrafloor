@@ -3,6 +3,7 @@
 [English](README.md) | 日本語
 
 > 外部アセットの追加ダウンロード不要。最新のWebブラウザ上でネイティブに動作する、シングルプレイヤー専用の本格3DゾンビサバイバルFPS。  
+> 🤖 **ChatGPT Plus (GPT-6 Astra)** と **Antigravity 2.0** で作成。  
 > 🎮 **オンラインで今すぐプレイ**: **[https://astrafloor.berochlu.workers.dev/](https://astrafloor.berochlu.workers.dev/)**
 
 [![Play Now](https://img.shields.io/badge/🎮%20Play%20Now-Cloudflare-F38020?logo=cloudflare&logoColor=white)](https://astrafloor.berochlu.workers.dev/)
@@ -10,7 +11,7 @@
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-r185-black.svg)](https://threejs.org/)
 [![Vite / vinext](https://img.shields.io/badge/Build-Vite%20%2F%20vinext-646cff.svg)](https://vitejs.dev/)
-[![Tests](https://img.shields.io/badge/Tests-132%20passed-brightgreen.svg)](#自動テストの実行)
+[![Tests](https://img.shields.io/badge/Tests-143%20passed-brightgreen.svg)](#自動テストの実行)
 
 ![Astra Floor タイトル画面](.github/image1.png)
 
@@ -26,6 +27,7 @@
 - [難易度設定](#難易度設定)
 - [セットアップと開発手順](#セットアップと開発手順)
 - [詳細仕様・開発資料](#詳細仕様開発資料)
+- [開発体制・クレジット](#開発体制クレジット)
 
 ---
 
@@ -101,6 +103,8 @@ FPS初心者がキーボード操作に慣れやすいよう、操作キーは�
   ピンチ時は `Q` キーでHPを50回復します（CT10秒、最大3個ストック）。
 - **自爆への警戒**  
   破片手榴弾（`G`）やRPG-7のロケットは至近距離で爆発するとプレイヤー自身も大ダメージを受けます。距離を取るか遮蔽物を挟みましょう。
+- **Siren（セイレン）のアーマー貫通悲鳴への警戒**  
+  Wave 4〜6に出現するSirenは、半径8.4mにアーマーを100%無視してHPへ直接ダメージを与える音波悲鳴を放ちます。壁の陰に素早く隠れるか、約0.8秒の予兆中に遠距離から優先して頭部を狙い撃破しましょう。
 
 ---
 
@@ -156,7 +160,7 @@ npm run dev
 ### 自動テストの実行
 
 ```bash
-# 全132件のユニットテストを実行
+# 全143件のユニットテストを実行
 npm test
 ```
 
@@ -177,6 +181,12 @@ npm run build
 武器のコンマ秒単位の詳細パラメータ、エネミー各種のHP・攻撃力・行動ルーチン、最終ボスの詳細な戦闘フェーズや内部計算式については、以下の開発者向け仕様書を参照してください：
 
 - **開発者向け詳細仕様書**: [日本語](docs/game-details.jp.md) | [English](docs/game-details.md)
+
+---
+
+## 開発体制・クレジット
+
+本作 **Astra Floor** は、**ChatGPT Plus (GPT-6 Astra)** と **Antigravity 2.0** で作成・実装されたプロジェクトです。
 
 ---
 

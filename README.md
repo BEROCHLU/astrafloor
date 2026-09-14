@@ -3,6 +3,7 @@
 English | [日本語](README.jp.md)
 
 > A fast-paced, single-player 3D zombie survival FPS running natively in modern web browsers with zero external asset downloads.  
+> 🤖 Built with **ChatGPT Plus (GPT-6 Astra)** and **Antigravity 2.0**.  
 > 🎮 **Play Online**: **[https://astrafloor.berochlu.workers.dev/](https://astrafloor.berochlu.workers.dev/)**
 
 [![Play Now](https://img.shields.io/badge/🎮%20Play%20Now-Cloudflare-F38020?logo=cloudflare&logoColor=white)](https://astrafloor.berochlu.workers.dev/)
@@ -10,7 +11,7 @@ English | [日本語](README.jp.md)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-r185-black.svg)](https://threejs.org/)
 [![Vite / vinext](https://img.shields.io/badge/Build-Vite%20%2F%20vinext-646cff.svg)](https://vitejs.dev/)
-[![Tests](https://img.shields.io/badge/Tests-132%20passed-brightgreen.svg)](#running-automated-tests)
+[![Tests](https://img.shields.io/badge/Tests-143%20passed-brightgreen.svg)](#running-automated-tests)
 
 ![Astra Floor Title Screen](.github/image1.png)
 
@@ -26,6 +27,7 @@ English | [日本語](README.jp.md)
 - [Difficulty Modes](#difficulty-modes)
 - [Setup & Development](#setup--development)
 - [Detailed Specifications](#detailed-specifications)
+- [Credits & AI Development](#credits--ai-development)
 
 ---
 
@@ -101,6 +103,8 @@ Controls use a simple, familiar PC FPS layout to help newcomers get comfortable 
   Use `Q` when your health takes a hit (heals 50 HP, 10s cooldown, max 3 stored).
 - **Beware of Blast Self-Damage**  
   Frag grenades (`G`) and RPG-7 rockets deal heavy self-damage when they explode nearby. Keep your distance or take cover.
+- **Beware of Siren's Armor-Piercing Scream**  
+  Sirens in Waves 4–6 unleash an 8.4m acoustic shockwave that bypasses your body armor completely, damaging health directly. Break line of sight behind solid walls or eliminate them from distance before their 0.8s windup finishes.
 
 ---
 
@@ -155,7 +159,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. Click the s
 
 ### Running Automated Tests
 
-Run the full automated test suite (132 unit tests):
+Run the full automated test suite (143 unit tests):
 
 ```bash
 npm test
@@ -178,6 +182,12 @@ npm run build
 For in-depth mathematical formulas, weapon ballistics, enemy HP/damage profiles, and boss combat phases, consult the reference specifications:
 
 - **Developer Reference & Detailed Specs**: [English](docs/game-details.md) | [日本語](docs/game-details.jp.md)
+
+---
+
+## Credits & AI Development
+
+**Astra Floor** was created and implemented with **ChatGPT Plus (GPT-6 Astra)** and **Antigravity 2.0**.
 
 ---
 

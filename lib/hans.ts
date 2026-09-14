@@ -42,28 +42,19 @@ export class HansEncounter {
   private grenadeModel: T.Group;
   private cloudModel: T.Group;
   private ownedMaterials: T.Material[] = [];
-  private ring: T.RingGeometry;
   private bulletMaterial: T.MeshBasicMaterial;
 
   constructor(game: Game, enemy: Enemy) {
     this.game = game; this.enemy = enemy;
     const green = new T.MeshStandardMaterial({ color: 0x91ce36, emissive: 0x5ca814, emissiveIntensity: 1.3 });
-    const smoke = new T.MeshBasicMaterial({ color: 0x8ab83c, transparent: true, opacity: 0.18, depthWrite: false });
-    const warning = new T.MeshBasicMaterial({ color: 0xc1ee54, transparent: true, opacity: 0.7, depthWrite: false, side: T.DoubleSide });
     this.bulletMaterial = new T.MeshBasicMaterial({ color: 0xffdf99 });
-    this.ownedMaterials.push(green, smoke, warning, this.bulletMaterial);
+    this.ownedMaterials.push(green, this.bulletMaterial);
     this.grenadeModel = new T.Group();
     const can = new T.Mesh(game.graphics.cylinder, green);
     can.scale.set(0.16, 0.3, 0.16); this.grenadeModel.add(can);
     const cap = new T.Mesh(game.graphics.box, game.graphics.enemyMaterials.surface('corroded-metal', 0x666e5d));
     cap.scale.set(0.12, 0.08, 0.12); cap.position.y = 0.17; this.grenadeModel.add(cap);
-    this.cloudModel = new T.Group();
-    const fog = new T.Mesh(game.graphics.sphere, smoke);
-    fog.scale.set(HANS.gasRadius * 2, 2.2, HANS.gasRadius * 2); fog.position.y = 0.9;
-    this.cloudModel.add(fog);
-    this.ring = new T.RingGeometry(HANS.gasRadius - 0.09, HANS.gasRadius, 40);
-    const rim = new T.Mesh(this.ring, warning);
-    rim.rotation.x = -Math.PI / 2; rim.position.y = 0.04; this.cloudModel.add(rim);
+    this.cloudModel = game.graphics.createAreaEffect(HANS.gasRadius, 0x8ab83c, 0xc1ee54);
   }
 
   get phase() { return this.enemy.hp > HANS.hp * 0.65 ? 1 : this.enemy.hp > HANS.hp * 0.3 ? 2 : 3; }
@@ -340,7 +331,7 @@ export class HansEncounter {
     }
     for (let i = this.clouds.length - 1; i >= 0; i--) {
       const cloud = this.clouds[i]; cloud.life -= dt;
-      cloud.mesh.children[0].scale.y = 2.2 + Math.sin(cloud.life * 3) * 0.16;
+      g.graphics.updateAreaEffect(cloud.mesh, cloud.life);
       if (cloud.life <= 0) { g.scene.remove(cloud.mesh); this.clouds.splice(i, 1); }
     }
     this.gasTick += dt;
@@ -388,7 +379,7 @@ export class HansEncounter {
   }
   dispose() {
     if (this.disposed) return;
-    this.disposed = true; this.clearHazards(); this.ring.dispose();
+    this.disposed = true; this.clearHazards();
     this.ownedMaterials.forEach((material) => material.dispose());
   }
 }

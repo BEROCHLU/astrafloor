@@ -9,6 +9,7 @@ import { EnemyMaterials } from './enemy-materials.ts';
 import { createHansModel, bindHansRig, type HansRig } from './hans-model.ts';
 import { createBloatModel } from './bloat-model.ts';
 import { createFreshpoundModel } from './freshpound-model.ts';
+import { createSirenModel } from './siren-model.ts';
 
 export type Quality = 'high';
 type Surface = 'concrete' | 'metal' | 'cloth' | 'skin';
@@ -37,6 +38,8 @@ export type EnemyRig = {
   drillBit?: T.Group;
   drillBitLeft?: T.Group;
   rageIndicator?: T.Group;
+  sirenJaw?: T.Group;
+  sirenThroat?: T.Group;
 };
 
 // Periodic value noise keeps the small material tiles seamless at every edge.
@@ -71,6 +74,7 @@ export class Graphics {
   enemyMaterials = new EnemyMaterials((kind) => this.createMaps(kind));
   models = new Map<number, T.Group>();
   weapons = new Map<number, T.Group>();
+  areaEffects = new Map<string, T.Group>();
   grenadeModel?: T.Group;
   grenadeHandModel?: T.Group;
   rocketModel?: T.Group;
@@ -345,6 +349,29 @@ export class Graphics {
     return t;
   }
 
+  /** Shared fog and ground warning used by Hans and Siren; instances animate via transforms. */
+  createAreaEffect(radius: number, fogColor: number, ringColor: number): T.Group {
+    const key = `${radius}/${fogColor}/${ringColor}`;
+    let model = this.areaEffects.get(key);
+    if (!model) {
+      model = new T.Group();
+      const smoke = this.material(new T.MeshBasicMaterial({ color: fogColor, transparent: true, opacity: 0.18, depthWrite: false }));
+      const warning = this.material(new T.MeshBasicMaterial({ color: ringColor, transparent: true, opacity: 0.7, depthWrite: false, side: T.DoubleSide }));
+      const fog = new T.Mesh(this.sphere, smoke);
+      fog.scale.set(radius * 2, 2.2, radius * 2); fog.position.y = 0.9;
+      const rim = new T.Mesh(this.geometry(new T.RingGeometry(radius - 0.09, radius, 40)), warning);
+      rim.rotation.x = -Math.PI / 2; rim.position.y = 0.04;
+      fog.userData.noHit = rim.userData.noHit = true;
+      model.add(fog, rim);
+      this.areaEffects.set(key, model);
+    }
+    return model.clone(true);
+  }
+
+  updateAreaEffect(effect: T.Group, time: number) {
+    effect.children[0].scale.y = 2.2 + Math.sin(time * 3) * 0.16;
+  }
+
   createEnemy(kind: number): EnemyRig {
     if (!this.models.has(kind)) this.models.set(kind, this.enemyTemplate(kind));
     const root = this.models.get(kind)!.clone(true),
@@ -373,6 +400,8 @@ export class Graphics {
       drillBitLeft: (root.getObjectByName('drill-bit-left') ||
         root.getObjectByName('grinder-bit')) as T.Group | undefined,
       rageIndicator: root.getObjectByName('rage-indicator') as T.Group | undefined,
+      sirenJaw: root.getObjectByName('siren-jaw') as T.Group | undefined,
+      sirenThroat: root.getObjectByName('siren-throat') as T.Group | undefined,
       arms: [-1, 1].map((i) => root.getObjectByName(`arm${i}`) as T.Group),
       legs: [-1, 1].map((i) => root.getObjectByName(`leg${i}`)).filter((o): o is T.Group => o instanceof T.Group),
       elbows: [-1, 1].map((i) => root.getObjectByName(`elbow${i}`) as T.Group),
@@ -380,8 +409,9 @@ export class Graphics {
     };
   }
 
-  // 0: Clot, 1: Gorefast, 2: Scrake, 3: Freshpound, 4: Bloat, 5: Crawler, 6: Husk, 7: Hans.
+  // 0: Clot, 1: Gorefast, 2: Scrake, 3: Freshpound, 4: Bloat, 5: Crawler, 6: Husk, 7: Hans, 8: Siren.
   enemyTemplate(kind: number) {
+    if (kind === 8) return createSirenModel(this);
     if (kind === 7) return createHansModel(this);
     if (kind === 4) return createBloatModel(this);
     if (kind === 3) return createFreshpoundModel(this);
