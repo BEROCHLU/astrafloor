@@ -104,7 +104,7 @@ Controls use a simple, familiar PC FPS layout to help newcomers get comfortable 
 - **Beware of Blast Self-Damage**  
   Frag grenades (`G`) and RPG-7 rockets deal heavy self-damage when they explode nearby. Keep your distance or take cover.
 - **Beware of Siren's Armor-Piercing Scream**  
-  Sirens in Waves 4–6 unleash an 8.4m acoustic shockwave that bypasses your body armor completely, damaging health directly. Break line of sight behind solid walls or eliminate them from distance before their 0.8s windup finishes.
+  Sirens in Waves 4–6 unleash a 9.2m acoustic shockwave that bypasses your body armor completely, damaging health directly. Break line of sight behind solid walls or eliminate them from distance before their 0.8s windup finishes.
 
 ---
 
