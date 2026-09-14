@@ -45,11 +45,11 @@ function cover(g) {
   wall.material.dispose(); return wall;
 }
 
-test('Siren deals exactly 36/48 HP per full scream at 30/60/144 FPS, bypassing armor without wave damage scaling', (t) => {
+test('Siren deals exactly 30/40.5 HP with standard difficulty scaling per full scream at 30/60/144 FPS, bypassing armor without wave damage scaling', (t) => {
   for (const difficulty of ['normal', 'hard']) for (const fps of [30, 60, 144]) for (const wave of [4, 6]) {
     const g = fixture(t, difficulty, wave), e = spawn(g);
     advance(g, SIREN.windup + SIREN.duration, fps);
-    assert.ok(Math.abs(g.state.health - (difficulty === 'hard' ? 52 : 64)) < 1e-7);
+    assert.ok(Math.abs(g.state.health - (difficulty === 'hard' ? 59.5 : 70)) < 1e-7);
     assert.equal(g.state.armor, 100);
     assert.equal(e.siren.action, 'cooldown');
     assert.equal(e.siren.effect.parent, null);
@@ -64,18 +64,18 @@ test('windup and cooldown do not damage, and even point-blank Sirens never melee
   assert.equal(e.siren.effect.parent, null);
   g.enemyMelee(e); assert.equal(g.state.health, 100);
   advance(g, 0.01); assert.equal(e.siren.effect.parent, g.scene);
-  advance(g, 1.5); assert.ok(Math.abs(g.state.health - 64) < 1e-7);
-  advance(g, 2.9); assert.ok(Math.abs(g.state.health - 64) < 1e-7);
-  advance(g, 0.1 + SIREN.windup - 0.01); assert.ok(Math.abs(g.state.health - 64) < 1e-7);
+  advance(g, 1.5); assert.ok(Math.abs(g.state.health - 70) < 1e-7);
+  advance(g, 2.9); assert.ok(Math.abs(g.state.health - 70) < 1e-7);
+  advance(g, 0.1 + SIREN.windup - 0.01); assert.ok(Math.abs(g.state.health - 70) < 1e-7);
 });
 
 test('leaving, entering, height and thin cover gate scream exposure, including during a committed scream', (t) => {
-  assert.equal(SIREN.radius, 9.4);
+  assert.equal(SIREN.radius, 9.0);
   const g = fixture(t), e = spawn(g);
-  advance(g, SIREN.windup + 0.5); assert.ok(Math.abs(g.state.health - 88) < 1e-7);
-  g.camera.position.z = 7; advance(g, 0.25); assert.ok(Math.abs(g.state.health - 88) < 1e-7);
-  g.camera.position.z = 0; advance(g, 0.25); assert.ok(Math.abs(g.state.health - 82) < 1e-7);
-  cover(g); advance(g, 0.5); assert.ok(Math.abs(g.state.health - 82) < 1e-7);
+  advance(g, SIREN.windup + 0.5); assert.ok(Math.abs(g.state.health - 90) < 1e-7);
+  g.camera.position.z = 7; advance(g, 0.25); assert.ok(Math.abs(g.state.health - 90) < 1e-7);
+  g.camera.position.z = 0; advance(g, 0.25); assert.ok(Math.abs(g.state.health - 85) < 1e-7);
+  cover(g); advance(g, 0.5); assert.ok(Math.abs(g.state.health - 85) < 1e-7);
   assert.equal(e.siren.effect.parent, null);
   const sheltered = fixture(t), b = spawn(sheltered); cover(sheltered);
   b.siren.update(1, 3); assert.equal(b.siren.action, 'approach');
@@ -88,12 +88,12 @@ test('leaving, entering, height and thin cover gate scream exposure, including d
 test('partial exposure contributes only its duration rather than an entire damage tick', (t) => {
   const g = fixture(t), e = spawn(g);
   e.siren.update(SIREN.windup, 3); e.siren.update(0.125, 3); e.siren.update(0.125, SIREN.radius + 0.1);
-  assert.ok(Math.abs(g.state.health - 97) < 1e-7);
+  assert.ok(Math.abs(g.state.health - 97.5) < 1e-7);
 });
 
 test('overlapping Sirens add damage and keep animations independent', (t) => {
   const g = fixture(t, 'hard'), a = spawn(g, -2), b = spawn(g, -3);
-  advance(g, SIREN.windup + SIREN.duration); assert.ok(Math.abs(g.state.health - 4) < 1e-7); assert.equal(g.state.armor, 100);
+  advance(g, SIREN.windup + SIREN.duration); assert.ok(Math.abs(g.state.health - 19) < 1e-7); assert.equal(g.state.armor, 100);
   g.state.health = 100;
   a.siren.update(3.9, 2); a.siren.pose(true);
   assert.equal(a.sirenThroat.visible, true); assert.equal(b.sirenThroat.visible, false);
@@ -111,7 +111,7 @@ test('pause stops the voice, freezes timing and resumes the remaining scream onc
   assert.equal(voices[0].stopped, true);
   g.resume(); advance(g, 1);
   assert.equal(voices.length, 2); assert.ok(Math.abs(voices[1].duration - 1) < 1e-7);
-  assert.ok(Math.abs(g.state.health - 64) < 1e-7); assert.equal(voices[1].stopped, true);
+  assert.ok(Math.abs(g.state.health - 70) < 1e-7); assert.equal(voices[1].stopped, true);
 });
 
 test('Siren death and lethal player damage clear effects immediately; debug minimum HP remains effective', (t) => {

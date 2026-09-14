@@ -173,15 +173,15 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 | Bloat | 2 | 130 | 12 | ₡110 | Spits 3 bile projectiles (20 m/s) at 3–19m after 0.8s telegraph. |
 | Scrake | 3 | 1,000 | 30 | ₡130 | Chainsaw horizontal swing with 4.1m reach. Kite with sprint. |
 | Husk | 3 | 240 | 28 | ₡160 | Cannon glows orange for 0.9s, then fires 60 m/s fireball (4–27m range). |
-| Siren | 4 | 150 | 24 / 32 DPS | ₡120 | Emaciated scream specialist. Radiates a 9.4m acoustic shockwave dealing armor-piercing damage directly to health. Blocked by solid walls and cover. |
+| Siren | 4 | 150 | 20 DPS | ₡120 | Emaciated scream specialist. Radiates a 9.0m acoustic shockwave dealing armor-piercing damage directly to health. Blocked by solid walls and cover. |
 | Freshpound | 5 | 3,000 | 42 | ₡450 | Dual drills (3.0m reach). Every 10s, flashes chest core red, roars 1s, then charges at 10× speed for 3s. |
 
 ### Siren: Acoustic Area Denial
 
 Appears in Waves 4–6 (Normal: 2 / 3 / 4, Hard: 2 / 4 / 4).
 - **Spawn Substitution**: Replaces standard wave slots in round-robin rotational order: **Bloat → Husk → Scrake → Other (Clot/Gorefast/Crawler)**. If a targeted category is unavailable, falls back to another available slot while strictly protecting Freshpounds.
-- **Scream Mechanics**: When within 9.4m of the player, Siren halts navigation and winds up for 0.2s (unhinging her jaw and exposing a pulsating red throat), then unleashes a 1.5s sustained scream followed by a 3.0s cooldown.
-- **Armor Bypass**: Screams inflict 24 DPS (Normal: 36 total) / 32 DPS (Hard: 48 total) in 0.25s ticks directly to player HP, completely ignoring body armor.
+- **Scream Mechanics**: When within 9.0m of the player, Siren halts navigation and winds up for 0.3s (unhinging her jaw and exposing a pulsating red throat), then unleashes a 1.5s sustained scream followed by a 3.0s cooldown.
+- **Armor Bypass**: Screams inflict 20 DPS (Normal: 30 total) / 27 DPS (Hard: 40.5 total, using the standard enemy damage multiplier of 1.35) in 0.25s ticks directly to player HP, completely ignoring body armor.
 - **Line of Sight & Cover**: Blocked by solid walls and cover obstacles, and cannot reach players elevated above 3.4m. Breaking line of sight immediately halts damage even during an active scream. Multiple Sirens stack damage additively. Has no melee strike attack.
 
 ### Final Boss: Wave 7

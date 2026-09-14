@@ -89,7 +89,7 @@ export const ENEMY_SPECS = [
   { name: 'Crawler', hp: 60, speed: 1.55, damage: 9, reward: 55 },
   { name: 'Husk', hp: 240, speed: 1.1, damage: 28, reward: 160 },
   { name: 'Hans Volter', hp: HANS.hp, speed: HANS.speed, damage: HANS.clawDamage, reward: 2000 },
-  { name: 'Siren', hp: SIREN.hp, speed: SIREN.speed, damage: SIREN.damagePerSecond.normal, reward: SIREN.reward },
+  { name: 'Siren', hp: SIREN.hp, speed: SIREN.speed, damage: SIREN.damagePerSecond, reward: SIREN.reward },
 ] as const;
 const ENEMIES = ENEMY_SPECS;
 const SNIPER_BOLT_DURATION = 1.1;
@@ -2743,8 +2743,7 @@ export class Game {
         stats.speed *
         (1 + (this.state.wave - 1) * 0.045) *
         (this.difficulty === 1.35 ? 1.1 : 1),
-      damage: kind === SIREN.kind ? SIREN.damagePerSecond[this.difficultyMode] :
-        kind === HANS.kind ? HANS.clawDamage : stats.damage * this.difficulty,
+      damage: kind === HANS.kind ? HANS.clawDamage : stats.damage * this.difficulty,
       kind,
       phase: Math.random() * 6,
       attack: 0.8,
