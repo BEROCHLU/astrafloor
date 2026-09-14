@@ -233,20 +233,31 @@ astrafloor/
 ├── lib/
 │   ├── game.ts            # Game engine, loop, entities, physics, audio & economy
 │   ├── graphics.ts        # Procedural 3D weapon, projectile, and environment models
+│   ├── h1-model.ts        # H1 Service Pistol procedural 3D model
+│   ├── ar2-model.ts       # AR-2 Assault Rifle procedural 3D model
+│   ├── sniper-model.ts    # SR-3 Sniper Rifle procedural 3D model
+│   ├── rpg-model.ts       # RPG-7 Rocket Launcher procedural 3D model
 │   ├── hans.ts            # Final boss AI state machine and attacks
 │   ├── hans-model.ts      # Final boss 3D procedural character rig
+│   ├── siren.ts           # Siren AI, acoustic scream, and spawn substitution
+│   ├── siren-model.ts     # Siren procedural 3D character model
+│   ├── freshpound-model.ts # Freshpound dual-drill 3D model
+│   ├── bloat-model.ts     # Bloat enemy 3D model
 │   ├── enemy-materials.ts # Shared procedural Zod PBR textures & materials
 │   ├── recoil.ts          # Physical weapon recoil and camera kick mathematics
 │   └── game-tools.ts      # WebMCP protocol tool schemas
-├── tests/                 # Automated test suite (132 unit tests)
+├── tests/                 # Automated test suite (143 unit tests)
 │   ├── game.test.mjs
 │   ├── enemies-melee.test.mjs
+│   ├── enemy-materials.test.mjs
 │   ├── grenades.test.mjs
 │   ├── recoil.test.mjs
 │   ├── graphics.test.mjs
 │   ├── audio.test.mjs
 │   ├── hans.test.mjs
-│   └── rpg.test.mjs
+│   ├── katana-motion.test.mjs
+│   ├── rpg.test.mjs
+│   └── siren.test.mjs
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
@@ -262,7 +273,7 @@ astrafloor/
 # Start local dev server
 npm run dev
 
-# Run all 132 automated unit tests
+# Run all 143 automated unit tests
 npm test
 
 # TypeScript typecheck

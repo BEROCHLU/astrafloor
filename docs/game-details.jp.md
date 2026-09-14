@@ -304,20 +304,31 @@ astrafloor/
 ├── lib/
 │   ├── game.ts            # ゲームコアエンジン、物理、射撃判定、Zod AI、経済、音響
 │   ├── graphics.ts        # 銃器・弾丸・背景等のプロシージャル3Dモデル生成
+│   ├── h1-model.ts        # H1 Service Pistol プロシージャル3Dモデル
+│   ├── ar2-model.ts       # AR-2 アサルトライフル プロシージャル3Dモデル
+│   ├── sniper-model.ts    # SR-3 スナイパーライフル プロシージャル3Dモデル
+│   ├── rpg-model.ts       # RPG-7 ロケットランチャー プロシージャル3Dモデル
 │   ├── hans.ts            # ボスHans VolterのAIステートマシン・戦闘ロジック
 │   ├── hans-model.ts      # Hans Volterの3Dモデル・アニメーション関節
+│   ├── siren.ts           # Siren AI・音波悲鳴・スポーン置換ロジック
+│   ├── siren-model.ts     # Siren プロシージャル3Dキャラクターモデル
+│   ├── freshpound-model.ts # Freshpound ドリル両腕3Dモデル
+│   ├── bloat-model.ts     # Bloat 敵3Dモデル
 │   ├── enemy-materials.ts # 共有Zod PBRテクスチャ・マテリアル生成
 │   ├── recoil.ts          # 物理リコイル・カメラキック計算
 │   └── game-tools.ts      # WebMCPツール定義
-├── tests/                 # ユニットテスト群（全132件）
+├── tests/                 # ユニットテスト群（全143件）
 │   ├── game.test.mjs
 │   ├── enemies-melee.test.mjs
+│   ├── enemy-materials.test.mjs
 │   ├── grenades.test.mjs
 │   ├── recoil.test.mjs
 │   ├── graphics.test.mjs
 │   ├── audio.test.mjs
 │   ├── hans.test.mjs
-│   └── rpg.test.mjs
+│   ├── katana-motion.test.mjs
+│   ├── rpg.test.mjs
+│   └── siren.test.mjs
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
@@ -333,7 +344,7 @@ astrafloor/
 # ローカル開発サーバー起動
 npm run dev
 
-# 自動ユニットテスト実行（全132件）
+# 自動ユニットテスト実行（全143件）
 npm test
 
 # TypeScript 型検査
