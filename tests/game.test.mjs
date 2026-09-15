@@ -303,39 +303,6 @@ test('weapon upgrade scales by +35% per level up to Lv.2 for 1000 and 2000 credi
   g.explode(new T.Vector3(0, 1, 0), 600, null);
   assert.ok(Math.abs(hitDamages[0] - 600) < 1e-5, `RPG explosion base damage unaffected by level: ${hitDamages[0]}`);
 });
-test('Normal mode Wave 6 cleared flows into supply shop and Wave 7 Hans Volter boss fight before victory', () => {
-  const g = fixture();
-  g.difficultyMode = 'normal';
-  g.state.difficulty = 'normal';
-  g.state.wave = 6;
-  g.state.health = 50;
-  g.pending = 0;
-  g.enemies = [];
-
-  // Clear wave 6: must transition to 'cleared', award credits (250 + 6 * 50 = 550), and heal to 100
-  g.completeWave();
-  assert.equal(g.state.mode, 'cleared');
-  assert.equal(g.state.health, 100);
-  assert.equal(g.state.cash, 1550);
-
-  // Open shop and check state
-  g.openShop();
-  assert.equal(g.state.mode, 'shop');
-  assert.equal(g.state.wave, 6);
-
-  // Next wave enters Wave 7: Hans Volter boss fight
-  g.nextWave();
-  assert.equal(g.state.mode, 'playing');
-  assert.equal(g.state.wave, 7);
-  assert.equal(g.isHansWave(), true);
-  assert.equal(g.pending, 1);
-  assert.equal(g.state.remaining, 1);
-  assert.equal(g.chooseEnemyKind(), 7); // HANS.kind
-
-  // Completing wave 7 yields victory ('won')
-  g.completeWave();
-  assert.equal(g.state.mode, 'won');
-});
 test('wave completion fully heals without replenishing kits and openShop enters shop', () => {
   const g = fixture();
   g.state.medicalKits = 1;

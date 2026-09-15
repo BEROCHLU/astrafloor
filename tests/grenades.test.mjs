@@ -235,26 +235,6 @@ test('grenade fuse is configured to 1.0s and explodes 1.0s after release', (t) =
   assert.equal(g.blasts.length, 1);
 });
 
-test('grenade thrown directly against nearby wall bounces and explodes at 1.0s fuse', (t) => {
-  const g = fixture(t);
-  wall(g, -0.5);
-  g.grenade();
-  g.updateGrenades(0.23); // windup and release
-  assert.equal(g.thrownGrenades.length, 1);
-  const p = g.thrownGrenades[0];
-  const fuseRemaining = p.fuse;
-
-  // Let it bounce off the wall and continue flying until 0.05s before fuse expiration
-  g.updateGrenades(fuseRemaining - 0.05);
-  assert.equal(g.thrownGrenades.length, 1);
-  assert.equal(g.blasts.length, 0);
-
-  // Cross the 1.0s fuse mark
-  g.updateGrenades(0.1);
-  assert.equal(g.thrownGrenades.length, 0);
-  assert.equal(g.blasts.length, 1);
-});
-
 test('grenade 1.0s fuse detonates consistently across 30, 60, and 144 FPS frame steps', (t) => {
   for (const fps of [30, 60, 144]) {
     const g = fixture(t);

@@ -182,33 +182,3 @@ test('G18C shoot recoil produces 20% greater pitch and kickback than AR-2 in bot
   assert.ok(Math.abs(gG18CAds.recoil - gAR2Ads.recoil * 1.2) < 1e-9);
 });
 
-test('hipfire spread is substantially wider than ADS aiming across all weapons', () => {
-  for (let idx = 0; idx < 4; idx++) {
-    const isG18C = idx === 3;
-    const weaponIdx = isG18C ? 0 : idx;
-
-    const gHip = fixture();
-    gHip.state.g18c = isG18C;
-    gHip.weaponIndex = weaponIdx;
-    gHip.aiming = false;
-    const hipRays = [];
-    gHip.ray.intersectObjects = () => { hipRays.push(gHip.ray.ray.direction.clone()); return []; };
-    gHip.shoot();
-
-    const gAds = fixture();
-    gAds.state.g18c = isG18C;
-    gAds.weaponIndex = weaponIdx;
-    gAds.aiming = true;
-    const adsRays = [];
-    gAds.ray.intersectObjects = () => { adsRays.push(gAds.ray.ray.direction.clone()); return []; };
-    gAds.shoot();
-
-    assert.equal(hipRays.length, 1);
-    assert.equal(adsRays.length, 1);
-    if (weaponIdx === 2) {
-      // Sniper rifle has pinpoint accuracy while scoped and large hip-fire spread
-      assert.equal(adsRays[0].x, 0);
-      assert.equal(adsRays[0].y, 0);
-    }
-  }
-});

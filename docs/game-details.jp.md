@@ -317,7 +317,7 @@ astrafloor/
 │   ├── enemy-materials.ts # 共有Zod PBRテクスチャ・マテリアル生成
 │   ├── recoil.ts          # 物理リコイル・カメラキック計算
 │   └── game-tools.ts      # WebMCPツール定義
-├── tests/                 # ユニットテスト群（全143件）
+├── tests/                 # ユニットテスト群（全140件）
 │   ├── game.test.mjs
 │   ├── enemies-melee.test.mjs
 │   ├── enemy-materials.test.mjs
@@ -344,7 +344,7 @@ astrafloor/
 # ローカル開発サーバー起動
 npm run dev
 
-# 自動ユニットテスト実行（全143件）
+# 自動ユニットテスト実行（全140件）
 npm test
 
 # TypeScript 型検査
