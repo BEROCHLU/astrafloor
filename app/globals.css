@@ -118,6 +118,17 @@ button:focus-visible {
   background: none;
   padding: 8px;
 }
+.top-actions .bgm-toggle {
+  cursor: pointer;
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+.top-actions .bgm-toggle[aria-pressed='false'] {
+  color: #6d7d79;
+  opacity: 0.75;
+}
+.top-actions .bgm-toggle:hover {
+  color: #ffffff;
+}
 .start-screen {
   position: absolute;
   inset: 43px 0 0;

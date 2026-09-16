@@ -108,6 +108,35 @@ class MockDynamicsCompressorNode extends MockAudioNode {
   }
 }
 
+class MockMediaElementAudioSourceNode extends MockAudioNode {
+  constructor(ctx, mediaElement) {
+    super(ctx);
+    this.mediaElement = mediaElement;
+  }
+}
+
+class MockAudio {
+  constructor(src) {
+    this.src = src;
+    this.loop = false;
+    this.currentTime = 0;
+    this.paused = true;
+    this.playCalls = 0;
+    this.pauseCalls = 0;
+    this._hasSourceNode = false;
+  }
+  play() {
+    this.paused = false;
+    this.playCalls++;
+    return Promise.resolve();
+  }
+  pause() {
+    this.paused = true;
+    this.pauseCalls++;
+  }
+  load() {}
+}
+
 class MockAudioBuffer {
   constructor(numberOfChannels, length, sampleRate) {
     this.numberOfChannels = numberOfChannels;
@@ -149,6 +178,15 @@ class MockAudioContext {
     this.createdNodes.push(n);
     return n;
   }
+  createMediaElementSource(mediaElement) {
+    if (mediaElement?._hasSourceNode) {
+      throw new DOMException('HTMLMediaElement already connected', 'InvalidStateError');
+    }
+    if (mediaElement) mediaElement._hasSourceNode = true;
+    const n = new MockMediaElementAudioSourceNode(this, mediaElement);
+    this.createdNodes.push(n);
+    return n;
+  }
   createDynamicsCompressor() {
     const n = new MockDynamicsCompressorNode(this);
     this.createdNodes.push(n);
@@ -174,6 +212,11 @@ function createAudioFixture() {
     master: null,
     compressor: null,
     noiseBuffer: null,
+    bgmAudio: null,
+    bgmSource: null,
+    bgmGain: null,
+    bgmEnabled: true,
+    bgmStarted: false,
     muted: false,
     weaponIndex: 0,
     ammo: [12, 30, 5, 1],
@@ -183,14 +226,29 @@ function createAudioFixture() {
     recoil: 0,
     pitch: 0,
     yaw: 0,
+    keys: new Set(),
     viewRecoil: new WeaponRecoil(),
-    state: { mode: 'playing' },
-    camera: { updateMatrixWorld() {} },
-    scene: { updateMatrixWorld() {} },
+    state: { mode: 'playing', bgm: true, owned: [true, false, false, false] },
+    camera: { updateMatrixWorld() {}, position: { set() {} } },
+    scene: { updateMatrixWorld() {}, remove() {}, traverse() {} },
+    materials: [],
+    textures: new Map(),
+    graphics: { geometries: new Set(), materials: new Set(), dispose() {} },
+    renderer: { dispose() {}, domElement: { remove() {} } },
     walls: [],
     enemies: [],
+    corpses: [],
+    particles: [],
     ray: { setFromCamera() {}, intersectObjects() { return []; } },
-    emit() {},
+    clearEnemyProjectiles() {},
+    clearGrenades() {},
+    clearRockets() {},
+    buildGun() {},
+    nextWave() {},
+    events: [],
+    emit() {
+      this.callback?.({ ...this.state });
+    },
   });
   return g;
 }
@@ -511,3 +569,446 @@ test('audio methods safely no-op when AudioContext is null or uninitialized', ()
   assert.doesNotThrow(() => g.noise(0.1, 0.5));
   assert.doesNotThrow(() => g.mute(true));
 });
+
+test('BGM audio graph initializes: single Audio instance (/audio/zombgm.ogg), loop=true, bgmSource -> bgmGain(0.5) -> master, and avoids duplicate createMediaElementSource on repeat initAudio', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+
+  g.initAudio();
+  assert.ok(g.bgmAudio instanceof MockAudio);
+  assert.equal(g.bgmAudio.src, '/audio/zombgm.ogg');
+  assert.equal(g.bgmAudio.loop, true);
+  assert.ok(g.bgmSource instanceof MockMediaElementAudioSourceNode);
+  assert.ok(g.bgmGain instanceof MockGainNode);
+  assert.equal(g.bgmGain.gain.value, 0.5);
+
+  // Check audio graph routing
+  assert.equal(g.bgmSource.connections[0], g.bgmGain);
+  assert.equal(g.bgmGain.connections[0], g.master);
+  assert.equal(g.master.connections[0], g.compressor);
+
+  // Calling initAudio() again should not recreate bgmAudio or throw InvalidStateError
+  const audioRef = g.bgmAudio;
+  const sourceRef = g.bgmSource;
+  const gainRef = g.bgmGain;
+  assert.doesNotThrow(() => g.initAudio());
+  assert.equal(g.bgmAudio, audioRef);
+  assert.equal(g.bgmSource, sourceRef);
+  assert.equal(g.bgmGain, gainRef);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('title screen: setBgm alters enabled setting and snapshot, but does not start playback before DEPLOY', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.bgmStarted = false;
+  let lastSnapshot = null;
+  g.callback = (s) => { lastSnapshot = s; };
+
+  g.initAudio();
+  assert.equal(g.bgmEnabled, true);
+  assert.equal(g.bgmAudio.playCalls, 0);
+
+  // Toggle OFF on title screen
+  g.setBgm(false);
+  assert.equal(g.bgmEnabled, false);
+  assert.equal(g.state.bgm, false);
+  assert.equal(lastSnapshot?.bgm, false);
+  assert.equal(g.bgmAudio.playCalls, 0);
+
+  // Toggle ON on title screen
+  g.setBgm(true);
+  assert.equal(g.bgmEnabled, true);
+  assert.equal(g.state.bgm, true);
+  assert.equal(lastSnapshot?.bgm, true);
+  assert.equal(g.bgmAudio.playCalls, 0);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('DEPLOY (start): triggers BGM playback from beginning (0s); restarting game starts from 0s', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.bgmStarted = false;
+
+  // First DEPLOY
+  g.start('normal');
+  assert.equal(g.bgmStarted, true);
+  assert.equal(g.bgmAudio.currentTime, 0);
+  assert.equal(g.bgmAudio.playCalls, 1);
+  assert.equal(g.bgmAudio.paused, false);
+
+  // Advance time during combat
+  g.bgmAudio.currentTime = 45.2;
+
+  // Starting a new game rewinds to 0 and plays from top
+  g.start('normal');
+  assert.equal(g.bgmAudio.currentTime, 0);
+  assert.equal(g.bgmAudio.playCalls, 2);
+  assert.equal(g.bgmAudio.paused, false);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('if BGM is toggled OFF before DEPLOY, starting game respects setting and does not play', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.bgmStarted = false;
+  g.initAudio();
+
+  g.setBgm(false);
+  g.start('normal');
+  assert.equal(g.bgmStarted, true);
+  assert.equal(g.bgmEnabled, false);
+  assert.equal(g.bgmAudio.playCalls, 0);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('modes (playing, paused, shop, cleared, dead, won) keep BGM looping without duplicate nodes or playback restarts', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.start('normal');
+
+  assert.equal(g.bgmAudio.playCalls, 1);
+  g.bgmAudio.currentTime = 12.3;
+
+  // Esc pause
+  g.pause();
+  assert.equal(g.state.mode, 'paused');
+  assert.equal(g.bgmAudio.paused, false);
+  assert.equal(g.bgmAudio.currentTime, 12.3);
+  assert.equal(g.bgmAudio.playCalls, 1);
+
+  // Resume combat
+  g.resume();
+  assert.equal(g.state.mode, 'playing');
+  assert.equal(g.bgmAudio.paused, false);
+  assert.equal(g.bgmAudio.playCalls, 1);
+
+  // Wave clear / shop
+  g.finish('shop');
+  assert.equal(g.state.mode, 'shop');
+  assert.equal(g.bgmAudio.paused, false);
+  assert.equal(g.bgmAudio.playCalls, 1);
+
+  // Player dead (game over)
+  g.finish('dead');
+  assert.equal(g.state.mode, 'dead');
+  assert.equal(g.bgmAudio.paused, false);
+  assert.equal(g.bgmAudio.playCalls, 1);
+
+  // Player won
+  g.finish('won');
+  assert.equal(g.state.mode, 'won');
+  assert.equal(g.bgmAudio.paused, false);
+  assert.equal(g.bgmAudio.playCalls, 1);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('toMenu stops BGM and rewinds to 0; preserves BGM on/off setting', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.start('normal');
+  g.bgmAudio.currentTime = 25.0;
+
+  g.toMenu();
+  assert.equal(g.state.mode, 'menu');
+  assert.equal(g.bgmStarted, false);
+  assert.equal(g.bgmAudio.paused, true);
+  assert.equal(g.bgmAudio.currentTime, 0);
+  assert.equal(g.bgmEnabled, true);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('BGM toggle during gameplay: setBgm(false) pauses and preserves position, setBgm(true) resumes from current position', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.start('normal');
+  assert.equal(g.bgmAudio.playCalls, 1);
+
+  g.bgmAudio.currentTime = 37.8;
+
+  // Toggle OFF during game
+  g.setBgm(false);
+  assert.equal(g.bgmEnabled, false);
+  assert.equal(g.bgmAudio.paused, true);
+  assert.equal(g.bgmAudio.currentTime, 37.8);
+
+  // Toggle ON resumes from current position
+  g.setBgm(true);
+  assert.equal(g.bgmEnabled, true);
+  assert.equal(g.bgmAudio.paused, false);
+  assert.equal(g.bgmAudio.currentTime, 37.8);
+  assert.equal(g.bgmAudio.playCalls, 2);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('mute(true) silences master gain without altering BGM state or playback position', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.start('normal');
+  g.bgmAudio.currentTime = 18.0;
+
+  g.mute(true);
+  assert.equal(g.muted, true);
+  assert.equal(g.master.gain.value, 0);
+  // BGM element itself remains running at its position
+  assert.equal(g.bgmAudio.paused, false);
+  assert.equal(g.bgmAudio.currentTime, 18.0);
+  assert.equal(g.bgmEnabled, true);
+
+  g.mute(false);
+  assert.equal(g.muted, false);
+  assert.equal(g.master.gain.value, 0.27);
+  assert.equal(g.bgmAudio.paused, false);
+  assert.equal(g.bgmAudio.currentTime, 18.0);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('play failure handling and retry: game and SFX continue unharmed, retry succeeds on next user BGM On', async () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+
+  // Simulate play rejection (e.g. autoplay policy)
+  let rejectPlay = true;
+  class FlakyAudio extends MockAudio {
+    play() {
+      if (rejectPlay) {
+        return Promise.reject(new DOMException('Autoplay blocked', 'NotAllowedError'));
+      }
+      return super.play();
+    }
+  }
+  globalThis.Audio = FlakyAudio;
+
+  // Starting game should not throw or crash despite play rejection
+  assert.doesNotThrow(() => g.start('normal'));
+  assert.equal(g.bgmStarted, true);
+
+  // SFX continues to work without issue
+  assert.doesNotThrow(() => g.gunshot(0));
+  assert.doesNotThrow(() => g.explosionSound());
+
+  // Player clicks BGM ON again (user interaction) - allows play
+  rejectPlay = false;
+  assert.doesNotThrow(() => g.setBgm(true));
+  assert.equal(g.bgmAudio.paused, false);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('dispose halts BGM playback, clears source, disconnects audio nodes, and resets references', () => {
+  globalThis.AudioContext = MockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.start('normal');
+
+  const bgmSource = g.bgmSource;
+  const bgmGain = g.bgmGain;
+
+  g.dispose();
+  assert.equal(g.disposed, true);
+  assert.equal(g.bgmAudio, null);
+  assert.equal(g.bgmSource, null);
+  assert.equal(g.bgmGain, null);
+  assert.equal(bgmSource.connections.length, 0);
+  assert.equal(bgmGain.connections.length, 0);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('initAudio failure during createMediaElementSource cleanly rolls back and leaves all BGM nodes null, allowing subsequent retry', () => {
+  let shouldFail = true;
+  class FailingMockAudioContext extends MockAudioContext {
+    createMediaElementSource(mediaElement) {
+      if (shouldFail) {
+        throw new DOMException('Failed to create MediaElementAudioSourceNode', 'InvalidStateError');
+      }
+      return super.createMediaElementSource(mediaElement);
+    }
+  }
+
+  globalThis.AudioContext = FailingMockAudioContext;
+  globalThis.Audio = MockAudio;
+  const g = createAudioFixture();
+
+  // initAudio should not throw, and should roll back completely so unrouted audio is not played
+  assert.doesNotThrow(() => g.initAudio());
+  assert.equal(g.bgmAudio, null);
+  assert.equal(g.bgmSource, null);
+  assert.equal(g.bgmGain, null);
+
+  // Subsequent call after failure condition resolves should successfully initialize
+  shouldFail = false;
+  assert.doesNotThrow(() => g.initAudio());
+  assert.ok(g.bgmAudio instanceof MockAudio);
+  assert.ok(g.bgmSource instanceof MockMediaElementAudioSourceNode);
+  assert.ok(g.bgmGain instanceof MockGainNode);
+  assert.equal(g.bgmSource.connections[0], g.bgmGain);
+  assert.equal(g.bgmGain.connections[0], g.master);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('async loading delay: toggling BGM OFF while play() is pending prevents delayed playback upon promise resolution', async () => {
+  globalThis.AudioContext = MockAudioContext;
+
+  let resolvePlayPromise = null;
+  class AsyncLoadAudio extends MockAudio {
+    play() {
+      this.playCalls++;
+      return new Promise((resolve) => {
+        resolvePlayPromise = () => {
+          this.paused = false; // simulates browser starting playback when buffered
+          resolve();
+        };
+      });
+    }
+  }
+  globalThis.Audio = AsyncLoadAudio;
+
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.start('normal');
+
+  assert.equal(g.bgmAudio.playCalls, 1);
+  assert.ok(resolvePlayPromise !== null);
+
+  // User toggles BGM OFF while audio is still loading asynchronously
+  g.setBgm(false);
+  assert.equal(g.bgmEnabled, false);
+  assert.equal(g.bgmAudio.paused, true);
+
+  // Media finish loading and browser resolves the pending play() promise
+  resolvePlayPromise();
+  await new Promise((r) => setTimeout(r, 0));
+
+  // The post-resolution state guard ensures audio is paused and not playing belatedly
+  assert.equal(g.bgmAudio.paused, true);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('async loading delay: returning to title (toMenu) while play() is pending prevents delayed playback on title screen and rewinds to 0s', async () => {
+  globalThis.AudioContext = MockAudioContext;
+
+  let resolvePlayPromise = null;
+  class AsyncLoadAudio extends MockAudio {
+    play() {
+      this.playCalls++;
+      return new Promise((resolve) => {
+        resolvePlayPromise = () => {
+          this.paused = false;
+          resolve();
+        };
+      });
+    }
+  }
+  globalThis.Audio = AsyncLoadAudio;
+
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.start('normal');
+
+  assert.equal(g.bgmAudio.playCalls, 1);
+  assert.ok(resolvePlayPromise !== null);
+
+  // User returns to Title while audio is still loading asynchronously
+  g.toMenu();
+  assert.equal(g.state.mode, 'menu');
+  assert.equal(g.bgmStarted, false);
+  assert.equal(g.bgmAudio.paused, true);
+
+  // Media finish loading and browser resolves the pending play() promise
+  resolvePlayPromise();
+  await new Promise((r) => setTimeout(r, 0));
+
+  // Audio MUST remain paused and rewound to 0s on title screen
+  assert.equal(g.bgmAudio.paused, true);
+  assert.equal(g.bgmAudio.currentTime, 0);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+
+test('async loading delay: disposing game while play() is pending prevents playback on disposed instance', async () => {
+  globalThis.AudioContext = MockAudioContext;
+
+  let resolvePlayPromise = null;
+  let audioInstance = null;
+  class AsyncLoadAudio extends MockAudio {
+    constructor(src) {
+      super(src);
+      audioInstance = this;
+    }
+    play() {
+      this.playCalls++;
+      return new Promise((resolve) => {
+        resolvePlayPromise = () => {
+          this.paused = false;
+          resolve();
+        };
+      });
+    }
+  }
+  globalThis.Audio = AsyncLoadAudio;
+
+  const g = createAudioFixture();
+  g.state.mode = 'menu';
+  g.start('normal');
+
+  assert.equal(audioInstance.playCalls, 1);
+  assert.ok(resolvePlayPromise !== null);
+
+  // Dispose game while audio is still loading asynchronously
+  g.dispose();
+  assert.equal(g.disposed, true);
+  assert.equal(g.bgmAudio, null);
+
+  // Media finishes loading and browser resolves pending play() promise
+  resolvePlayPromise();
+  await new Promise((r) => setTimeout(r, 0));
+
+  // Disposed instance must remain paused
+  assert.equal(audioInstance.paused, true);
+
+  delete globalThis.AudioContext;
+  delete globalThis.Audio;
+});
+

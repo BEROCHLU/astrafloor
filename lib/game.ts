@@ -41,6 +41,7 @@ export type Snapshot = {
   level: number;
   time: number;
   fps: number;
+  bgm: boolean;
 };
 export type Enemy = EnemyRig & {
   siren?: SirenAttack;
@@ -284,6 +285,7 @@ export class Game {
     level: 0,
     time: 0,
     fps: 60,
+    bgm: true,
   };
   enemies: Enemy[] = [];
   hans?: HansEncounter;
@@ -339,6 +341,11 @@ export class Game {
   master: GainNode | null = null;
   compressor: DynamicsCompressorNode | null = null;
   noiseBuffer: AudioBuffer | null = null;
+  bgmAudio: HTMLAudioElement | null = null;
+  bgmSource: MediaElementAudioSourceNode | null = null;
+  bgmGain: GainNode | null = null;
+  bgmEnabled = true;
+  bgmStarted = false;
   muted = false;
   ray = new T.Raycaster();
   events: Array<() => void> = [];
@@ -905,6 +912,7 @@ export class Game {
     this.state.maxArmor = this.getMaxArmor();
     this.state.maxGrenades = this.getMaxGrenades();
     this.state.difficulty = this.difficultyMode ?? 'normal';
+    this.state.bgm = this.bgmEnabled ?? true;
     this.callback?.({ ...this.state, owned: [...this.state.owned] });
   }
   message(text: string, seconds = 2.5) {
@@ -958,7 +966,49 @@ export class Game {
 
       this.initNoiseBuffer();
     }
-    void this.audio.resume();
+    if (
+      !this.bgmAudio &&
+      this.audio &&
+      this.master &&
+      typeof Audio !== 'undefined' &&
+      typeof this.audio.createMediaElementSource === 'function'
+    ) {
+      let audioEl: HTMLAudioElement | null = null;
+      let source: MediaElementAudioSourceNode | null = null;
+      let gain: GainNode | null = null;
+      try {
+        audioEl = new Audio('/audio/zombgm.ogg');
+        audioEl.loop = true;
+        source = this.audio.createMediaElementSource(audioEl);
+        gain = this.audio.createGain();
+        gain.gain.value = 0.5;
+        source.connect(gain);
+        gain.connect(this.master);
+        this.bgmAudio = audioEl;
+        this.bgmSource = source;
+        this.bgmGain = gain;
+      } catch {
+        // Roll back completely if creation or connection fails to prevent unrouted playback
+        if (source) {
+          try {
+            source.disconnect();
+          } catch {
+            // Safe swallow
+          }
+        }
+        if (gain) {
+          try {
+            gain.disconnect();
+          } catch {
+            // Safe swallow
+          }
+        }
+        this.bgmAudio = null;
+        this.bgmSource = null;
+        this.bgmGain = null;
+      }
+    }
+    void this.audio?.resume();
   }
   initNoiseBuffer() {
     if (!this.audio) return;
@@ -991,6 +1041,66 @@ export class Game {
   mute(value: boolean) {
     this.muted = value;
     if (this.master) this.master.gain.value = value ? 0 : 0.27;
+  }
+  playBgm() {
+    if (
+      !this.bgmAudio ||
+      !this.bgmEnabled ||
+      !this.bgmStarted ||
+      this.state.mode === 'menu' ||
+      this.disposed
+    ) {
+      return;
+    }
+    if (this.audio && this.audio.state === 'suspended') {
+      void this.audio.resume();
+    }
+    const audioEl = this.bgmAudio;
+    const p = audioEl.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => {
+        if (
+          !this.bgmAudio ||
+          !this.bgmEnabled ||
+          !this.bgmStarted ||
+          this.state.mode === 'menu' ||
+          this.disposed
+        ) {
+          try {
+            audioEl.pause();
+            if (this.state.mode === 'menu' || this.disposed || !this.bgmStarted) {
+              audioEl.currentTime = 0;
+            }
+          } catch {
+            // Safe swallow
+          }
+        }
+      }).catch(() => {
+        // Autoplay policy or pause interruption; safely ignore
+      });
+    }
+  }
+  pauseBgm() {
+    if (this.bgmAudio) {
+      try {
+        this.bgmAudio.pause();
+      } catch {
+        // Safe swallow
+      }
+    }
+  }
+  setBgm(enabled: boolean) {
+    this.bgmEnabled = enabled;
+    this.state.bgm = enabled;
+    if (this.bgmStarted && this.state.mode !== 'menu') {
+      if (enabled) {
+        this.initAudio();
+        this.playBgm();
+      } else {
+        this.pauseBgm();
+      }
+    }
+    this.emit();
   }
   playNoise(
     duration: number,
@@ -1567,6 +1677,15 @@ export class Game {
     this.playTone(2640, 2640, 0.06, 0.18, 'triangle', now);
   }
   toMenu() {
+    this.bgmStarted = false;
+    this.pauseBgm();
+    if (this.bgmAudio) {
+      try {
+        this.bgmAudio.currentTime = 0;
+      } catch {
+        // Safe swallow
+      }
+    }
     this.viewRecoil.reset();
     this.recoil = 0;
     this.clearEnemyProjectiles();
@@ -1621,6 +1740,7 @@ export class Game {
       level: 0,
       time: 0,
       fps: this.fps,
+      bgm: this.bgmEnabled ?? true,
     };
     this.weaponIndex = 0;
     this.ammo = WEAPONS.map((w) => w.mag);
@@ -1671,6 +1791,15 @@ export class Game {
     this.enemies = [];
     for (const p of this.particles) this.scene.remove(p.mesh);
     this.particles = [];
+    this.initAudio();
+    this.bgmStarted = true;
+    if (this.bgmAudio) {
+      try {
+        this.bgmAudio.currentTime = 0;
+      } catch {
+        // Safe swallow
+      }
+    }
     if (options?.bossDebug) {
       this.initAudio();
       const isCustom =
@@ -1737,7 +1866,11 @@ export class Game {
         level: 0,
         time: 0,
         fps: this.fps,
+        bgm: this.bgmEnabled ?? true,
       };
+      if (this.bgmEnabled) {
+        this.playBgm();
+      }
       this.buildGun();
       if (
         typeof document !== 'undefined' &&
@@ -1792,7 +1925,11 @@ export class Game {
       level: 0,
       time: 0,
       fps: this.fps,
+      bgm: this.bgmEnabled ?? true,
     };
+    if (this.bgmEnabled) {
+      this.playBgm();
+    }
     this.buildGun();
     this.yaw = 0;
     this.pitch = 0;
@@ -1861,7 +1998,10 @@ export class Game {
     this.shooting = false;
     this.aiming = false;
     this.keys.clear();
-    if (document.pointerLockElement === this.renderer.domElement)
+    if (
+      typeof document !== 'undefined' &&
+      document.pointerLockElement === this.renderer?.domElement
+    )
       document.exitPointerLock();
     this.emit();
   }
@@ -3413,13 +3553,29 @@ export class Game {
     this.hans?.dispose();
     this.clearGrenades();
     this.disposed = true;
-    cancelAnimationFrame(this.raf);
+    if (typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(this.raf);
     for (const off of this.events) off();
     if (
       typeof document !== 'undefined' &&
       document.pointerLockElement === this.renderer?.domElement
     )
       document.exitPointerLock();
+    this.bgmStarted = false;
+    this.pauseBgm();
+    if (this.bgmAudio) {
+      try {
+        this.bgmAudio.currentTime = 0;
+        this.bgmAudio.src = '';
+        this.bgmAudio.load();
+      } catch {
+        // Safe swallow
+      }
+    }
+    this.bgmSource?.disconnect();
+    this.bgmGain?.disconnect();
+    this.bgmAudio = null;
+    this.bgmSource = null;
+    this.bgmGain = null;
     void this.audio?.close();
     const geometry = new Set<T.BufferGeometry>(),
       materials = new Set<T.Material>(this.materials);

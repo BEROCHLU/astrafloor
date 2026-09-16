@@ -12,7 +12,30 @@ import {
   Pause,
   Swords,
   Package,
+  Music,
 } from 'lucide-react';
+
+function MusicOff({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="lucide lucide-music-off"
+    >
+      <path d="M9 18V5l12-2v13" />
+      <circle cx="6" cy="18" r="3" />
+      <circle cx="18" cy="16" r="3" />
+      <line x1="2" y1="2" x2="22" y2="22" />
+    </svg>
+  );
+}
 import { Button } from '@/components/ui/button';
 import { Game, MEDICAL_KIT, type Snapshot } from '@/lib/game';
 import { registerGameTools, type Registry } from '@/lib/game-tools';
@@ -60,6 +83,7 @@ const initial: Snapshot = {
   level: 0,
   time: 0,
   fps: 60,
+  bgm: true,
 };
 export default function Home() {
   const host = useRef<HTMLDivElement>(null),
@@ -127,6 +151,14 @@ export default function Home() {
               {(s.difficulty || difficulty).toUpperCase()}
             </span>
           )}
+          <button
+            className="bgm-toggle"
+            aria-pressed={s.bgm}
+            aria-label={s.bgm ? 'Mute BGM' : 'Unmute BGM'}
+            onClick={() => engine.current?.setBgm(!s.bgm)}
+          >
+            {s.bgm ? <Music size={18} /> : <MusicOff size={18} />}
+          </button>
           <button
             aria-label={muted ? 'Unmute audio' : 'Mute audio'}
             onClick={() => {
