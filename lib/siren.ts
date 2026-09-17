@@ -3,7 +3,7 @@ import type { Enemy, Game } from './game.ts';
 
 export const SIREN = {
   kind: 8, hp: 150, speed: 1.25, reward: 120,
-  radius: 9.0, windup: 0.3, duration: 1.5, cooldown: 3, tick: 0.25,
+  radius: 8.7, windup: 0.3, duration: 1.5, cooldown: 3, tick: 0.25,
   damagePerSecond: 20,
   counts: { normal: [2, 3, 4], hard: [2, 4, 4] },
 } as const;

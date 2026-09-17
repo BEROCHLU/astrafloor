@@ -70,7 +70,7 @@ test('windup and cooldown do not damage, and even point-blank Sirens never melee
 });
 
 test('leaving, entering, height and thin cover gate scream exposure, including during a committed scream', (t) => {
-  assert.equal(SIREN.radius, 9.0);
+  assert.equal(SIREN.radius, 8.7);
   const g = fixture(t), e = spawn(g);
   advance(g, SIREN.windup + 0.5); assert.ok(Math.abs(g.state.health - 90) < 1e-7);
   g.camera.position.z = 7; advance(g, 0.25); assert.ok(Math.abs(g.state.health - 90) < 1e-7);

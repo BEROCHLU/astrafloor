@@ -76,7 +76,7 @@ Maximum HP and Armor are both 100 across all difficulties. Armor absorbs 100% of
 
 - **Wave Clear**: Restores HP to 100. Medical Kits are neither used nor replenished automatically.
 - **Q-Key Healing**: Consumes 1 Medical Kit to heal 50 HP (capped at 100).
-- **10-Second Cooldown**: After using a kit, you must wait 10 seconds before using another. The cooldown only elapses during active combat; it pauses during pause and shop states.
+- **8-Second Cooldown**: After using a kit, you must wait 8 seconds before using another. The cooldown only elapses during active combat; it pauses during pause and shop states.
 - **Capacity & Resupply**: Starts at 3/3 kits. Additional kits cost ₡50 each in the shop up to the cap of 3.
 
 ## Firearms, Aiming & Recoil
@@ -126,7 +126,7 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 | Item | Price | Effect |
 |---|---|---|
 | Ammo Resupply | ₡100 | Refills loaded and reserve gun ammunition |
-| Medical Kit | ₡50 | Adds 1 kit (up to 3). Heals 50 HP with Q (10s cooldown) |
+| Medical Kit | ₡50 | Adds 1 kit (up to 3). Heals 50 HP with Q (8s cooldown) |
 | Body Armor | ₡150 | Restores armor to 100 on every difficulty |
 | G18C | ₡750 | Replaces handgun with 33-round full-auto machine pistol |
 | AR-2 | ₡800 | Purchases and equips assault rifle on key 2 |
@@ -173,14 +173,14 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 | Bloat | 2 | 130 | 12 | ₡110 | Spits 3 bile projectiles (20 m/s) at 3–19m after 0.8s telegraph. |
 | Scrake | 3 | 1,000 | 30 | ₡130 | Chainsaw horizontal swing with 4.1m reach. Kite with sprint. |
 | Husk | 3 | 240 | 28 | ₡160 | Cannon glows orange for 0.9s, then fires 60 m/s fireball (4–27m range). |
-| Siren | 4 | 150 | 20 DPS | ₡120 | Emaciated scream specialist. Radiates a 9.0m acoustic shockwave dealing armor-piercing damage directly to health. Blocked by solid walls and cover. |
+| Siren | 4 | 150 | 20 DPS | ₡120 | Emaciated scream specialist. Radiates a 8.7m acoustic shockwave dealing armor-piercing damage directly to health. Blocked by solid walls and cover. |
 | Freshpound | 5 | 3,000 | 42 | ₡450 | Dual drills (3.0m reach). Every 10s, flashes chest core red, roars 1s, then charges at 10× speed for 3s. |
 
 ### Siren: Acoustic Area Denial
 
 Appears in Waves 4–6 (Normal: 2 / 3 / 4, Hard: 2 / 4 / 4).
 - **Spawn Substitution**: Replaces standard wave slots in round-robin rotational order: **Bloat → Husk → Scrake → Other (Clot/Gorefast/Crawler)**. If a targeted category is unavailable, falls back to another available slot while strictly protecting Freshpounds.
-- **Scream Mechanics**: When within 9.0m of the player, Siren halts navigation and winds up for 0.3s (unhinging her jaw and exposing a pulsating red throat), then unleashes a 1.5s sustained scream followed by a 3.0s cooldown.
+- **Scream Mechanics**: When within 8.7m of the player, Siren halts navigation and winds up for 0.3s (unhinging her jaw and exposing a pulsating red throat), then unleashes a 1.5s sustained scream followed by a 3.0s cooldown.
 - **Armor Bypass**: Screams inflict 20 DPS (Normal: 30 total) / 27 DPS (Hard: 40.5 total, using the standard enemy damage multiplier of 1.35) in 0.25s ticks directly to player HP, completely ignoring body armor.
 - **Line of Sight & Cover**: Blocked by solid walls and cover obstacles, and cannot reach players elevated above 3.4m. Breaking line of sight immediately halts damage even during an active scream. Multiple Sirens stack damage additively. Has no melee strike attack.
 

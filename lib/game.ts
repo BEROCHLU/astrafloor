@@ -174,7 +174,7 @@ export function evaluateKatanaMotion(
 const FRESHPOUND_DRILL = { range: 3.0 };
 const SCRAKE_MELEE = { range: 4.1, swingDuration: 0.7 };
 export const STAMINA = { max: 100, drain: 20, recover: 20 };
-export const MEDICAL_KIT = { heal: 50, max: 3, cooldown: 10 };
+export const MEDICAL_KIT = { heal: 50, max: 3, cooldown: 8 };
 export const GRENADE = { throwDuration: 0.55, release: 0.20, fuse: 1.0, speed: 15, gravity: 12, radius: 0.18 };
 export const RPG = { damage: 600, speed: 60, life: 2, reload: 2.4, rate: 0.9, cost: 4000 } as const;
 const LOOK_PITCH_LIMIT = 1.53;

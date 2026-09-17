@@ -1278,7 +1278,7 @@ test('medical kit costs 50 credits, can be stocked at full HP, and caps at three
   assert.equal(g.state.cash, 450);
 });
 
-test('Q heals 50 HP per kit with a 10-second cooldown that pauses outside combat', () => {
+test('Q heals 50 HP per kit with an 8-second cooldown that pauses outside combat', () => {
   const g = fixture();
   g.state.mode = 'playing';
   g.state.health = 10;
@@ -1286,7 +1286,7 @@ test('Q heals 50 HP per kit with a 10-second cooldown that pauses outside combat
   g.handleKeyDown({ code: 'KeyQ', repeat: false });
   assert.equal(g.state.health, 60);
   assert.equal(g.state.medicalKits, 2);
-  assert.equal(g.state.healCooldown, 10);
+  assert.equal(g.state.healCooldown, 8);
 
   g.handleKeyDown({ code: 'KeyQ', repeat: true });
   assert.equal(g.state.health, 60);
@@ -1295,15 +1295,15 @@ test('Q heals 50 HP per kit with a 10-second cooldown that pauses outside combat
   g.handleKeyDown({ code: 'KeyQ', repeat: false });
   assert.equal(g.state.health, 60, 'pressing Q again during cooldown cannot heal');
   assert.equal(g.state.medicalKits, 2);
-  assert.equal(g.state.healCooldown, 10, 'blocked input must not restart the cooldown');
+  assert.equal(g.state.healCooldown, 8, 'blocked input must not restart the cooldown');
 
   for (const mode of ['paused', 'cleared', 'shop']) {
     g.state.mode = mode;
     g.updateHealCooldown(20);
-    assert.equal(g.state.healCooldown, 10);
+    assert.equal(g.state.healCooldown, 8);
   }
   g.state.mode = 'playing';
-  g.updateHealCooldown(9.5);
+  g.updateHealCooldown(7.5);
   assert.equal(g.state.healCooldown, 0.5);
   g.handleKeyDown({ code: 'KeyQ', repeat: false });
   assert.equal(g.state.health, 60);
@@ -1311,9 +1311,9 @@ test('Q heals 50 HP per kit with a 10-second cooldown that pauses outside combat
   g.updateHealCooldown(0.5);
   assert.equal(g.state.healCooldown, 0);
   g.handleKeyDown({ code: 'KeyQ', repeat: false });
-  assert.equal(g.state.health, 100, 'Q becomes usable after exactly 10 seconds');
+  assert.equal(g.state.health, 100, 'Q becomes usable after exactly 8 seconds');
   assert.equal(g.state.medicalKits, 1);
-  assert.equal(g.state.healCooldown, 10);
+  assert.equal(g.state.healCooldown, 8);
 
   g.updateHealCooldown(20);
   g.handleKeyDown({ code: 'KeyQ', repeat: false });
@@ -1325,7 +1325,7 @@ test('Q heals 50 HP per kit with a 10-second cooldown that pauses outside combat
   assert.equal(g.state.health, 51);
   assert.equal(g.state.medicalKits, 0);
 
-  g.updateHealCooldown(10);
+  g.updateHealCooldown(8);
   g.handleKeyDown({ code: 'KeyQ', repeat: false });
   assert.equal(g.state.health, 51, 'empty inventory cannot heal');
   assert.equal(g.state.medicalKits, 0);

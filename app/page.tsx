@@ -699,7 +699,7 @@ export default function Home() {
                   name: 'G18C — Handgun Auto Upgrade',
                   desc: s.g18c
                     ? 'INSTALLED — 33-RND FULL-AUTO'
-                    : 'Replaces Pistol / 33 rounds / Full-Auto / Cannot revert',
+                    : 'Replaces Pistol / 33 rounds / Full-Auto',
                   price: 750,
                 },
                 {
@@ -715,7 +715,7 @@ export default function Home() {
                   name: 'RPG-7 Rocket Launcher',
                   desc: s.owned[3]
                     ? 'EQUIPPED — 4 KEY'
-                    : '1 rocket / 600 blast damage / No penetration',
+                    : '1 rocket / 600 blast damage',
                   price: 4000,
                 },
                 {
@@ -734,7 +734,7 @@ export default function Home() {
                   name: 'Katana — Melee Upgrade',
                   desc: s.katana
                     ? 'INSTALLED — V: KATANA'
-                    : 'Replaces V / Longer reach & power / Cannot revert',
+                    : 'Replaces V / Longer reach & power',
                   price: 1000,
                 },
                 {
@@ -743,7 +743,7 @@ export default function Home() {
                   name: 'Ammo Pouch — Capacity Upgrade',
                   desc: s.pouch
                     ? 'INSTALLED — +50% RESERVE / +2 GRENADES'
-                    : '+50% reserve / +2 grenade capacity / Full ammo & grenade refill / One-time',
+                    : '+50% reserve / +2 grenade capacity / Full ammo & grenade refill',
                   price: 1000,
                 },
                 {
