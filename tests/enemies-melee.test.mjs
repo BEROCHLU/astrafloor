@@ -107,6 +107,8 @@ test('new enemies enter the wave roster while Freshpound appears in wave 5 and t
   g.state.wave = 1;
   g.pending = 7;
   assert.equal(g.chooseEnemyKind(), 5); // Crawler
+  g.pending = 5;
+  assert.equal(g.chooseEnemyKind(), 1); // Gorefast
   g.state.wave = 2;
   g.pending = 11;
   assert.equal(g.chooseEnemyKind(), 4); // Bloat
@@ -146,6 +148,22 @@ test('new enemies enter the wave roster while Freshpound appears in wave 5 and t
   g.updateEnemies(0.1);
   assert.ok(crawler.root.position.z > -4);
   assert.equal(crawler.legs.length, 0);
+});
+
+test('Wave 1 roster contains only Clot, Crawler, and Gorefast with guaranteed Crawler and Gorefast', (t) => {
+  const g = fixture(t);
+  g.state.wave = 1;
+  const kindsSeen = new Set();
+  for (let trial = 0; trial < 100; trial++) {
+    for (let p = 9; p > 0; p--) {
+      g.pending = p;
+      kindsSeen.add(g.chooseEnemyKind());
+    }
+  }
+  assert.ok(kindsSeen.has(0), 'Wave 1 must spawn Clot');
+  assert.ok(kindsSeen.has(1), 'Wave 1 must spawn Gorefast');
+  assert.ok(kindsSeen.has(5), 'Wave 1 must spawn Crawler');
+  assert.equal(kindsSeen.size, 3, 'Wave 1 must only contain Clot, Gorefast, and Crawler');
 });
 
 test('Bloat telegraphs and locks aim before firing, allowing a sideways dodge', (t) => {

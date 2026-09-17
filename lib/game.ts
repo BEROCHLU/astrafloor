@@ -2845,7 +2845,13 @@ export class Game {
     if (this.state.wave >= 2 && order === 1) return 4; // Bloat
     if (order === 2) return 5; // Crawler
     if (this.state.wave >= 3 && order === 3) return 6; // Husk
+    if (order === 4) return 1; // Gorefast
     const roll = Math.random();
+    if (this.state.wave === 1) {
+      if (roll < 0.25) return 5; // Crawler
+      if (roll < 0.50) return 1; // Gorefast
+      return 0; // Clot
+    }
     if (this.state.wave >= 2 && roll < 0.17) return 4; // Bloat
     if (roll < 0.32) return 5; // Crawler
     if (this.state.wave >= 3 && roll < 0.46) return 6; // Husk

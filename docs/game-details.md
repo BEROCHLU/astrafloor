@@ -169,7 +169,7 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 |---|:---:|:---:|:---:|:---:|---|
 | Clot | 1 | 65 | 10 | ₡65 | Basic shambler; easily dispatched with headshots. |
 | Crawler | 1 | 60 | 9 | ₡55 | Low-profile crawling torso; aim low. |
-| Gorefast | 2 | 90 | 10 | ₡85 | High running speed armed with a right-arm blade. |
+| Gorefast | 1 | 90 | 10 | ₡85 | High running speed armed with a right-arm blade. |
 | Bloat | 2 | 130 | 12 | ₡110 | Spits 3 bile projectiles (20 m/s) at 3–19m after 0.8s telegraph. |
 | Scrake | 3 | 1,000 | 30 | ₡130 | Chainsaw horizontal swing with 4.1m reach. Kite with sprint. |
 | Husk | 3 | 240 | 28 | ₡160 | Cannon glows orange for 0.9s, then fires 60 m/s fireball (4–27m range). |
