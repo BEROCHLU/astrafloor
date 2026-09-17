@@ -91,20 +91,18 @@ Controls use a simple, familiar PC FPS layout to help newcomers get comfortable 
 
 ## Essential Survival Tactics
 
-- **Armor Protection**  
-  Max HP and Armor are both 100. Body Armor absorbs 100% of incoming damage before health is reduced. Keeping your armor reinforced at the shop is vital to surviving later waves.
-- **Movement Shooting & Melee Swiping**  
-  Strafe-shooting while on the move and utilizing melee attacks (`V`) to cut through zombie swarms are essential to avoid getting cornered.
-- **Sprint Away From Charges**  
-  If enemies surround you or charge, keep moving and sprint (`Left Shift`) to evade them.
-- **Recoil Control & Headshots**  
-  Aim for heads whenever possible. Pull the mouse down manually to control the upward recoil during sustained fire.
-- **Medical Kit Timing**  
-  Use `Q` when your health takes a hit (heals 50 HP, 10s cooldown, max 3 stored).
-- **Beware of Blast Self-Damage**  
-  Frag grenades (`G`) and RPG-7 rockets deal heavy self-damage when they explode nearby. Keep your distance or take cover.
-- **Beware of Siren's Armor-Piercing Scream**  
-  Sirens in Waves 4–6 unleash a 9.0m acoustic shockwave that bypasses your body armor completely, damaging health directly. Break line of sight behind solid walls or eliminate them from distance before their 0.3s windup finishes.
+- **Strafe-Shooting & Katana Breakouts**  
+  Strafe-shooting while staying mobile and slashing through swarms with the Katana (`V` key, once purchased from the shop) are essential techniques to escape zombie encirclements.
+- **Evade Charges with Sprinting**  
+  If enemies surround you or charge, keep moving and sprint (`Left Shift`) to slip away.
+- **Precision Recoil Control & Headshots**  
+  Actively aim for headshots. Manually pull down your mouse during sustained fire to suppress muzzle climb.
+- **Line Up Penetration Shots with the SR-3**  
+  The SR-3 Sniper Rifle penetrates up to 3 targets. Line up headshots to take down troublesome or clustered enemies simultaneously.
+- **Use Grenades & Medical Kits Generously**  
+  Frag Grenades (`G`) and Medical Kits (`Q`) can be cheaply restocked in the shop, so do not hesitate to use them before turning into a critical situation.
+- **Watch Out for Colossal Enemies**  
+  The colossal enemies appearing in Waves 5–6 will enrage and charge after a short time. Quickly take cover behind obstacles or prioritize headshots from long range to bring them down as fast as possible.
 
 ---
 
