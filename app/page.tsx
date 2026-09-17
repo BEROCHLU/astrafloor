@@ -820,9 +820,15 @@ export default function Home() {
             </span>
             <h2>{s.mode === 'won' ? 'SURVIVED.' : 'MISSION FAILED.'}</h2>
             <p>
-              {s.mode === 'won'
-                ? 'Hans Volter eliminated. The foundry is secured.'
-                : 'The quarantine zone claims another soul.'}
+              {s.mode === 'won' ? (
+                <>
+                  Hans Volter eliminated. The foundry is secured.
+                  <br />
+                  Press <kbd>F8</kbd> on the title screen to access Debug Mode and start from any wave.
+                </>
+              ) : (
+                'The quarantine zone claims another soul.'
+              )}
             </p>
             <div className="result-stats">
               <div>
