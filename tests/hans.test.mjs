@@ -36,7 +36,7 @@ function advance(g, seconds) {
   for (let time = 0; time < seconds - 0.00001; time += 0.05) g.hans.update(Math.min(0.05, seconds - time));
 }
 
-test('Hard and Normal wave 6 rewards and resupply lead to one fixed-stat Hans on Wave 7', (t) => {
+test('Hard and Normal wave 6 rewards and resupply lead to Hans on Wave 7 (20000 HP on Hard, 15000 HP on Normal)', (t) => {
   const g = fixture(t, false);
   g.state.wave = 6; g.state.health = 20; g.state.remaining = 0; g.pending = 0;
   g.completeWave();
@@ -45,7 +45,9 @@ test('Hard and Normal wave 6 rewards and resupply lead to one fixed-stat Hans on
   g.nextWave();
   assert.equal(g.state.wave, 7); assert.equal(g.pending, 1); assert.equal(g.state.remaining, 1);
   assert.equal(g.chooseEnemyKind(), HANS.kind);
-  g.spawn(); assert.equal(g.enemies.length, 1); assert.equal(g.pending, 0); assert.equal(g.enemies[0].hp, 12000);
+  g.spawn(); assert.equal(g.enemies.length, 1); assert.equal(g.pending, 0); assert.equal(g.enemies[0].hp, 20000);
+  assert.equal(g.hans.maxHealth, 20000);
+  assert.equal(g.hans.snapshot().maxHealth, 20000);
   assert.equal(g.state.katana, true); assert.equal(g.state.level, 2);
   const normal = fixture(t, false);
   normal.difficultyMode = 'normal'; normal.state.wave = 6; normal.completeWave();
@@ -56,7 +58,9 @@ test('Hard and Normal wave 6 rewards and resupply lead to one fixed-stat Hans on
   assert.equal(normal.pending, 1);
   assert.equal(normal.chooseEnemyKind(), HANS.kind);
   normal.spawn();
-  assert.equal(normal.enemies[0].hp, 12000);
+  assert.equal(normal.enemies[0].hp, 15000);
+  assert.equal(normal.hans.maxHealth, 15000);
+  assert.equal(normal.hans.snapshot().maxHealth, 15000);
   normal.enemies[0].dead = true;
   normal.enemies = [];
   normal.completeWave();
@@ -97,11 +101,11 @@ test('energy depletion stuns for four seconds, exposes bonus damage, then rechar
   h.energy = 0; h.update(0.01); assert.equal(h.action, 'stunned');
   const pos = e.root.position.clone(); advance(g, 3.9);
   assert.equal(h.action, 'stunned'); assert.deepEqual(e.root.position, pos);
-  g.damageEnemy(e, 100, pos); assert.equal(e.hp, HANS.hp - 150);
+  g.damageEnemy(e, 100, pos); assert.equal(e.hp, HANS.hpHard - 150);
   advance(g, 0.11); assert.equal(h.action, 'approach'); assert.ok(h.energy > 99);
-  g.damageEnemy(e, 100, pos); assert.equal(e.hp, HANS.hp - 250);
-  e.hp = HANS.hp * 0.65; assert.equal(h.snapshot().phase, 2);
-  e.hp = HANS.hp * 0.3; assert.equal(h.snapshot().phase, 3);
+  g.damageEnemy(e, 100, pos); assert.equal(e.hp, HANS.hpHard - 250);
+  e.hp = h.maxHealth * 0.65; assert.equal(h.snapshot().phase, 2);
+  e.hp = h.maxHealth * 0.3; assert.equal(h.snapshot().phase, 3);
 });
 
 test('leaping claw hits once, and leap/dash substeps cannot cross solid cover', (t) => {
@@ -157,7 +161,7 @@ test('boss death clears gas and bullets, stops attacks and allows the Hard victo
   h.action = 'gas-windup'; h.timer = 0.01; h.aim.set(0, 1, 0); h.update(0.02);
   h.action = 'rifle'; h.timer = 1; h.update(0.02);
   assert.ok(h.grenades.length && g.enemyProjectiles.length);
-  g.damageEnemy(e, HANS.hp + 1, e.root.position);
+  g.damageEnemy(e, e.hp + 1, e.root.position);
   assert.equal(e.dead, true); assert.equal(g.state.remaining, 0);
   assert.equal(h.grenades.length, 0); assert.equal(h.clouds.length, 0); assert.equal(g.enemyProjectiles.length, 0);
   const timer = h.timer; h.update(1); assert.equal(h.timer, timer);

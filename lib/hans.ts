@@ -2,7 +2,7 @@ import * as T from 'three';
 import type { Enemy, Game } from './game.ts';
 
 export const HANS = {
-  kind: 7, wave: 7, hp: 12000, speed: 6.0, energy: 100, energyDrain: 1,
+  kind: 7, wave: 7, hp: 15000, hpHard: 20000, speed: 6.0, energy: 100, energyDrain: 1,
   stunDuration: 4, vulnerability: 1.5,
   rifleDamage: 5, rifleSpeed: 80, rifleRange: 32, rifleCost: 18,
   clawDamage: 30, clawRange: 3.5, leapRange: 25, leapSpeed: 15, leapCost: 20, dashCost: 12,
@@ -42,10 +42,12 @@ export class HansEncounter {
   private grenadeModel: T.Group;
   private cloudModel: T.Group;
   private ownedMaterials: T.Material[] = [];
+  maxHealth: number;
   private bulletMaterial: T.MeshBasicMaterial;
 
   constructor(game: Game, enemy: Enemy) {
     this.game = game; this.enemy = enemy;
+    this.maxHealth = enemy.hp;
     const green = new T.MeshStandardMaterial({ color: 0x91ce36, emissive: 0x5ca814, emissiveIntensity: 1.3 });
     this.bulletMaterial = new T.MeshBasicMaterial({ color: 0xffdf99 });
     this.ownedMaterials.push(green, this.bulletMaterial);
@@ -57,9 +59,9 @@ export class HansEncounter {
     this.cloudModel = game.graphics.createAreaEffect(HANS.gasRadius, 0x8ab83c, 0xc1ee54);
   }
 
-  get phase() { return this.enemy.hp > HANS.hp * 0.65 ? 1 : this.enemy.hp > HANS.hp * 0.3 ? 2 : 3; }
+  get phase() { return this.enemy.hp > this.maxHealth * 0.65 ? 1 : this.enemy.hp > this.maxHealth * 0.3 ? 2 : 3; }
   snapshot(): BossSnapshot {
-    return { name: 'HANS VOLTER', health: Math.max(0, this.enemy.hp), maxHealth: HANS.hp,
+    return { name: 'HANS VOLTER', health: Math.max(0, this.enemy.hp), maxHealth: this.maxHealth,
       energy: this.energy, phase: this.phase, action: this.action };
   }
   damageMultiplier() { return this.action === 'stunned' ? HANS.vulnerability : 1; }

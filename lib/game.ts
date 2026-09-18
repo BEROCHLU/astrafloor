@@ -2881,7 +2881,7 @@ export class Game {
     const e: Enemy = {
       ...rig,
       shadow: this.contactShadow(x, z, root.scale.x * 1.3, root.scale.x * 0.9),
-      hp: kind === HANS.kind ? HANS.hp :
+      hp: kind === HANS.kind ? (this.difficultyMode === 'hard' ? HANS.hpHard : HANS.hp) :
         stats.hp *
         (1 + (this.state.wave - 1) * 0.1) *
         this.difficulty,

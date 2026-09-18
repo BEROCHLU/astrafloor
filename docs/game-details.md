@@ -45,7 +45,7 @@ Hard mode also features higher enemy spawn frequency. Total enemy counts per wav
 On both difficulties, each advancing wave increases base Zod HP multiplier by **+0.1** and speed multiplier by **+0.045**:  
 $$\text{Enemy HP} = \text{Base HP} \times (1 + (\text{Wave} - 1) \times 0.1) \times \text{Difficulty Multiplier}$$
 
-The Final Boss has dedicated fixed statistics and does not scale with regular wave or difficulty multipliers.
+The Final Boss has dedicated fixed statistics (15,000 HP Normal / 20,000 HP Hard) and does not scale with regular wave multipliers.
 
 ## Controls
 
@@ -186,7 +186,7 @@ Appears in Waves 4–6 (Normal: 2 / 3 / 4, Hard: 2 / 4 / 4).
 
 ### Final Boss: Wave 7
 
-Clearing Wave 6 awards ₡550 and opens the shop before the dedicated Final Boss fight. The boss has **12,000 fixed HP** and no additional minion spawns.
+Clearing Wave 6 awards ₡550 and opens the shop before the dedicated Final Boss fight. The boss has **15,000 HP (Normal) / 20,000 HP (Hard)** and no additional minion spawns.
 
 | Action | Mechanics & Counterplay |
 |---|---|
