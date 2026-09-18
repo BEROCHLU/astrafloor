@@ -529,6 +529,12 @@ export default function Home() {
             </div>
             <p>
               <kbd>1</kbd> {s.g18c ? 'G18C' : 'PISTOL'} <kbd>2</kbd> RIFLE <kbd>3</kbd> SNIPER
+              {s.owned?.[3] && (
+                <>
+                  {' '}
+                  <kbd>4</kbd> RPG-7
+                </>
+              )}
             </p>
           </div>
           <div className="play-hint">
@@ -683,7 +689,7 @@ export default function Home() {
                   id: 'health',
                   icon: <Heart />,
                   name: 'Medical Kit',
-                  desc: `+1 kit / Q: +${MEDICAL_KIT.heal} HP / ${MEDICAL_KIT.cooldown}s cooldown / ${s.medicalKits}/${MEDICAL_KIT.max} held`,
+                  desc: `+1 kit / +${MEDICAL_KIT.heal} HP / ${MEDICAL_KIT.cooldown}s cooldown / ${s.medicalKits}/${MEDICAL_KIT.max} held / Q KEY`,
                   price: 50,
                 },
                 {
@@ -698,15 +704,15 @@ export default function Home() {
                   icon: <Crosshair />,
                   name: 'G18C — Handgun Auto Upgrade',
                   desc: s.g18c
-                    ? 'INSTALLED — 33-RND FULL-AUTO'
-                    : 'Replaces Pistol / 33 rounds / Full-Auto',
+                    ? 'INSTALLED — 1 KEY / 33-RND FULL-AUTO'
+                    : 'Replaces Pistol / 33 rounds / Full-Auto / 1 KEY',
                   price: 750,
                 },
                 {
                   id: 'rifle',
                   icon: <Crosshair />,
                   name: 'AR-2 Assault Rifle',
-                  desc: s.owned[1] ? 'EQUIPPED' : '30 rounds / Full-Auto',
+                  desc: s.owned[1] ? 'EQUIPPED — 2 KEY' : '30 rounds / Full-Auto / 2 KEY',
                   price: 800,
                 },
                 {
@@ -715,7 +721,7 @@ export default function Home() {
                   name: 'RPG-7 Rocket Launcher',
                   desc: s.owned[3]
                     ? 'EQUIPPED — 4 KEY'
-                    : '1 rocket / 600 blast damage',
+                    : '1 rocket / 600 blast damage / 4 KEY',
                   price: 4000,
                 },
                 {
@@ -724,8 +730,8 @@ export default function Home() {
                   name: 'SR-3 Sniper Rifle',
                   desc:
                     s.owned[2]
-                      ? 'EQUIPPED'
-                      : '5 rounds / Bolt-Action / 5x Scope / Piercing',
+                      ? 'EQUIPPED — 3 KEY'
+                      : '5 rounds / Bolt-Action / 5x Scope / Piercing / 3 KEY',
                   price: 1100,
                 },
                 {
@@ -762,8 +768,8 @@ export default function Home() {
                   name: 'Frag Grenade',
                   desc:
                     s.grenades >= s.maxGrenades
-                      ? `MAX CAPACITY (${s.maxGrenades})`
-                      : `Carrying ${s.grenades}/${s.maxGrenades} / Add +1`,
+                      ? `MAX CAPACITY (${s.maxGrenades}) / G KEY`
+                      : `Carrying ${s.grenades}/${s.maxGrenades} / Add +1 / G KEY`,
                   price: 50,
                 },
               ].map((item) => (
