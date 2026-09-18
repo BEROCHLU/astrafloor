@@ -73,7 +73,7 @@ Controls use a simple, familiar PC FPS layout to help newcomers get comfortable 
 | **Weapon Selection** | `1` `2` `3` `4` | `1`: Handgun/G18C, `2`: Assault Rifle, `3`: Sniper Rifle, `4`: RPG-7 |
 | **Melee Attack** | `V` | Blunt bash (default) / Katana fan sweep (after upgrade) |
 | **Throw Grenade** | `G` | Parabolic toss; explodes 1.0s after release (self-damage enabled) |
-| **Use Medical Kit** | `Q` | Instantly heals 50 HP (10s cooldown, max 3 held) |
+| **Use Medical Kit** | `Q` | Instantly heals 50 HP (8s cooldown, max 3 held) |
 | **Pause** | `Esc` | Releases pointer and pauses combat (choose **RESUME COMBAT** to resume) |
 | **Wave Clear Advance** | `Space` / `Enter` | Advances from victory screen into preparation shop |
 

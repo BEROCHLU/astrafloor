@@ -689,7 +689,7 @@ export default function Home() {
                   id: 'health',
                   icon: <Heart />,
                   name: 'Medical Kit',
-                  desc: `+1 kit / +${MEDICAL_KIT.heal} HP / ${MEDICAL_KIT.cooldown}s cooldown / ${s.medicalKits}/${MEDICAL_KIT.max} held / Q KEY`,
+                  desc: `+1 kit / Q: +${MEDICAL_KIT.heal} HP / ${MEDICAL_KIT.cooldown}s cooldown / ${s.medicalKits}/${MEDICAL_KIT.max} held`,
                   price: 50,
                 },
                 {
@@ -768,8 +768,8 @@ export default function Home() {
                   name: 'Frag Grenade',
                   desc:
                     s.grenades >= s.maxGrenades
-                      ? `MAX CAPACITY (${s.maxGrenades}) / G KEY`
-                      : `Carrying ${s.grenades}/${s.maxGrenades} / Add +1 / G KEY`,
+                      ? `MAX CAPACITY (${s.maxGrenades})`
+                      : `Carrying ${s.grenades}/${s.maxGrenades} / Add +1`,
                   price: 50,
                 },
               ].map((item) => (
