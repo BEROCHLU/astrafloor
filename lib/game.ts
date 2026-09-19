@@ -46,6 +46,8 @@ export type Snapshot = {
 export type Enemy = EnemyRig & {
   siren?: SirenAttack;
   hp: number;
+  maxHp: number;
+  scrakeEnraged: boolean;
   speed: number;
   damage: number;
   kind: number;
@@ -172,7 +174,8 @@ export function evaluateKatanaMotion(
   return { pos: targetPos, quat: targetQuat };
 }
 const FRESHPOUND_DRILL = { range: 3.0 };
-const SCRAKE_MELEE = { range: 4.1, swingDuration: 0.7 };
+const SCRAKE_MELEE = { range: 3.9, swingDuration: 0.3 };
+const SCRAKE_RAGE = { hpRatio: 0.1, speedMultiplier: 3.5, contactDistance: 1.35 };
 export const STAMINA = { max: 100, drain: 20, recover: 20 };
 export const MEDICAL_KIT = { heal: 50, max: 3, cooldown: 8 };
 export const GRENADE = { throwDuration: 0.55, release: 0.20, fuse: 1.0, speed: 15, gravity: 12, radius: 0.18 };
@@ -2487,6 +2490,10 @@ export class Game {
         this.scene.remove(old.enemy.root, old.enemy.shadow);
       }
       this.sound(80, 0.13, 'triangle', 0.16, 35);
+    } else if (e.kind === 2 && !e.scrakeEnraged && e.hp <= e.maxHp * SCRAKE_RAGE.hpRatio) {
+      e.scrakeEnraged = true;
+      // Keep the spawn's wave/difficulty speed scaling; transition only once.
+      e.speed *= SCRAKE_RAGE.speedMultiplier;
     }
   }
   melee() {
@@ -2878,13 +2885,14 @@ export class Game {
     }
     root.position.set(x, 0, z);
     this.scene.add(root);
+    const maxHp = kind === HANS.kind ? (this.difficultyMode === 'hard' ? HANS.hpHard : HANS.hp) :
+      stats.hp * (1 + (this.state.wave - 1) * 0.1) * this.difficulty;
     const e: Enemy = {
       ...rig,
       shadow: this.contactShadow(x, z, root.scale.x * 1.3, root.scale.x * 0.9),
-      hp: kind === HANS.kind ? (this.difficultyMode === 'hard' ? HANS.hpHard : HANS.hp) :
-        stats.hp *
-        (1 + (this.state.wave - 1) * 0.1) *
-        this.difficulty,
+      hp: maxHp,
+      maxHp,
+      scrakeEnraged: false,
       speed: kind === HANS.kind ? HANS.speed :
         stats.speed *
         (1 + (this.state.wave - 1) * 0.045) *
@@ -3202,6 +3210,7 @@ export class Game {
       const pos = e.root.position;
       e.attack -= dt;
       e.meleeSwing = Math.max(0, e.meleeSwing - dt);
+      const scrakeRaging = e.kind === 2 && e.scrakeEnraged;
       const raging = e.kind === 3 && this.updateFreshpoundRage(e, dt);
       if (this.state.mode !== 'playing') return;
       let dx = this.camera.position.x - pos.x,
@@ -3216,7 +3225,7 @@ export class Game {
       const sirenHolding = e.siren?.update(dt, distance) ?? false;
       if (this.state.mode !== 'playing') return;
       const ranged = sirenHolding || ((e.kind === 4 || e.kind === 6) && this.updateRangedEnemy(e, dt, distance));
-      if (!raging && !canMelee && !ranged) {
+      if (!raging && (!canMelee || scrakeRaging) && !ranged) {
         let clear = true;
         for (let t = 0.5; t < distance; t += 0.6)
           if (
@@ -3269,9 +3278,20 @@ export class Game {
             vz += (sz / d) * (0.85 - d) * 1.5;
           }
         }
-        this.move(pos, vx * e.speed * dt, vz * e.speed * dt, 0.45);
+        let travel = e.speed * dt;
+        if (scrakeRaging) {
+          // Bound the entire step, including separation, so it cannot cross the player.
+          travel = Math.min(travel, Math.max(0, distance - SCRAKE_RAGE.contactDistance) / (Math.hypot(vx, vz) || 1));
+        }
+        this.move(pos, vx * travel, vz * travel, 0.45);
         e.root.rotation.y = Math.atan2(dx, dz);
-      } else if (!raging && canMelee && e.attack <= 0 && this.feet < 1.0) {
+      }
+      if (scrakeRaging) {
+        dx = this.camera.position.x - pos.x;
+        dz = this.camera.position.z - pos.z;
+        canMelee = Math.hypot(dx, dz) <= meleeRange && this.hasEnemyMeleeSight(e);
+      }
+      if (!raging && canMelee && e.attack <= 0 && this.feet < 1.0) {
         this.enemyMelee(e);
         if (this.state.mode !== 'playing') return;
       }
@@ -3280,7 +3300,7 @@ export class Game {
         e.root.rotation.y = Math.atan2(aim.x - pos.x, aim.z - pos.z);
       }
       if (canMelee && !raging) e.root.rotation.y = Math.atan2(dx, dz);
-      const stride = ranged || e.ragePhase === 'windup' ? 0 : canMelee ? 0.22 : 1;
+      const stride = ranged || e.ragePhase === 'windup' ? 0 : scrakeRaging ? 1.6 : canMelee ? 0.22 : 1;
       const reach = distance < 2.4 ? -1.18 : -0.45;
       e.root.position.y = Math.sin(e.phase * 2) * 0.018;
       e.torso.rotation.z = Math.sin(e.phase) * 0.05;
@@ -3297,18 +3317,31 @@ export class Game {
       e.arms[0].rotation.x = e.kind === 5 ? -0.8 + Math.sin(e.phase) * 0.35 : reach + Math.sin(e.phase) * 0.18;
       e.arms[1].rotation.x = e.kind === 5 ? -0.8 - Math.sin(e.phase) * 0.35 : reach - 0.15 - Math.sin(e.phase) * 0.18;
       if (e.chainsaw && e.sawChain) {
-        const progress = 1 - e.meleeSwing / SCRAKE_MELEE.swingDuration;
-        const raise = T.MathUtils.smoothstep(progress, 0, 0.25);
-        const cut = T.MathUtils.smoothstep(progress, 0.25, 0.7);
-        const weight = 1 - T.MathUtils.smoothstep(progress, 0.7, 1);
-        // Raise the saw overhead, sweep it across the body, then recover the stance.
-        e.arms[1].rotation.x = -0.65 + (-1.8 * raise + 0.9 * cut) * weight;
-        e.arms[1].rotation.z = (0.65 * raise - 1.4 * cut) * weight;
-        e.elbows[1].rotation.x = -0.45 + (0.25 * raise - 0.15 * cut) * weight;
-        e.arms[0].rotation.x = -0.55 - 0.8 * raise * weight;
-        e.torso.rotation.y = (0.38 * raise - 0.76 * cut) * weight;
-        e.torso.rotation.x += 0.22 * cut * weight;
-        e.chainsaw.rotation.z = (-0.15 * raise + 0.3 * cut) * weight;
+        if (scrakeRaging) {
+          // Continuous sweeping is visual only; enemyMelee owns damage and cooldown.
+          const sweep = Math.sin(e.phase);
+          e.arms[1].rotation.x = -1.4 - Math.cos(e.phase) * 0.35;
+          e.arms[1].rotation.y = sweep * 0.8;
+          e.arms[1].rotation.z = sweep * 1.05;
+          e.elbows[1].rotation.x = -0.3;
+          e.arms[0].rotation.x = -1.1 - sweep * 0.35;
+          e.torso.rotation.y = sweep * 0.4;
+          e.torso.rotation.x = 0.38;
+          e.chainsaw.rotation.z = -sweep * 0.2;
+        } else {
+          const progress = 1 - e.meleeSwing / SCRAKE_MELEE.swingDuration;
+          const raise = T.MathUtils.smoothstep(progress, 0, 0.25);
+          const cut = T.MathUtils.smoothstep(progress, 0.25, 0.7);
+          const weight = 1 - T.MathUtils.smoothstep(progress, 0.7, 1);
+          // Raise the saw overhead, sweep it across the body, then recover the stance.
+          e.arms[1].rotation.x = -0.65 + (-1.8 * raise + 0.9 * cut) * weight;
+          e.arms[1].rotation.z = (0.65 * raise - 1.4 * cut) * weight;
+          e.elbows[1].rotation.x = -0.45 + (0.25 * raise - 0.15 * cut) * weight;
+          e.arms[0].rotation.x = -0.55 - 0.8 * raise * weight;
+          e.torso.rotation.y = (0.38 * raise - 0.76 * cut) * weight;
+          e.torso.rotation.x += 0.22 * cut * weight;
+          e.chainsaw.rotation.z = (-0.15 * raise + 0.3 * cut) * weight;
+        }
         const phase = Math.floor(e.phase * 9) % 2;
         e.sawChain.children.forEach((teeth, i) => { teeth.visible = i === phase; });
       }

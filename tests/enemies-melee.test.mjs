@@ -289,7 +289,7 @@ test('Husk charges its cannon, fires a fast locked shot, respects cover and cann
 test('Scrake chainsaws and Freshpound drills keep their reach and damage, respect cover and animate attacks', (t) => {
   for (const kind of [2, 3]) {
     const g = fixture(t);
-    const reach = kind === 2 ? 4.1 : 3.0;
+    const reach = kind === 2 ? 3.9 : 3.0;
     const e = spawnAt(g, kind, 0, -(reach - 0.1));
     assert.equal(e.damage, kind === 2 ? 30 : 42);
     e.attack = 0;
@@ -300,7 +300,7 @@ test('Scrake chainsaws and Freshpound drills keep their reach and damage, respec
     assert.equal(g.state.health, 100 - e.damage);
     assert.equal(sounds.length, 1);
     const armAngle = e.arms[1].rotation.x;
-    g.updateEnemies(0.15);
+    g.updateEnemies(kind === 2 ? 0.065 : 0.15);
     assert.notEqual(e.arms[1].rotation.x, armAngle);
     assert.equal(g.state.health, 100 - e.damage);
     assert.equal(sounds.length, 1);
@@ -308,10 +308,10 @@ test('Scrake chainsaws and Freshpound drills keep their reach and damage, respec
       assert.equal(e.sawChain.children.filter((phase) => phase.visible).length, 1);
       assert.ok(e.arms[1].rotation.x < -2, 'Scrake visibly raises the saw overhead');
       const raisedSide = e.arms[1].rotation.z;
-      g.updateEnemies(0.3);
+      g.updateEnemies(0.13);
       assert.ok(e.arms[1].rotation.z < raisedSide, 'the saw sweeps across the body');
       assert.ok(e.torso.rotation.y < 0, 'the torso follows the sweeping motion');
-      g.updateEnemies(0.3);
+      g.updateEnemies(0.105);
       assert.equal(e.meleeSwing, 0);
       assert.equal(Math.abs(e.torso.rotation.y), 0, 'the stance resets after the swing');
       assert.equal(g.state.health, 100 - e.damage, 'the animation does not add extra hits');
@@ -490,3 +490,154 @@ test('enemy melee and projectile attacks are 100% absorbed by body armor until d
   assert.equal(g.state.mode, 'playing');
 });
 
+
+
+test('Scrake rage uses 10% spawn HP and 3.5 times normal speed across waves and difficulties, and lethal hits take priority', (t) => {
+  for (const difficulty of [1, 1.35]) for (const wave of [3, 6]) {
+    const g = fixture(t);
+    g.difficulty = difficulty;
+    g.difficultyMode = difficulty === 1 ? 'normal' : 'hard';
+    g.state.wave = wave;
+    const e = spawnAt(g, 2, 0, -12);
+    const maxHp = 1000 * (1 + (wave - 1) * 0.1) * difficulty;
+    assert.equal(e.maxHp, maxHp);
+    assert.equal(e.hp, maxHp);
+    const normalSpeed = e.speed;
+    g.damageEnemy(e, e.hp - (maxHp * 0.1 + 1), e.root.position);
+    assert.equal(e.scrakeEnraged, false, 'above 10% remains calm');
+    assert.equal(e.speed, normalSpeed);
+    g.damageEnemy(e, 1, e.root.position);
+    assert.ok(Math.abs(e.hp - maxHp * 0.1) < 1e-10);
+    assert.equal(e.scrakeEnraged, true, 'exactly 10% immediately enrages');
+    assert.equal(e.maxHp, maxHp, 'damage does not change the spawn maximum');
+    assert.ok(Math.abs(e.speed - normalSpeed * 3.5) < 1e-10);
+    const speed = e.speed;
+    g.damageEnemy(e, 1, e.root.position);
+    assert.equal(e.speed, speed, 'later damage never reapplies the speed boost');
+    g.updateEnemies(0.1);
+    assert.ok(Math.abs(e.root.position.z + 12 - speed * 0.1) < 1e-10, 'rage moves immediately at the scaled speed');
+
+    const below = spawnAt(g, 2, -12, -12);
+    g.damageEnemy(below, below.hp - maxHp * 0.09, below.root.position);
+    assert.equal(below.scrakeEnraged, true, 'crossing below 10% also enrages');
+    for (const overkill of [0, 10]) {
+      const lethal = spawnAt(g, 2, 12, -12);
+      g.damageEnemy(lethal, lethal.hp + overkill, lethal.root.position);
+      assert.equal(lethal.dead, true);
+      assert.equal(lethal.scrakeEnraged, false);
+      assert.equal(lethal.speed, normalSpeed);
+    }
+    const fp = spawnAt(g, 3, -20, -12);
+    const fpSpeed = fp.speed;
+    g.damageEnemy(fp, fp.hp * 0.96, fp.root.position);
+    assert.equal(fp.scrakeEnraged, false);
+    assert.equal(fp.ragePhase, 'calm');
+    assert.equal(fp.speed, fpSpeed);
+  }
+});
+
+test('enraged Scrake pursues through melee range, keeps running at contact, and damages only on its cooldown', (t) => {
+  const g = fixture(t), e = spawnAt(g, 2, 0, -3.8);
+  g.damageEnemy(e, e.hp * 0.96, e.root.position);
+  e.phase = 0;
+  e.attack = 0;
+  g.updateEnemies(0.01);
+  assert.ok(e.root.position.z > -3.8, 'the attack does not halt pursuit');
+  assert.equal(g.state.health, 70);
+  assert.equal(e.attack, 1.15);
+  const sawSide = e.arms[1].rotation.z;
+  g.updateEnemies(0.5);
+  let sweptOtherSide = false;
+  for (let i = 0; i < 64; i++) {
+    g.updateEnemies(0.01);
+    if (sawSide * e.arms[1].rotation.z < 0) sweptOtherSide = true;
+  }
+  assert.equal(g.state.health, 70, 'continuous swings do not add hits before 1.15s');
+  assert.ok(sweptOtherSide, 'the chainsaw sweeps to both sides');
+  assert.equal(e.torso.rotation.x, 0.38, 'the torso leans forward');
+  assert.ok(Math.abs(e.root.position.z + 1.35) < 1e-10, 'movement is capped at contact even for a large step');
+  const legAngle = e.legs[0].rotation.x;
+  g.updateEnemies(0.02);
+  assert.equal(g.state.health, 40, 'the next hit occurs after the attack interval');
+  assert.notEqual(e.legs[0].rotation.x, legAngle, 'running continues at contact');
+  assert.ok(Math.abs(e.legs[0].rotation.x - Math.sin(e.phase) * 0.38 * 1.6) < 1e-10);
+  const contactZ = e.root.position.z;
+  g.updateEnemies(0.1);
+  assert.equal(e.root.position.z, contactZ, 'contact never moves through the player');
+  g.camera.position.x = 2;
+  g.updateEnemies(0.1);
+  assert.ok(e.root.position.x > 0, 'pursuit follows player movement while still in melee range');
+});
+
+test('enraged Scrake preserves attack reach, height checks, and cover while navigating around obstacles', (t) => {
+  const g = fixture(t), e = spawnAt(g, 2, 0, -4.5);
+  g.damageEnemy(e, e.hp * 0.96, e.root.position);
+  e.attack = 0;
+  g.updateEnemies(0.01);
+  assert.equal(g.state.health, 100, 'cannot hit outside 3.9m');
+  e.root.position.z = -3.8;
+  g.feet = 1;
+  g.updateEnemies(0.01);
+  assert.equal(g.state.health, 100, 'the existing height boundary still prevents damage');
+  g.feet = 0;
+  g.updateEnemies(0.01);
+  assert.equal(g.state.health, 70, 'inside 3.9m deals the existing base 30 damage');
+
+  e.root.position.set(0, 0, -3.8);
+  e.attack = 0;
+  const wall = new T.Mesh(g.graphics.box, g.graphics.material(new T.MeshBasicMaterial()));
+  wall.position.set(0, 1.5, -2);
+  wall.scale.set(2, 4, 0.2);
+  g.scene.add(wall);
+  g.scene.updateMatrixWorld(true);
+  g.walls = [wall];
+  g.obstacles = [new T.Box3().setFromObject(wall)];
+  g.navTime = 0;
+  g.updateEnemies(0.1);
+  assert.equal(g.state.health, 70, 'cover blocks damage during continuous swings');
+  let hits = 0, detoured = false;
+  g.damagePlayer = (amount) => {
+    hits++;
+    assert.equal(amount, 30);
+    assert.equal(g.hasEnemyMeleeSight(e), true);
+    assert.ok(Math.hypot(e.root.position.x, e.root.position.z) <= 3.9);
+  };
+  for (let i = 0; i < 60; i++) {
+    g.updateEnemies(0.05);
+    assert.equal(g.blocked(e.root.position.x, e.root.position.z, 0.45), false);
+    if (Math.abs(e.root.position.x) > 1.4) detoured = true;
+  }
+  assert.equal(detoured, true, 'existing navigation steers around the wall');
+  assert.ok(hits > 0, 'attacks resume after rounding cover');
+});
+
+test('Scrake rage lasts beyond Freshpound timers, freezes on pause, resumes, and stops on death', (t) => {
+  const g = fixture(t), e = spawnAt(g, 2, 0, -5);
+  g.state.health = 10000;
+  g.damageEnemy(e, e.hp * 0.96, e.root.position);
+  const speed = e.speed;
+  for (let i = 0; i < 150; i++) g.updateEnemies(0.1);
+  assert.equal(e.scrakeEnraged, true);
+  assert.equal(e.speed, speed);
+  assert.equal(e.ragePhase, 'calm', 'Freshpound rage phases are not used');
+  const snapshot = () => ({
+    position: e.root.position.toArray(), phase: e.phase, attack: e.attack,
+    arm: e.arms[1].rotation.toArray(), leg: e.legs[0].rotation.toArray(),
+    torso: e.torso.rotation.toArray(), chain: e.sawChain.children.map((part) => part.visible),
+    health: g.state.health,
+  });
+  const paused = snapshot();
+  g.state.mode = 'paused';
+  g.updateEnemies(1);
+  assert.deepEqual(snapshot(), paused);
+  g.state.mode = 'playing';
+  g.updateEnemies(0.1);
+  assert.notEqual(e.phase, paused.phase);
+  assert.equal(e.scrakeEnraged, true);
+  g.damageEnemy(e, e.hp, e.root.position);
+  assert.equal(e.dead, true);
+  const dead = snapshot();
+  g.updateEnemies(0.5);
+  assert.deepEqual(snapshot(), dead, 'death stops pursuit, attacks, and rage animation');
+  assert.equal(g.enemies.includes(e), false);
+});

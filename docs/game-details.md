@@ -171,10 +171,18 @@ Throw with `G`. Bounces off walls and floors, detonating **1.0 second** after le
 | Crawler | 1 | 60 | 9 | ₡55 | Low-profile crawling torso; aim low. |
 | Gorefast | 1 | 90 | 10 | ₡85 | High running speed armed with a right-arm blade. |
 | Bloat | 2 | 130 | 12 | ₡110 | Spits 3 bile projectiles (20 m/s) at 3–19m after 0.8s telegraph. |
-| Scrake | 3 | 1,000 | 30 | ₡130 | Chainsaw horizontal swing with 4.1m reach. Kite with sprint. |
+| Scrake | 3 | 1,000 | 30 | ₡130 | Chainsaw horizontal swing with 3.9m reach. Kite with sprint. |
 | Husk | 3 | 240 | 28 | ₡160 | Cannon glows orange for 0.9s, then fires 60 m/s fireball (4–27m range). |
 | Siren | 4 | 150 | 20 DPS | ₡120 | Emaciated scream specialist. Radiates a 8.7m acoustic shockwave dealing armor-piercing damage directly to health. Blocked by solid walls and cover. |
 | Freshpound | 5 | 3,000 | 42 | ₡450 | Dual drills (3.0m reach). Every 10s, flashes chest core red, roars 1s, then charges at 10× speed for 3s. |
+
+### Scrake: Near-Death Rage
+
+Normal chainsaw attacks raise, sweep, and recover over about 0.3s. Melee retains 30 base damage, a 1.15s attack interval, and 3.9m reach.
+
+When damage leaves a living Scrake at or below 10% of its maximum HP at spawn, including wave and difficulty scaling, it immediately enrages without a windup. Lethal damage kills it without triggering rage. Rage lasts until death, with no timeout, and pursuit speed becomes 3.5× its normal speed, including wave and difficulty scaling.
+
+The enraged Scrake uses existing obstacle avoidance and keeps pursuing within melee range, limiting movement at contact distance to avoid passing through the player. It leans forward, runs, and continuously swings its chainsaw broadly from side to side, including while held at contact distance. Damage remains independent of the animation: the existing attack interval, reach, cover checks, and height checks still apply, with no additional hits per visual swing. Pausing freezes movement, attacks, and animation; resuming preserves rage. This behavior is independent of Freshpound rage.
 
 ### Siren: Acoustic Area Denial
 
