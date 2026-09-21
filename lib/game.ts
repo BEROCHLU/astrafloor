@@ -3528,12 +3528,12 @@ export class Game {
       (throwing ? 0.45 : 0) -
       (this.reloadTime > 0 ? Math.sin(s.reload * Math.PI) * 0.35 : 0) +
       Math.sin(this.elapsed * 1.5) * (ads ? 0.0008 : 0.003);
-    const targetZ = (ads ? -0.38 : -0.42) + this.recoil * (ads ? 0.45 : 1);
+    const targetZ = (ads ? -0.38 : -0.42) + this.recoil * (ads ? 0.32 : 1);
     this.gun.position.x = T.MathUtils.lerp(this.gun.position.x, targetX, 0.2);
     this.gun.position.y = T.MathUtils.lerp(this.gun.position.y, targetY, 0.2);
     this.gun.position.z = T.MathUtils.lerp(this.gun.position.z, targetZ, 0.25);
     this.gun.rotation.set(
-      this.recoil * (ads ? 0.32 : 1.8),
+      this.recoil * (ads ? 0.22 : 1.8),
       this.meleeTime > 0.35 ? -0.6 : this.viewRecoil.modelYaw * (ads ? 0.12 : 0.7),
       this.reloadTime > 0 ? -0.4 : this.isCyclingBolt() ? -0.12 : ads ? 0 : this.viewRecoil.modelYaw * 0.4,
     );
@@ -3550,10 +3550,10 @@ export class Game {
       this.cooldown >
         this.getWeapon().rate -
           Math.min(this.getWeapon().rate * 0.55, ads ? 0.038 : 0.055);
-    this.flash.scale.setScalar(ads ? 0.45 : 1);
+    this.flash.scale.setScalar(ads ? 0.32 : 1);
     this.animateBolt();
     this.flash.rotation.z = Math.random() * 6;
-    this.flashLight.intensity = this.flash.visible ? (ads ? 1.8 : 8) : 0;
+    this.flashLight.intensity = this.flash.visible ? (ads ? 1.2 : 8) : 0;
     if (s.mode !== 'paused') {
       for (let i = this.corpses.length - 1; i >= 0; i--) {
         const c = this.corpses[i];

@@ -16,7 +16,7 @@ jobs:
   deploy:
     if: github.repository == 'BEROCHLU/astrafloor' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Check out source
         uses: actions/checkout@v7
