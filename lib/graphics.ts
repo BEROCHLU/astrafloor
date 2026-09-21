@@ -7,6 +7,7 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { EnemyMaterials } from './enemy-materials.ts';
+import { EnvironmentMaterials } from './environment-materials.ts';
 import { createHansModel, bindHansRig, type HansRig } from './hans-model.ts';
 import { createBloatModel } from './bloat-model.ts';
 import { createFreshpoundModel } from './freshpound-model.ts';
@@ -73,6 +74,7 @@ export class Graphics {
   maps = new Map<Surface, Maps>();
   surfaces = new Map<string, T.MeshStandardMaterial>();
   enemyMaterials = new EnemyMaterials((kind) => this.createMaps(kind));
+  environmentMaterials = new EnvironmentMaterials(() => this.createMaps('concrete'));
   models = new Map<number, T.Group>();
   weapons = new Map<number, T.Group>();
   areaEffects = new Map<string, T.Group>();
@@ -1048,6 +1050,7 @@ export class Graphics {
 
   dispose() {
     this.enemyMaterials.dispose();
+    this.environmentMaterials.dispose();
     this.environment?.dispose();
     this.geometries.forEach((g) => g.dispose());
     this.materials.forEach((m) => m.dispose());

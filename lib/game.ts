@@ -1,5 +1,7 @@
 import * as T from 'three';
 import { Graphics, type EnemyRig, type Quality } from './graphics.ts';
+import { environmentBoxGeometry, type EnvironmentSurface } from './environment-materials.ts';
+import { addEnvironmentDetails } from './environment-details.ts';
 import { WeaponRecoil, RECOIL_PROFILES, G18C_RECOIL } from './recoil.ts';
 import { HANS, HansEncounter, type BossSnapshot } from './hans.ts';
 import { SIREN, SirenAttack, replaceSirenSlots } from './siren.ts';
@@ -385,6 +387,7 @@ export class Game {
     this.scene.fog = new T.FogExp2(0x162a31, 0.023);
     this.scene.add(new T.HemisphereLight(0x8bc5dc, 0x28261e, 0.8));
     this.graphics.environmentLighting(this.renderer, this.scene);
+    this.graphics.environmentMaterials.preload(this.renderer.capabilities.getMaxAnisotropy());
     const moon = this.moon;
     moon.position.set(-14, 28, 8);
     moon.castShadow = true;
@@ -514,15 +517,21 @@ export class Game {
   }
   buildWorld() {
     const concrete = this.graphics.surface('concrete', 0x75817b, 2),
-      wall = this.graphics.surface('concrete', 0x647676, 8, 3),
       dark = this.mat(0x18262b, 0.7, 0.45),
       rust = this.graphics.surface('metal', 0x805039, 2),
       yellow = this.mat(0xb69843, 0.4, 0.65),
       steel = this.graphics.surface('metal', 0x899d9b),
       light = this.mat(0xe3f7e6, 0.2, 0.3, 0xaeeccd);
-    const floor = this.graphics.surface('concrete', 0x748180, 20);
-    floor.roughness = 0.76;
-    this.box(this.scene, 0, -0.25, 0, 64, 0.5, 64, floor);
+    const concreteBox = (
+      kind: EnvironmentSurface, x: number, y: number, z: number,
+      w: number, h: number, d: number, solid = false,
+    ) => {
+      const mesh = this.box(this.scene, x, y, z, w, h, d,
+        this.graphics.environmentMaterials.surface(kind), solid);
+      mesh.geometry = this.graphics.geometry(environmentBoxGeometry(mesh.scale, kind));
+      return mesh;
+    };
+    concreteBox('floor', 0, -0.25, 0, 64, 0.5, 64);
     const radial = this.graphics.radialTexture();
     this.contactMaterial = this.graphics.material(
       new T.MeshBasicMaterial({
@@ -564,38 +573,15 @@ export class Game {
       this.glows.push(sprite);
       this.scene.add(sprite);
     };
-    const puddleMaterial = this.graphics.material(
-      new T.MeshStandardMaterial({
-        color: 0x354c52,
-        metalness: 0.32,
-        roughness: 0.12,
-        transparent: true,
-        opacity: 0.55,
-        normalMap: this.graphics.createMaps('metal').normalMap,
-        normalScale: new T.Vector2(0.04, 0.04),
-        depthWrite: false,
-      }),
-    );
-    const puddleGeometry = this.graphics.geometry(new T.CircleGeometry(1, 22));
     for (let n = -30; n <= 30; n += 4) {
       this.box(this.scene, n, 0.005, 0, 0.022, 0.01, 63, dark);
       this.box(this.scene, 0, 0.006, n, 63, 0.01, 0.022, dark);
     }
-    for (let i = 0; i < 24; i++) {
-      const p = new T.Mesh(puddleGeometry, puddleMaterial);
-      p.rotation.x = -Math.PI / 2;
-      p.scale.set(1 + Math.random() * 3, 0.5 + Math.random() * 1.5, 1);
-      p.position.set(
-        (Math.random() - 0.5) * 56,
-        0.013,
-        (Math.random() - 0.5) * 56,
-      );
-      this.scene.add(p);
-    }
-    this.box(this.scene, 0, 6, -32, 66, 12, 2, wall, true);
-    this.box(this.scene, -32, 6, 0, 2, 12, 64, wall, true);
-    this.box(this.scene, 32, 6, 0, 2, 12, 64, wall, true);
-    this.box(this.scene, 0, 6, 32, 64, 12, 2, wall, true);
+    concreteBox('wall', 0, 6, -32, 66, 12, 2, true);
+    concreteBox('wall', -32, 6, 0, 2, 12, 64, true);
+    concreteBox('wall', 32, 6, 0, 2, 12, 64, true);
+    concreteBox('wall', 0, 6, 32, 64, 12, 2, true);
+    addEnvironmentDetails(this.scene, this.graphics);
     for (let i = -28; i <= 28; i += 4) {
       this.box(this.scene, i, 6, -30.9, 0.15, 12, 0.12, steel);
       this.box(this.scene, -30.9, 6, i, 0.12, 12, 0.15, steel);
@@ -3629,7 +3615,7 @@ export class Game {
           geometry.add(o.geometry);
         const m = Array.isArray(o.material) ? o.material : [o.material];
         m.forEach((x) => {
-          if (!this.graphics.materials.has(x)) materials.add(x);
+          if (!this.graphics.materials.has(x) && !this.graphics.environmentMaterials.owns(x)) materials.add(x);
         });
       }
     });
