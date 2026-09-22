@@ -95,7 +95,7 @@ export default function Home() {
     [difficulty, setDifficulty] = useState<'normal' | 'hard'>('normal'),
     [confirmReturnToTitle, setConfirmReturnToTitle] = useState(false),
     [debugWave, setDebugWave] = useState<number>(1),
-    [debugCash, setDebugCash] = useState<number>(20000),
+    [debugCash, setDebugCash] = useState<number>(15000),
     [debugMinHp, setDebugMinHp] = useState<boolean>(false);
   const maxWave = 7;
   const currentDebugWave = Math.min(debugWave, maxWave);
@@ -277,7 +277,7 @@ export default function Home() {
               <span>
                 <kbd>F8</kbd> DEBUG
               </span>
-              <span className="version-label">v0.1.0</span>
+              <span className="version-label">v0.3</span>
             </div>
           </footer>
         </section>
@@ -373,31 +373,20 @@ export default function Home() {
             <div className="debug-config-row">
               <div className="debug-row-header">
                 <span className="debug-label">STARTING CREDITS</span>
-                <span className="debug-sublabel">Max ₡999,000</span>
+                <span className="debug-sublabel">Max ₡30,000</span>
               </div>
               <div className="debug-cash-controls">
-                <button
-                  type="button"
-                  className="debug-stepper-btn"
-                  onClick={() => setDebugCash((c) => Math.max(0, c - 10000))}
-                >
-                  -10k
-                </button>
+                <input
+                  type="range"
+                  className="debug-cash-slider"
+                  min={0}
+                  max={30000}
+                  step={1000}
+                  value={debugCash}
+                  onChange={(e) => setDebugCash(Number(e.target.value))}
+                  aria-label="Starting credits"
+                />
                 <span className="debug-cash-display">₡ {debugCash.toLocaleString()}</span>
-                <button
-                  type="button"
-                  className="debug-stepper-btn"
-                  onClick={() => setDebugCash((c) => Math.min(999000, c + 10000))}
-                >
-                  +10k
-                </button>
-                <button
-                  type="button"
-                  className="debug-reset-btn"
-                  onClick={() => setDebugCash(20000)}
-                >
-                  RESET
-                </button>
               </div>
             </div>
 
