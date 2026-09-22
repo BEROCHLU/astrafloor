@@ -1,12 +1,11 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import {
   Crosshair,
   ArrowUpRight,
   Volume2,
   VolumeX,
   Shield,
-  Skull,
   Heart,
   Target,
   Pause,
@@ -39,13 +38,8 @@ function MusicOff({ size = 18 }: { size?: number }) {
 import { Button } from '@/components/ui/button';
 import { Game, MEDICAL_KIT, type Snapshot } from '@/lib/game';
 import { registerGameTools, type Registry } from '@/lib/game-tools';
-import type { HansAction } from '@/lib/hans';
-const bossActions: Record<HansAction, string> = {
-  approach: 'PURSUING', 'rifle-windup': 'RIFLES READY — TAKE COVER', rifle: 'DUAL MKb42 FIRE',
-  'gas-windup': 'GAS GRENADES — KEEP MOVING', 'dash-windup': 'DASH INCOMING', dash: 'SPRINTING',
-  'leap-windup': 'CLAW LEAP — DODGE SIDEWAYS', leap: 'CLAW ATTACK', recover: 'RECOVERING',
-  stunned: 'CHARGE DEPLETED — DAMAGE ×1.5',
-};
+import { GameUiStore } from '@/lib/game-ui-store';
+import { CombatHud, DamageOverlay } from '@/components/game-hud';
 const initial: Snapshot = {
   bossDebug: false,
   debugMinHp: false,
@@ -88,8 +82,9 @@ const initial: Snapshot = {
 export default function Home() {
   const host = useRef<HTMLDivElement>(null),
     engine = useRef<Game | null>(null);
-  const [s, setS] = useState(initial),
-    [ready, setReady] = useState(false),
+  const [ui] = useState(() => new GameUiStore(initial));
+  const s = useSyncExternalStore(ui.subscribe, ui.getMenuSnapshot, ui.getServerSnapshot);
+  const [ready, setReady] = useState(false),
     [error, setError] = useState(''),
     [muted, setMuted] = useState(false),
     [difficulty, setDifficulty] = useState<'normal' | 'hard'>('normal'),
@@ -105,7 +100,9 @@ export default function Home() {
     setReady(false);
     setError('');
     try {
-      const g = new Game(host.current, setS);
+      const g = new Game(host.current, (snapshot) => {
+        if (!cancelled) ui.publish(snapshot);
+      });
       const cleanup = registerGameTools(
         g,
         (document as Document & { modelContext?: Registry }).modelContext,
@@ -127,7 +124,7 @@ export default function Home() {
         'Failed to initialize 3D display. Please open in a WebGL-compatible browser like Chrome or Edge.',
       );
     }
-  }, []);
+  }, [ui]);
   const start = () => {
     if (!ready || error) return;
     engine.current?.start(difficulty, {
@@ -142,7 +139,7 @@ export default function Home() {
     <main className={`game-shell mode-${s.mode}`}>
       <div ref={host} className="world" aria-label="3D Zombie Survival Game" />
       <div className="vignette" />
-      <div className="damage" style={{ opacity: s.hurt * 0.7 }} />
+      <DamageOverlay store={ui} />
       <header className="topbar">
         <div className="wordmark">
           <Crosshair size={21} />
@@ -277,7 +274,7 @@ export default function Home() {
               <span>
                 <kbd>F8</kbd> DEBUG
               </span>
-              <span className="version-label">v0.3</span>
+              <span className="version-label">v0.4</span>
             </div>
           </footer>
         </section>
@@ -435,127 +432,7 @@ export default function Home() {
           </div>
         </div>
       )}
-      {active && (
-        <>
-          {s.scoped && (
-            <div className="scope-overlay" aria-hidden="true">
-              <div className="scope-lens">
-                <i className="scope-reticle" />
-                <span>SR-3 / 5×</span>
-              </div>
-            </div>
-          )}
-          <div className="wave-panel">
-            <span className="eyebrow">SURVIVE THE NIGHT</span>
-            <div>
-              {s.wave === 7 ? 'BOSS' : 'WAVE'} <b>{String(s.wave).padStart(2, '0')}</b>
-              <small> / 07</small>
-            </div>
-            <p>
-              <Skull size={15} /> {s.remaining} REMAINING
-            </p>
-          </div>
-          {s.boss && (
-            <div className={`boss-panel ${s.boss.action === 'stunned' ? 'boss-stunned' : ''}`} aria-label="Hans Volter status">
-              <div className="boss-heading">
-                <b>{s.boss.name}</b>
-                <span>PHASE {s.boss.phase} / 3</span>
-              </div>
-              <div className="boss-health" role="progressbar" aria-label="Boss health" aria-valuemin={0} aria-valuemax={s.boss.maxHealth} aria-valuenow={Math.ceil(s.boss.health)}>
-                <i style={{ width: `${s.boss.health / s.boss.maxHealth * 100}%` }} />
-              </div>
-              <div className="boss-charge-label">
-                <span>CHARGE {Math.ceil(s.boss.energy)}%</span>
-                <span>{Math.ceil(s.boss.health).toLocaleString()} HP</span>
-              </div>
-              <div className="boss-charge" role="progressbar" aria-label="Boss charge" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.ceil(s.boss.energy)}>
-                <i style={{ width: `${s.boss.energy}%` }} />
-              </div>
-              <p>{bossActions[s.boss.action]}</p>
-            </div>
-          )}
-          <div className="cash-panel">
-            <span>CREDITS</span>
-            <b>₡ {s.cash.toLocaleString()}</b>
-            <small>{s.kills} KILLS</small>
-          </div>
-          <div className={`crosshair ${s.hit > 0 ? 'hit' : ''}`} hidden={(s.aiming || s.scoped) && s.hit <= 0}>
-            <i />
-            <i />
-            <i />
-            <i />
-          </div>
-          {s.message && (
-            <div className="game-message" role="status">
-              {s.message}
-            </div>
-          )}
-          {(s.reload > 0 || s.bolt > 0) && (
-            <div className="reload-indicator">
-              {s.reload > 0 ? 'RELOADING' : 'CYCLING BOLT'}
-              <div>
-                <i style={{ width: `${(1 - (s.reload || s.bolt)) * 100}%` }} />
-              </div>
-            </div>
-          )}
-          <div className="vitals">
-            <div className="health-label">
-              <Heart size={20} />
-              <b>{Math.ceil(s.health)}</b>
-              <span> / 100</span>
-              {s.debugMinHp && <span className="debug-minhp-tag">MIN HP 1</span>}
-              <Shield size={17} />
-              <strong>{Math.ceil(s.armor)}</strong>
-            </div>
-            <div className="armor-bar">
-              <i
-                style={{
-                  width: `${Math.min(100, Math.max(0, s.maxArmor > 0 ? (s.armor / s.maxArmor) * 100 : s.armor))}%`,
-                }}
-              />
-            </div>
-            <div className="health-bar">
-              <i style={{ width: `${s.health}%` }} />
-            </div>
-            <div className="stamina-bar">
-              <i style={{ width: `${s.stamina}%` }} />
-            </div>
-            <p>
-              <kbd>Q</kbd>{' '}
-              MEDKIT {s.medicalKits}/{MEDICAL_KIT.max}
-              {s.healCooldown > 0 ? ` / ${Math.ceil(s.healCooldown)}s` : ''}
-              <span>
-                <kbd>G</kbd> × {s.grenades}
-              </span>
-            </p>
-          </div>
-          <div className="ammo-panel">
-            <span>
-              {s.weapon}
-              {s.level > 0 && s.weapon !== 'RPG-7' ? ` +${s.level}` : ''}
-            </span>
-            <div>
-              <b className={s.ammo < 4 ? 'red-text' : ''}>
-                {String(s.ammo).padStart(2, '0')}
-              </b>
-              <small>/ {s.reserve}</small>
-            </div>
-            <p>
-              <kbd>1</kbd> {s.g18c ? 'G18C' : 'PISTOL'} <kbd>2</kbd> RIFLE <kbd>3</kbd> SNIPER
-              {s.owned?.[3] && (
-                <>
-                  {' '}
-                  <kbd>4</kbd> RPG-7
-                </>
-              )}
-            </p>
-          </div>
-          <div className="play-hint">
-            RIGHT CLICK: AIM / SCOPE <span>•</span> {s.katana ? 'V: KATANA' : 'V: MELEE'} <span>•</span>{' '}
-            SPACE: JUMP <span>•</span> ESC: PAUSE
-          </div>
-        </>
-      )}
+      {active && <CombatHud store={ui} />}
       {s.mode === 'paused' && (
         <div className="modal-scrim">
           <section className="pause-card">

@@ -1,6 +1,8 @@
 import * as T from 'three';
 import { Graphics, type EnemyRig } from './graphics.ts';
 import { prepareWeaponResources } from './weapon-preparation.ts';
+import { NavigationGrid } from './navigation.ts';
+import { EnemySpatialGrid } from './enemy-spatial-grid.ts';
 import { environmentBoxGeometry, type EnvironmentSurface } from './environment-materials.ts';
 import { addEnvironmentDetails } from './environment-details.ts';
 import { WeaponRecoil, RECOIL_PROFILES, G18C_RECOIL } from './recoil.ts';
@@ -358,6 +360,8 @@ export class Game {
   events: Array<() => void> = [];
   nav = new Int16Array(61 * 61);
   navTime = 0;
+  private navigation?: NavigationGrid;
+  private enemyGrid?: EnemySpatialGrid<Enemy>;
   moon = new T.DirectionalLight(0xa5cbe1, 2.4);
   flashlight = new T.SpotLight(0xcfe5da, 15, 24, 0.48, 0.65, 2);
   gunAction?: T.Object3D;
@@ -483,6 +487,7 @@ export class Game {
     if (solid) {
       mesh.updateMatrixWorld();
       this.obstacles.push(new T.Box3().setFromObject(mesh));
+      this.invalidateNavigation();
       this.walls.push(mesh);
     }
     return mesh;
@@ -516,6 +521,7 @@ export class Game {
     return new T.Mesh(new T.PlaneGeometry(width, height), mat);
   }
   buildWorld() {
+    this.invalidateNavigation();
     const concrete = this.graphics.surface('concrete', 0x75817b, 2),
       dark = this.mat(0x18262b, 0.7, 0.45),
       rust = this.graphics.surface('metal', 0x805039, 2),
@@ -745,6 +751,7 @@ export class Game {
           new T.Vector3(x + 0.5, 1.35, z + 0.5),
         ),
       );
+      this.invalidateNavigation();
       this.walls.push(cyl);
       this.box(this.scene, x, 0.7, z + 0.49, 0.6, 0.3, 0.02, yellow);
     }
@@ -1683,6 +1690,7 @@ export class Game {
       this.scene.remove(enemy.root, enemy.shadow);
     this.corpses = [];
     this.enemies = [];
+    this.enemyGrid?.clear();
     for (const p of this.particles) this.scene.remove(p.mesh);
     this.particles = [];
     this.difficultyMode = 'normal';
@@ -1774,6 +1782,7 @@ export class Game {
       this.scene.remove(enemy.root, enemy.shadow);
     this.corpses = [];
     this.enemies = [];
+    this.enemyGrid?.clear();
     for (const p of this.particles) this.scene.remove(p.mesh);
     this.particles = [];
     this.initAudio();
@@ -2459,6 +2468,7 @@ export class Game {
     this.burst(point, 0x8b2520, 6, 2);
     if (e.hp <= 0) {
       e.dead = true;
+      this.enemyGrid?.remove(e);
       e.siren?.cancel();
       if (e.kind === HANS.kind) this.clearEnemyProjectiles();
       if (e.cannonCharge) e.cannonCharge.visible = false;
@@ -2902,47 +2912,15 @@ export class Game {
     }
     this.pending--;
   }
+  /** Call after changing obstacle bounds; both occupancy and the distance field become stale. */
+  invalidateNavigation() {
+    this.navigation?.invalidate();
+    this.navTime = 0;
+  }
   updateNavigation() {
-    this.nav.fill(-1);
-    const blocked = new Uint8Array(61 * 61);
-    for (let z = 0; z < 61; z++)
-      for (let x = 0; x < 61; x++)
-        if (this.blocked(x - 30, z - 30, 0.5)) blocked[z * 61 + x] = 1;
-    const px = T.MathUtils.clamp(
-        Math.round(this.camera.position.x) + 30,
-        0,
-        60,
-      ),
-      pz = T.MathUtils.clamp(Math.round(this.camera.position.z) + 30, 0, 60),
-      start = pz * 61 + px;
-    const q = [start];
-    this.nav[start] = 0;
-    for (let h = 0; h < q.length; h++) {
-      const n = q[h],
-        x = n % 61,
-        z = Math.floor(n / 61);
-      for (const [dx, dz] of [
-        [1, 0],
-        [-1, 0],
-        [0, 1],
-        [0, -1],
-      ]) {
-        const nx = x + dx,
-          nz = z + dz,
-          j = nz * 61 + nx;
-        if (
-          nx < 0 ||
-          nx > 60 ||
-          nz < 0 ||
-          nz > 60 ||
-          blocked[j] ||
-          this.nav[j] >= 0
-        )
-          continue;
-        this.nav[j] = this.nav[n] + 1;
-        q.push(j);
-      }
-    }
+    this.navigation ??= new NavigationGrid(this.nav);
+    this.navigation.update(this.camera.position.x, this.camera.position.z,
+      (x, z) => this.blocked(x, z, 0.5));
   }
   clearEnemyProjectiles() {
     this.hans?.clearHazards();
@@ -3142,6 +3120,7 @@ export class Game {
     const travel = e.speed * FRESHPOUND_RAGE.speedMultiplier * dt;
     const steps = Math.max(1, Math.ceil(travel / 0.2));
     const step = e.chargeDirection.clone().multiplyScalar(travel / steps);
+    const grid = this.enemyGrid!;
     for (let i = 0; i <= steps; i++) {
       const playerDist = Math.hypot(pos.x - this.camera.position.x, pos.z - this.camera.position.z);
       if (playerDist <= 2.8 && this.feet < 2.5 && this.hasEnemyMeleeSight(e)) {
@@ -3151,7 +3130,8 @@ export class Game {
       }
       if (i === steps) break;
       // Freshpound charges through other enemies, knocking them outward so only solid cover or the player stops the charge.
-      for (const other of this.enemies) {
+      for (const index of grid.query(pos.x + step.x, pos.z + step.z)) {
+        const other = grid.get(index);
         if (other === e || other.dead) continue;
         const ox = other.root.position.x - (pos.x + step.x);
         const oz = other.root.position.z - (pos.z + step.z);
@@ -3161,6 +3141,7 @@ export class Game {
           if (push.lengthSq() === 0) push.set(-step.z, 0, step.x).normalize();
           const force = (1.7 - odist) + 0.6;
           this.move(other.root.position, push.x * force, push.z * force, 0.45);
+          grid.update(other);
         }
       }
       if (this.blocked(pos.x + step.x, pos.z + step.z, 0.5)) {
@@ -3169,6 +3150,7 @@ export class Game {
       }
       pos.x += step.x;
       pos.z += step.z;
+      grid.update(e);
     }
     return true;
   }
@@ -3182,10 +3164,13 @@ export class Game {
       this.updateNavigation();
       this.navTime = 0.55;
     }
+    const grid = this.enemyGrid ??= new EnemySpatialGrid<Enemy>();
+    grid.rebuild(this.enemies);
     for (const e of this.enemies) {
       if (e.dead) continue;
       if (e.kind === HANS.kind) {
         this.hans?.update(dt);
+        grid.update(e);
         if (this.state.mode !== 'playing') return;
         continue;
       }
@@ -3250,7 +3235,8 @@ export class Game {
         const len = Math.hypot(dx, dz) || 1;
         let vx = dx / len,
           vz = dz / len;
-        for (const other of this.enemies) {
+        for (const index of grid.query(pos.x, pos.z)) {
+          const other = grid.get(index);
           if (other === e || other.dead) continue;
           const sx = pos.x - other.root.position.x,
             sz = pos.z - other.root.position.z,
@@ -3266,6 +3252,7 @@ export class Game {
           travel = Math.min(travel, Math.max(0, distance - SCRAKE_RAGE.contactDistance) / (Math.hypot(vx, vz) || 1));
         }
         this.move(pos, vx * travel, vz * travel, 0.45);
+        grid.update(e);
         e.root.rotation.y = Math.atan2(dx, dz);
       }
       if (scrakeRaging) {
@@ -3570,6 +3557,7 @@ export class Game {
     this.raf = requestAnimationFrame(this.frame);
   };
   dispose() {
+    this.enemyGrid?.clear();
     this.clearEnemyProjectiles();
     this.hans?.dispose();
     this.clearGrenades();
