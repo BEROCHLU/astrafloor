@@ -511,17 +511,40 @@ h1 i {
   left: 4%;
   right: 4%;
   border-top: 1px solid #cbd6cb26;
-  height: 75px;
+  min-height: 75px;
   display: flex;
-  gap: 28px;
+  justify-content: space-between;
   align-items: center;
+  gap: 24px;
   color: #a3afab;
   font-size: 12px;
+  padding: 10px 0;
+  box-sizing: border-box;
 }
-.control-strip > span {
+.control-strip-left {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.control-strip-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.control-strip span {
   display: flex;
   align-items: center;
   gap: 9px;
+}
+.version-label {
+  font: 11px monospace;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  color: #798a84;
 }
 kbd {
   font: 10px monospace;
@@ -1105,7 +1128,7 @@ kbd {
     font-size: 13px;
   }
   .control-strip {
-    height: 60px;
+    min-height: 60px;
   }
 }
 @media (max-width: 1000px) {
@@ -1113,9 +1136,15 @@ kbd {
     left: 6%;
   }
   .control-strip {
-    gap: 15px;
+    gap: 12px;
   }
-  .control-strip > span {
+  .control-strip-left {
+    gap: 14px;
+  }
+  .control-strip-right {
+    gap: 10px;
+  }
+  .control-strip span {
     gap: 5px;
   }
   .solo {

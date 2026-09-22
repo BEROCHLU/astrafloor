@@ -247,24 +247,38 @@ export default function Home() {
             {error && <p role="alert">{error}</p>}
           </div>
           <footer className="control-strip">
-            <span>
-              <kbd>W A S D</kbd> MOVE
-            </span>
-            <span>
-              <kbd>MOUSE</kbd> AIM / SHOOT
-            </span>
-            <span>
-              <kbd>R</kbd> RELOAD
-            </span>
-            <span>
-              <kbd>SHIFT</kbd> SPRINT
-            </span>
-            <span>
-              <kbd>Q</kbd> HEAL
-            </span>
-            <span>
-              <kbd>G</kbd> GRENADE
-            </span>
+            <div className="control-strip-left">
+              <span>
+                <kbd>W A S D</kbd> MOVE
+              </span>
+              <span>
+                <kbd>1 2 3 4</kbd> WEAPON
+              </span>
+              <span>
+                <kbd>MOUSE</kbd> AIM / SHOOT
+              </span>
+              <span>
+                <kbd>SHIFT</kbd> SPRINT
+              </span>
+              <span>
+                <kbd>R</kbd> RELOAD
+              </span>
+              <span>
+                <kbd>Q</kbd> HEAL
+              </span>
+              <span>
+                <kbd>G</kbd> GRENADE
+              </span>
+              <span>
+                <kbd>V</kbd> MELEE
+              </span>
+            </div>
+            <div className="control-strip-right">
+              <span>
+                <kbd>F8</kbd> DEBUG
+              </span>
+              <span className="version-label">v0.1.0</span>
+            </div>
           </footer>
         </section>
       )}
