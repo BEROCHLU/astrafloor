@@ -1,8 +1,8 @@
 import * as T from 'three';
 import type { Graphics } from './graphics.ts';
 
-/** Dark, clean pistol body. Sights are supplied unchanged by Graphics. */
-export function createH1Body(g: Graphics, root: T.Group, action: T.Group) {
+/** One shared finish for H1 and G18C, owned and disposed by Graphics. */
+export function createH1Materials(g: Graphics) {
   // Fine polymer grain, without the large cloth weave and stains of the shared tiles.
   const size = 128, pixels = new Uint8Array(size * size * 4);
   let seed = 41;
@@ -27,6 +27,13 @@ export function createH1Body(g: Graphics, root: T.Group, action: T.Group) {
   const grip = finish(0x111112, 0, 0.98, true);
   const hardware = finish(0x303033, 0.4, 0.78);
   const recess = finish(0x080809, 0, 1);
+  return { slide, frame, grip, hardware, recess };
+}
+
+/** Dark, clean pistol body. Sights are supplied unchanged by Graphics. */
+export function createH1Body(g: Graphics, root: T.Group, action: T.Group) {
+  const { slide, frame, grip, hardware, recess } =
+    g.pistolMaterials ??= createH1Materials(g);
   const box = (p: T.Object3D, m: T.Material, x: number, y: number, z: number,
     w: number, h: number, d: number) => g.mesh(p, g.box, m, x, y, z, w, h, d);
   const profile = (p: T.Object3D, m: T.Material, points: number[][], width: number) => {

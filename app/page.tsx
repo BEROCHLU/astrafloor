@@ -101,6 +101,9 @@ export default function Home() {
   const currentDebugWave = Math.min(debugWave, maxWave);
   useEffect(() => {
     if (!host.current) return;
+    let cancelled = false;
+    setReady(false);
+    setError('');
     try {
       const g = new Game(host.current, setS);
       const cleanup = registerGameTools(
@@ -108,8 +111,13 @@ export default function Home() {
         (document as Document & { modelContext?: Registry }).modelContext,
       );
       engine.current = g;
-      setReady(true);
+      void g.prepareResources().then(() => {
+        if (!cancelled) setReady(true);
+      }).catch(() => {
+        if (!cancelled) setError('Failed to prepare weapons. Please reload the page.');
+      });
       return () => {
+        cancelled = true;
         cleanup();
         g.dispose();
         engine.current = null;
@@ -120,14 +128,16 @@ export default function Home() {
       );
     }
   }, []);
-  const start = () =>
+  const start = () => {
+    if (!ready || error) return;
     engine.current?.start(difficulty, {
       bossDebug: s.bossDebug,
       debugWave: s.bossDebug ? currentDebugWave : undefined,
       debugCash: s.bossDebug ? debugCash : undefined,
       debugMinHp: s.bossDebug ? debugMinHp : undefined,
-    }),
-    active = s.mode === 'playing';
+    });
+  };
+  const active = s.mode === 'playing';
   return (
     <main className={`game-shell mode-${s.mode}`}>
       <div ref={host} className="world" aria-label="3D Zombie Survival Game" />

@@ -1,5 +1,6 @@
 import * as T from 'three';
-import { Graphics, type EnemyRig, type Quality } from './graphics.ts';
+import { Graphics, type EnemyRig } from './graphics.ts';
+import { prepareWeaponResources } from './weapon-preparation.ts';
 import { environmentBoxGeometry, type EnvironmentSurface } from './environment-materials.ts';
 import { addEnvironmentDetails } from './environment-details.ts';
 import { WeaponRecoil, RECOIL_PROFILES, G18C_RECOIL } from './recoil.ts';
@@ -339,6 +340,7 @@ export class Game {
   uiTime = 0;
   raf = 0;
   disposed = false;
+  private resourcesPreparation?: Promise<void>;
   pointerLockRequest = 0;
   difficulty = 1;
   difficultyMode: 'normal' | 'hard' = 'normal';
@@ -356,13 +358,11 @@ export class Game {
   events: Array<() => void> = [];
   nav = new Int16Array(61 * 61);
   navTime = 0;
-  quality: Quality = 'high';
   moon = new T.DirectionalLight(0xa5cbe1, 2.4);
   flashlight = new T.SpotLight(0xcfe5da, 15, 24, 0.48, 0.65, 2);
   gunAction?: T.Object3D;
   gunBoltHand?: T.Object3D;
   contactMaterial?: T.MeshBasicMaterial;
-  glows: T.Sprite[] = [];
   sceneryBatches = { before: 0, after: 0 };
   corpses: Array<{ enemy: Enemy; age: number }> = [];
   previousFrame = 0;
@@ -570,7 +570,6 @@ export class Game {
       const sprite = new T.Sprite(red ? warningHalo : halo);
       sprite.position.set(x, y, z);
       sprite.scale.setScalar(red ? 2.2 : 3.8);
-      this.glows.push(sprite);
       this.scene.add(sprite);
     };
     for (let n = -30; n <= 30; n += 4) {
@@ -845,17 +844,14 @@ export class Game {
     this.katana.visible = false;
     evaluateKatanaMotion(0, this.katana.position, this.katana.quaternion);
   }
-  setQuality(_quality: Quality = 'high') {
-    this.quality = 'high';
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
-    this.moon.castShadow = true;
-    if (this.moon.shadow.mapSize.x !== 2048) {
-      this.moon.shadow.map?.dispose();
-      this.moon.shadow.map = null;
-      this.moon.shadow.mapSize.set(2048, 2048);
-    }
-    this.glows.forEach((g) => (g.visible = true));
-    this.resize();
+  prepareResources(): Promise<void> {
+    if (this.disposed) return Promise.reject(new Error('Game already disposed'));
+    // Defer until the caller can attach error/cleanup handlers; cache both success and failure.
+    this.resourcesPreparation ??= Promise.resolve().then(() => {
+      if (this.disposed) throw new Error('Game already disposed');
+      prepareWeaponResources(this.graphics, this.renderer, this.scene, this.camera, this.gun);
+    });
+    return this.resourcesPreparation;
   }
   resize = () => {
     const w = this.host.clientWidth,

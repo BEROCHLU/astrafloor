@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { createAR2Body } from './ar2-model.ts';
-import { createH1Body } from './h1-model.ts';
+import { createH1Body, type createH1Materials } from './h1-model.ts';
 import { createRPGBody } from './rpg-model.ts';
 import { createSniperBody } from './sniper-model.ts';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
@@ -13,7 +13,6 @@ import { createBloatModel } from './bloat-model.ts';
 import { createFreshpoundModel } from './freshpound-model.ts';
 import { createSirenModel } from './siren-model.ts';
 
-export type Quality = 'high';
 type Surface = 'concrete' | 'metal' | 'cloth' | 'skin';
 type Maps = {
   map: T.DataTexture;
@@ -77,6 +76,7 @@ export class Graphics {
   environmentMaterials = new EnvironmentMaterials(() => this.createMaps('concrete'));
   models = new Map<number, T.Group>();
   weapons = new Map<number, T.Group>();
+  pistolMaterials?: ReturnType<typeof createH1Materials>;
   areaEffects = new Map<string, T.Group>();
   grenadeModel?: T.Group;
   grenadeHandModel?: T.Group;
@@ -710,6 +710,13 @@ export class Graphics {
     return this.weapons.get(index)!.clone(true);
   }
 
+  /** Build every template once; returned clones can be warmed without changing weapon state. */
+  preloadWeapons() {
+    const weapons = new T.Group();
+    for (let index = 0; index < 6; index++) weapons.add(this.createWeapon(index));
+    return weapons;
+  }
+
   createGrenade() {
     if (!this.grenadeModel) {
       const root = new T.Group();
@@ -788,8 +795,6 @@ export class Graphics {
     const root = new T.Group();
     root.name = 'rpg-launcher';
     const steel = this.surface('metal', 0x606867);
-    const glove = this.surface('cloth', 0x192321);
-    const sleeve = this.surface('cloth', 0x394a46);
     createRPGBody(this, root);
     // Compact low-profile iron sights with distinct center aiming dot
     const sightDot = this.material(new T.MeshBasicMaterial({ color: 0x55ff55, toneMapped: false }));
@@ -880,7 +885,6 @@ export class Graphics {
     const black = this.surface('cloth', 0x171e20),
       polymer = this.surface('cloth', 0x3d463f),
       skin = this.surface('skin', 0xa18a73);
-    const green = this.material(new T.MeshBasicMaterial({ color: 0xa9e0a0 }));
     const shape = (
       p: T.Object3D,
       g: T.BufferGeometry,
@@ -927,6 +931,7 @@ export class Graphics {
     }
     // Pistol sights remain separate from the reference-based AR-2 sights.
     if (index === 0 || index === 4) {
+      const green = this.material(new T.MeshBasicMaterial({ color: 0xa9e0a0 }));
       // Low-profile rear sight with open notch (低背・コンパクトな凹型切り欠きリアサイト)
       shape(root, this.rounded, black, 0, 0.112, -0.07, 0.044, 0.005, 0.014);
       shape(root, this.rounded, black, -0.015, 0.119, -0.07, 0.012, 0.01, 0.014);
@@ -935,7 +940,7 @@ export class Graphics {
       shape(root, this.box, green, 0.015, 0.12, -0.062, 0.004, 0.004, 0.002);
 
       // Low-profile front sight post (低背でスリムなセンターポスト)
-      const frontZ = index === 0 || index === 4 ? -0.405 : -0.65;
+      const frontZ = -0.405;
       shape(root, this.rounded, black, 0, 0.117, frontZ, 0.006, 0.014, 0.014);
       shape(root, this.box, green, 0, 0.12, frontZ + 0.008, 0.004, 0.004, 0.002);
     }
