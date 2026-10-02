@@ -3,6 +3,10 @@ name: Deploy to Cloudflare Workers
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.mdx'
+      - 'docs/**'
   workflow_dispatch:
 
 permissions:
